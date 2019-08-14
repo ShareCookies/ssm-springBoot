@@ -1,0 +1,138 @@
+Spring MVC框架介绍
+	Spring MVC基于模型-视图-控制器（Model-View-Controller，MVC）模式实现，
+	Spring MVC用来构建Web应用程序。
+	Spring将请 求在调度Servlet、处理器映射（handler mapping）、控制器以及视图 解析器（view resolver）之间移动
+springMVC处理请求过程：P175
+	跟踪请求：
+		请求是如何从客户端发起，经过Spring MVC中的组件， 最终再返回到客户端的。
+		请求是发起:
+			用户在浏览器中点击链接或提交表单的时候，请求就开始工作了。
+		*Spring MVC处理请求过程：
+			springMVC处理请求的过程.png
+		
+	控制器的选择：
+		I.请求旅程的第一站是Spring的DispatcherServlet。	
+			注：
+				与大多数基于Java的Web框架一样，Spring MVC所有的请求都会通过一个前端控制器Servlet。
+				前端控制器是常用的Web应用程序模式，在这里一个单实例的Servlet将请求委托给应用程序的其他组件来执行实际的处理。
+		II.DispatcherServlet的任务是将请求发送给Spring MVC控制器。
+		DispatcherServlet会查询一个或多个处理器映射（handler mapping） 来确定将请求发送到那个控制器。
+			注：
+				处理器映射会根据请求所携带的URL信息来进行决策。
+	控制器的处理过程：
+		I.到了控制器，请求会卸下其负载（用户提交的信息）并耐心等待控制器处理这些信息。
+		注：
+			设计良好的控制器本身只处理很少甚至不处理工作，而是将业务逻辑委托给一个或多个服务对象进行处理。
+		II.处理完后控制器会将请求连同模型和视图名发送回DispatcherServlet。
+		注：
+			模型:!
+				控制器在完成逻辑处理后，通常会产生一些要返回前端的数据信息，这些信息可被称为模型（model）。
+			视图:
+				非Ajax的话仅仅给前端数据信息是不够的，还得把这些信息与HTML一起整合。
+				所以，信息需要发送给一个视图（view），通常会是JSP。
+		III.DispatcherServlet处理控制器返回的数据：
+			DispatcherServlet将会使用视图解析器（view resolver）来将逻辑视图名与一个特定的视图匹配，它可能是也可能不是JSP。
+			把模型数据交付给视图后，请求的任务就完成了。
+			视图将使用模型数据进行渲染然后输出，这个输出会通过响应对象传递给客户端 。？
+			注：
+				数据时如何交付给视图的？response?
+				视图是如何渲染数据的？jsp自带的?
+				渲染后是把视图转成html，然后通过http协议的响应传递给前端的吗？
+配置DispatcherServlet：
+	1.使用Java将DispatcherServlet配置在Servlet容器中：p177
+		...
+	xml配置servlet和java配置servlet区别：
+		1.如果是将应用部署到Servlet 3.0容器中，那么Spring提供了多种方式来注册Servlet（包括DispatcherServlet）、Filter和Listener，而不必创建web.xml文件。
+		2.但如果你需要将应用部署到不支持Servlet 3.0的容器中（或者你只是希望使用web.xml文件），那么我们完全可以按照传统的方式，通过web.xml配置Spring MVC。
+	注：
+		添加其他的Servlet和Filter：p248
+			...
+		
+启用Spring MVC:p180
+	基于Java进行配置：
+		配置类上加上@EnableWebMvc注解，即可启用springMVC。
+配置视图解析器：p181 p210
+	控制器方法返回的String将会被Spring MVC解读为要渲染的视图名称。
+	DispatcherServlet会要求视图解析器将这个逻辑名称解析为实际的视图。!
+	*视图解析的基础知识：
+		p211
+		
+	使用Spring的JSP库：p216
+		
+编写控制器：
+	编写基本的控制器：
+		...
+	传递模型数据到视图中：
+		例：
+			传递模型数据到视图中.png
+			视图中访问模型数据.png
+	接收请求的输入：
+		p193
+
+	输入的校验：
+		介绍：
+			虽然可以在方法中添加代码来检查参数的合法性，但与其让校验逻辑弄乱我们的处理器方法，
+			还不如使用Spring对Java校验API（Java Validation API，又称JSR-303）的支持。
+		Java校验API所提供的校验注解：
+			p206
+		实现步骤：
+			I.将校验注解添加到域模型的属性上。
+			II.控制器方法参数添加了@Valid注解，这会告知Spring，往该对象上注入的值要满足对象属性上的校验限制。
+			III.控制器方法多加一个Error参数，校验结果将会放入到该对象中。
+			注：
+				即便参数不符合限制，方法依然会被调用。
+				但这些错误可以通过Errors对象进行访问。
+				所以Errors参数要紧跟在带有@Valid注解的参数后面，然后在方法中调用errors.hasErrors()来检查是否有错误。
+		例：
+			检验请求参数.png
+			结合属性文件使用：p223
+	文件上传:
+		1.multipart形式的数据:
+			表单之multipart形式的数据.png
+		I.配置multipart解析器:p255
+			介绍：
+				编写控制器方法处理文件上传之前，我们必须要配置一个multipart解析器，
+				通过它来告诉DispatcherServlet该如何读取multipart请求。
+			？：
+				设置临时文件路径。？
+		II.处理multipart请求：p259
+			编写控制器方法来接收上传的文件。
+			I.最常见的方式就是在某个控制器方法参数上添加@RequestPart注解。
+				1.添加byte数组参数:p259
+					其中一种方式是添加byte数组参数，并为其添加@RequestPart注解。
+				2.添加MultipartFile接口参数:
+				3.添加Part接口参数:p262
+					如果你将应用部署到Servlet 3.0的容器中，那么会有MultipartFile的一个替代方案。
+					Spring MVC也能接受javax.servlet.http.Part作为控制器方法的参数,来接收文件。
+					注：
+						如果在编写控制器方法的时候，通过Part参数的形式接受文件上传，那么就没有必要配置MultipartResolver（multipart解析器）了。
+						只有使用MultipartFile的时候，我们才需要MultipartResolver。？？？
+
+			*注：
+				<form>标签现在将enctype属性设置为multipart/formdata。
+				这会告诉浏览器以multipart数据的形式提交表单，而不是以表单数据的形式进行提交。在multipart中，每个输入域都会对应一个part。
+				
+	处理异常：？
+		？
+			Servlet请求的输出都是一个Servlet响应。
+			如果在请求处理的时候，出现了异常，那它的输出依然会是Servlet响应。
+			所以异常必须要以某种方式转换为响应。
+		Spring提供了多种方式将异常转换为响应：
+			1.特定的Spring异常将会自动映射为指定的HTTP状态码；p264	
+			例：
+				如果DispatcherServlet无法找到适合处理请求的控制器方法，
+				那么将会抛出NoSuchRequestHandlingMethodException异常，最终的结果就是产生404状态码的响应（Not Found）。
+				尽管这些内置的映射是很有用的，但是对于应用所抛出的异常它们就无能为力了。
+
+			2.异常上可以添加@ResponseStatus注解，从而将其映射为某一个HTTP状态码；
+			3.在方法上可以添加@ExceptionHandler注解，使其用来处理异常。
+		控制器中处理抛出的异常：
+			尽管带有@RequestMapping注解的方法可以在自身的代码中处理异常，
+			但是如果我们将异常处理的代码抽取到单独的方法中，那么控制器的代码会整洁得多。
+	控制器通知:
+		P268
+	请求重定向并传递数据：
+		p269
+注:
+	单元测试之控制器P186
+	

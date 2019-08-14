@@ -1,0 +1,27 @@
+参考·：
+	spring实战P65
+1.定义bean：
+	实现方式：
+		1.类上使用@Component注解，定义一个bean
+		2.xml中使用<bean>标签与实际类关联，即可定义一个bean
+	
+2.注入bean：
+	实现方式：
+		1.属性上使用@Autowired或@Resource ，即可向该属性注入bean
+		2.xml中使用<property>和<ref>，且属性有对应的set方法，即可向该属性注入bean
+	 	
+3.扫描组件：
+	介绍：
+		1.只有使用了组件注解，才需要开启组件扫描。
+			注：
+				以上的注解均算组件类型注解
+		2.如果1,2步均使用了xml实现，则无需开启组件扫描。？是1吧
+	组件扫描作用：
+		查找bean，并把bean交给spring的容器管理。
+		注：
+			如果1,2步均使用了xml实现，则bean就已经交给了spring容器管理。
+	实现方式：
+		1.配置启动类上使用@ComponentScan注解，即可启用组件扫描
+		2.XML使用<context:component-scan>启用组件扫描。
+		注：
+			该元素会有与@ComponentScan注解相对应的属性和子元素。

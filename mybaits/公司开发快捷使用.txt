@@ -1,0 +1,17 @@
+字符串拼接：
+	http://www.cnblogs.com/shuaifing/p/7928628.html
+	https://blog.csdn.net/nu7204li/article/details/73411664
+	http://www.mybatis.org/mybatis-3/zh/dynamic-sql.html
+	
+	<where>
+		<if test="query.word!=null and query.word !=''">
+			<bind name="likeStr" value="'%'+ query.word +'%'"></bind>
+			AND TITLE LIKE #{likeStr}
+		</if>
+	</where>
+	  name在一个方法里会冲突
+遍历：
+	<where>
+	  ID IN
+	  <foreach item="id" collection="list" open="(" separator="," close=")"></foreach>
+	</where>

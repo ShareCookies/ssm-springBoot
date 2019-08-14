@@ -1,0 +1,38 @@
+RESTful：
+	RESTful架构：http://www.ruanyifeng.com/blog/2011/09/restful.html
+	http://www.ruanyifeng.com/blog/2018/10/restful-api-best-practices.html
+	REST （Representational State Transfer），表现层状态转换；
+	hcg：
+		一种api设计风格
+	RESTFul风格的请求：
+		是以 资源 为中心，请求具有统一的接口，使用GET、POST、PUT、PATCH、DELETE等操作方法，来处理资源。
+	即：
+		客户端发出的url请求是由"动词 + 宾语"构成的。
+		例，
+			t.cn/articles 接口类型：GET
+			该url请求表示获取所有的文章，其中GET是动词，/articles是宾语。
+	
+RPC:
+	https://www.jianshu.com/p/2accc2840a1b
+	RPC （Remote Procedure Call ） 远程过程调用。
+	即：
+		从本地机器去执行服务器上的一个函数
+	RPC的实现：！
+		通常的实现有 XML-RPC , JSON-RPC
+	HTTP 请求与RPC：
+		https://www.jianshu.com/p/a72d226eef84
+		HTTP 请求，也可以认为是 RPC 的一种形式
+	
+RPC vs RESTful
+	1.其实这两者并不是一个维度的概念，总得来说RPC涉及的维度更广。
+	如果硬要比较，那么可以从RPC风格的url和Restful风格的url上进行比较。
+	*2.RPC风格，即请求链接是以动词为中心的, REST风格，即请求链接是以名词为中心的。
+	
+	例：
+		你提供一个查询订单的接口，用RPC风格，你可能会这样写：
+			/queryOrder?orderId=123
+		用Restful风格呢？
+			Get  
+			/order?orderId=123
+	弃：
+		https://www.cnblogs.com/hello-/articles/9958943.html

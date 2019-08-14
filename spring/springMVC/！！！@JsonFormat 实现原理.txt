@@ -1,0 +1,27 @@
+***走一遍该分析过程
+	https://www.jianshu.com/p/1031c09da1db
+Jackson时间格式化：
+	  Jackson  是  SpringMvc  官方推荐结合的时间格式化注解。
+	  
+@JsonFormat和@DateTimeFormat ？
+	使用@DateTimeFormat和@JsonFormat，来处理前后端的时间转换。
+	前端传到后端的数据会转换为指定的时间。
+	数据库传到后端的数据会被转换为指定的时间？不会吧
+	
+	@JsonFormat：
+		@JsonFormat只适合 Content-Type 为application/json的请求，
+		如果是表单请求，请采用@DateTimeFormat
+		
+		？
+		@jsonformat应该不是这个意思。是对参数进行序列化与反序列化的。如入参是json，则jsonformat将入参字符转为date。如果向前台返回，则jsonformat将date转为json字符串。
+		
+		？
+		@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm")
+
+		不适用则：
+			对象的date属性直接通过@ResponseBody返回出去的是一个长整型时间戳。
+
+	@DateTimeFormat：
+	
+	
+	

@@ -1,0 +1,75 @@
+Spring Security从两个角度来解决安全性问题：
+	1.它使用Servlet规范中的Filter保护Web请求并限制URL级别的访问。
+	2.Spring Security还能够使用Spring AOP保护方法调用——借助于对象代
+	理和使用通知，能够确保只有具备适当权限的用户才能访问安全保护
+	的方法。
+第9章我们将会关注如何将Spring Security用于Web层的安全性之
+中。在稍后的第14章中，我们会重新学习Spring Security，了解它如何
+保护方法的调用。
+
+介绍：
+	Spring Security是为基于Spring的应用程序提供声明式安全保护的安全性框架。
+	它能够在Web请求级别和方法调用级别处理身份认证和授权。
+Spring Security的模块:p306
+	Spring Security 3.2分为11个模块。
+	注：
+		应用程序的类路径下至少要包含Core和Configuration这两个模块。
+		Spring Security经常被用于保护Web应用，还需要添加Web模块。
+过滤Web请求，即通过过滤器启用Spring Security：p307
+	介绍：
+		Spring Security借助一系列Servlet Filter来提供各种安全性功能。
+		你可能会想，这是否意味着我们需要在web.xml或WebApplicationInitializer中配置多个Filter呢。
+		
+		实际上，借助于Spring的小技巧，我们只需配置一个Filter就可以了。
+		DelegatingFilterProxy是一个特殊的Servlet Filter，它本身所做的工作并不多。
+		该filter会拦截请求，并将工作委托给一个Filter实现类，这个实现类是注册在Spring应用的上下文中的一个<bean>.
+	
+	注册DelegatingFilterProxy过滤器：p307
+		不管我们通过web.xml还是通过AbstractSecurityWebApplicationInitializer的子类来配置DelegatingFilterProxy，
+		它都会拦截发往应用中的请求，并将请求委托给ID为springSecurityFilterChain bean。
+		springSecurityFilterChain：
+			springSecurityFilterChain本身是另一个特殊的Filter，它也被称为FilterChainProxy。
+			它可以链接任意一个或多个其他的Filter。
+			Spring Security依赖一系列Servlet Filter来提供不同的安全特性。
+			但是，你几乎不需要知道这些细节，因此你不需要显式声明springSecurityFilterChain以及它所链接在一起的其他Filter。
+			当我们启用Web安全性的时候，会自动创建这些Filter。
+	启用Web安全性功能：
+		启用Web安全性功能.png
+		
+		
+	用户存储：p311
+		也就是用户名、密码以及其他信息存储的地方。
+		Spring Security内置了多种常见的用户存储场景，如内存、关系型数据库以及LDAP。
+		我们也可以编写并插入自定义的用户存储实现。
+		使用基于内存的用户存储：p311
+			
+		基于数据库表进行认证：p314
+		
+		基于LDAP进行认证：p316
+		
+		自定义的用户服务：p320
+			当用户存储在非关系型数据库中，如Mongo或Neo4j
+拦截请求：？p322
+	并不是所有的请求都需要同等程度地保护。
+	有些请求需要认证，而另一些可能并不需要。
+	例：
+		p322
+	access()配合Spring表达式进行拦截请求：p325
+		跟复杂的拦截
+		
+	强制通道的安全性：p327
+		强制要求请求使用HTTPS传送。
+	防止跨站请求伪造：
+		p328
+用户的认证：
+	添加自定义的登录页：p311
+		
+	启用HTTP Basic认证：？p333
+	
+	启用Remember-me功能：p334
+		Spring Security使得为应用添加Remember-me功能变得非常容易。
+		为了启用这项功能，只需在configure()方法所传入的HttpSecurity对象上调用rememberMe()即可。
+		默认情况下，这个功能是通过在cookie中存储一个token完成的，这个token默认两周内有效。
+	退出：
+		
+		

@@ -1,0 +1,8 @@
+@ComponentScan注解：
+	启用组件扫描
+@EnableAutoConfiguration：
+	启用Spring Boot的自动配置特性。
+main()方法：
+	例:
+	SpringApplication.run(Application.class, args);
+	这行代码会告诉Spring Boot（通过SpringApplication类）根据Application中的配置以及命令行中的参数来运行。

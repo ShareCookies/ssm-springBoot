@@ -1,0 +1,130 @@
+    注：
+		数据库命名推荐：
+			表名和字段名均大写，单词间以下划线分割。
+		例：
+			DRAFT_DATE
+		该写法好处：
+			为应对不同数据库区别和数据不同版本区别！
+增：
+	批量插入：
+		https://www.cnblogs.com/liaojie970/p/5577018.html
+		int insertByBatch(List<AttachmentTable> attachmentTables);
+		<insert id="insertByBatch" parameterType="java.util.List">
+			insert into table (
+			<include refid="Base_Column_List"/>
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(#{item.name,jdbcType=VARCHAR}, #{item.logid,jdbcType=INTEGER},#{item.url,jdbcType=LONGVARCHAR})
+			</foreach>
+		</insert>
+删：
+	/**
+     * 通过多个id批量删除
+     * @param idList
+     * @return 返回值为0，则操作失败
+     */
+    int delByIds(List<String> idList) ;
+	<!--根据id批量删除-->
+	<delete id="delByIds" parameterType="java.util.List">
+		DELETE from 表名 where ID in
+        (
+        <foreach collection="idList" item="id" separator=",">
+			#{id}
+		</foreach>
+        )
+	</delete>
+	
+	根据条件删除：
+	    int delFlowFrequentContactByUserNo(FlowFrequentContact flowFrequentContact);
+
+		<delete id="delFlowFrequentContactByUserNo" parameterType="com.rongji.egov.wflow.business.model.po.engine.FlowFrequentContact">
+			DELETE from FLOW_FREQUENT_CONTACT
+			<where>
+			  <if test="userNo != null and userNo!=''">
+				AND USER_NO = #{userNo}
+			  </if>
+			</where>
+		  </delete>
+改：
+查：
+	/**
+     * 获取所有数据集合
+     * @return
+     */
+    List<Domain> getAllList();
+	<!-- 获取所有数据集合 -->
+	<select id="getAllList"  resultMap="BaseResultMap" >
+		SELECT <include refid="Base_Column_List" />
+		FROM 表名
+	</select>
+	<!-- 只有一个参数时才写parameterType吧 -->
+	
+	/**
+     * 以分页获取数据
+     * @return
+     */
+    List<Domain> get4Page(@Param("startNum")Integer startNum,@Param("pageSize")Integer pageSize);	
+    <!-- 
+		@description :分页使用SQL
+		@param startNum 从第几条开始查询 。注：startNum=currentPage（页面一般从1开始，所以dao层计算page应减1） * pageSize 
+		@param pageSize 每页查询条数
+	-->
+    <select id="get4Page" resultMap="BaseResultMap">
+        select * from 表名
+        <where>
+            <if test="word!=null and word!=''">
+                AND (name like concat('%',#{word},'%') OR alias like concat('%',#{word},'%'))
+            </if>
+        </where>
+        ORDER BY createTime DESC
+        limit #{startNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+    </select>
+	/**
+     * 统计分页的总数
+     * @return
+     */
+    Long<Domain> count4Page();	
+	<select id="count4Page"  resultType="java.lang.Long">
+        SELECT COUNT(*) FROM 表名
+    </select>
+
+	
+参数为map：
+    1.只有map，且parameterType设为hashmap
+	List<Receival> getReceivalByYLDYJ(HashMap<String,String> map);
+    <select id="getReceivalByYLDYJ" parameterType="hashmap" resultMap="ReceivalResultMap">
+        SELECT <include refid="allColumns"/> FROM(
+            SELECT<include refid="allColumns"/> FROM EGOV_RECEIVAL WHERE ID IN(
+              SELECT DOC_ID FROM EGOV_DOC_OPINION WHERE MODULE_ID='RECEIVAL' AND OPINION_CODE='yndyj' AND SYSTEM_NO=#{systemNo} GROUP BY DOC_ID
+            )
+        ) re
+        <where>
+            <if test="startDate != '' and startDate != null">
+                <![CDATA[ AND  DRAFT_DATE >= #{startDate} ]]>
+            </if>
+            <if test="endDate != '' and  endDate != null">
+                <![CDATA[ AND DRAFT_DATE <= #{endDate} ]]>
+            </if>
+        </where>
+        ORDER BY DRAFT_DATE DESC
+	</select>	
+	2.@Param有map，此时可以结合别的@Param使用
+		List<Receival> getReceivalByYLDYJ(@Param("map") HashMap<String,String> map);
+
+		<select id="getReceivalByYLDYJ"  resultMap="ReceivalResultMap">
+			SELECT <include refid="allColumns"/> FROM(
+				SELECT<include refid="allColumns"/> FROM EGOV_RECEIVAL WHERE ID IN(
+				  SELECT DOC_ID FROM EGOV_DOC_OPINION WHERE MODULE_ID='RECEIVAL' AND OPINION_CODE='bgsnbyj' AND SYSTEM_NO=#{map.systemNo} GROUP BY DOC_ID
+				)
+			) re
+			<where>
+				<if test="map.startDate != '' and map.startDate != null">
+					<![CDATA[ AND  DRAFT_DATE >= #{map.startDate} ]]>
+				</if>
+				<if test="map.endDate != '' and  map.endDate != null">
+					<![CDATA[ AND DRAFT_DATE <= #{map.endDate} ]]>
+				</if>
+			</where>
+			ORDER BY DRAFT_DATE DESC
+		</select>

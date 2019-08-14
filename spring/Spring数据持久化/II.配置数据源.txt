@@ -1,0 +1,25 @@
+介绍：
+	在访问数据库之前，需要配置一个数据源来连接数据库。
+Spring提供了在Spring上下文中配置数据源bean的多种方式：
+	通过JDBC驱动程序定义的数据源；
+	通过JNDI查找的数据源；
+	连接池的数据源。
+
+使用JNDI数据源:
+	Spring应用程序经常部署在Java EE应用服务器中，如WebSphere、TomcatWeb容器中等。
+	这些服务器允许你配置通过JNDI获取数据源。
+	这种配置的好处在于数据源完全可以在应用程序之外进行管理，这样应用程序只需在访问数据库的时候查找数据源就可以了。
+	另外，在应用服务器中管理的数据源通常以池的方式组织，从而具备更好的性能，并且还支持系统管理员对其进行热切换
+使用数据源连接池：p352
+	尽管Spring并没有提供数据源连接池实现，但是我们有多项可用的方案，包括如下开源的实现：
+		Apache Commons DBCP (http://jakarta.apache.org/commons/dbcp)；
+		c3p0 (http://sourceforge.net/projects/c3p0/) ；
+		BoneCP (http://jolbox.com/) 。
+基于JDBC驱动的数据源：p354
+	尽管这些数据源对于小应用或开发环境来说是不错的，但是要将其用于生产环境，你还是需要慎重考虑。
+	因为SingleConnectionDataSource有且只有一个数据库连接，所以不适合用于多线程的应用程序，最好只在测试的时候使用。
+	而DriverManagerDataSource和SimpleDriverDataSource尽管支持多线程，但是在每次请求连接的时候都会创建新连接，这是以性能为代价的。
+	鉴于以上的这些限制，我强烈建议应该使用数据源连接池。
+
+使用profile选择数据源：p357
+	

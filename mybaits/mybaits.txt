@@ -1,0 +1,39 @@
+mybaits教程：
+	https://www.yiibai.com/mybatis/install_configure.html
+	http://www.dba.cn/book/mybatis/
+	MyBatis从入门到精通.pdf 刘增辉
+介绍：
+	MyBatis 是一款优秀的支持自定义 SQL 查询、存储过程和高级映射的持久层框架。
+	MyBatis消除了几乎所有的 JDBC 代码和参数的手动设置以及结果集的检索 。
+	
+	MyBatis特性：
+		1.MyBatis 使用 XML 进行 SQL与Java 方法的关联。
+		2.MyBatis 通过将参数映射到配置好的 SQL-》形成最终执行的 SQL 语句-》最后将执行SQL 结果映射成 Java 对象返回。
+		注：
+			1.sql语句与java方法的映射也可以使用注解实现，不使用xml。
+			2.与 ORM （对象关系映射）框架不同， Mybtis 并没有将 Java 对象与数据库表关联起来，
+			实体类只是个数据值对象，即实体类只是用来便于存放数据的。
+			3.（多余）实体类名无需与数据库表名对上，实体类名和mapper.xml文件名对上即可。
+			因为mybaits是通过sql语句的from与数据库表匹配上的。
+			推荐：实体类名和数据库表名对上，便于程序员查找数据。
+		mybaits执行过程的简易解析：
+			MyBatis通过使用一种内建的类XML 表达式语言， SQL 语句可以被动态生成。
+			MyBatis底层使用 JDBC执行 SQL ，获得查询结果集。
+			MyBatis 通过一个映射引擎，声明式地将结果集与对象树映射起来。
+			
+
+Mybaits配置方式（Mybaits的集成方式）：
+	1.以 XML 形式进行配置是最基础的
+		<settings> 中的 logimpl 属性配置指定使用 LOG4J 输出日志
+		<typeAliases ＞元素下面配置了个包的别名，
+		<environments ＞环境 配置中 主要 配置了数据库连接，
+		<mappers ＞中配置了 个包含完整类路径的 CountryMapper.xml ，
+		这是 MyBatisSQL 语句和映射配置文件.
+	2.和 Spring 集成的时候还会使用 Spring bean 方式进行配置
+	3.通过 Java 编码方式进行配置,不常见
+
+java中查看sql执行结果：
+	https://blog.csdn.net/aphysia/article/details/80804963
+	增删改的sql执行之后都会有一个int类型的返回值，表示的意思是这个操作影响的行数。
+	所以经常使用返回值是否大于0来表示修改数据成功，小于0表示修改数据失败。
+	

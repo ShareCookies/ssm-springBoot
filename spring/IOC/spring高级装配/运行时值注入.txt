@@ -1,0 +1,36 @@
+p122
+运行时值注入
+	bean引用注入通常来讲指的是将一个对象与另一个对象进行关联。
+	但有时bean装配又要注入一个常量值。
+	
+	你可以将值硬编码在配置类或bean的XML文件中，但有的时候，我们可能会希望避免硬编码值，而是想让这些值在运行时再确定。
+	
+	Spring提供了两种在运行时求值的方式：
+		属性占位符（Property placeholder）。
+		Spring表达式语言（SpEL）。
+	
+注入外部的值
+	Spring中，处理外部值的最简单方式就是声明属性源并通过Spring的Environment来检索属性。
+	使用@PropertySource注解和Environment
+	属性文件会加载到Spring的Environment属性变量中
+	...
+	
+	除了属性相关的功能以外，Environment还提供了一些方法来检查
+	哪些profile处于激活状态：
+	String[] getActiveProfiles()：返回激活profile名称的
+	数组；
+	String[] getDefaultProfiles()：返回默认profile名称的
+	数组；
+	boolean acceptsProfiles(String... profiles)：如
+	果environment支持给定profile的话，就返回true。
+	
+	占位符装配属性：
+		p126
+		介绍：
+			Spring也提供了通过占位符装配属性的方法，这些占位符的值会来源于一个属性源。
+			...
+		用法：
+			属性占位符需要放到"${... }"之中
+			...
+	使用Spring表达式语言进行装配：
+		SpEL表达式要放到“#{ ... }”之中

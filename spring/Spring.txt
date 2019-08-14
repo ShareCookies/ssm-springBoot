@@ -1,0 +1,90 @@
+README:
+	大部分内容是spring实战第四版的读书笔记。
+Spring官网：
+	https://spring.io/
+Spring历史：
+	Spring是一个开源框架，是为了解决企业级应用开发的复杂性而创建的，
+	使用Spring可以让简单的JavaBean实现之前只有EJB（企业级JavaBean）才能完成的事情。
+	
+	很多框架通过强迫应用继承它们的类或实现它们的接口从而导致应用与框架绑死。
+	相反，在基于Spring构建的应用中，它的类通常没有任何痕迹表明你使用了Spring。
+	最坏的场景是，一个类或许会使用Spring注解，但它依旧是POJO。
+Spring介绍：
+	Spring框架关注于通过DI、AOP和消除样板式代码来简化企业级Java开发。
+
+	但Spring在还构建了一个在核心框架之上的庞大生态圈，
+	它将Spring扩展到不同的领域，例如Web服务、REST、移动开发以及NoSQL。
+Spring的Bean：
+	1.由Spring IoC容器管理的类就会被认为是“Bean”。
+	2.虽然Spring用bean（或者JavaBean）来表示应用组件，
+	但并不意味着Spring组件必须要遵循JavaBean规范，
+	一个Spring组件可以是任何形式的POJO。
+	注：
+		JavaBean：
+			类的属性使用getter和setter来访问等。
+		POJO：
+			一个不受任何限制的Java对象，除了Java语言规范。
+Spring模块：
+	介绍：
+		spring框架的每个模块即可单独使用，也可和其他模块或框架组合使用。
+		
+		在Spring 4.0中，Spring框架的发布版本包括了20个不同的模块。
+		每个模块会有3个JAR文件（二进制类库、源码的JAR文件以及JavaDoc的JAR文件）。
+		注：
+			spring远不止这些模块
+		Spring七大核心模块
+			https://www.cnblogs.com/xiaobaizhiqian/p/7616453.html
+			https://www.yiibai.com/spring/
+	Spring Core(核心容器模块):
+		介绍:
+			1.该模块是spring的核心模块，主要实现了IOC功能（控制反转）。
+			2.该模块中提供了spring的核心类，容器实现类，该类负责管理spring的Bean。
+			3.除了容器实现类，该模块也提供了许多企业服务，
+			例如E-mail、JNDI访问、EJB集成和调度。
+			4.所有的Spring模块都构建于核心容器之上。！不能单独使用spring别的模块吗
+			注：
+				1.spring采用factory模式实现IOC容器，IOC的原理是DI(依赖注入)。
+				2.控制反转，就是把类交由spring管理（就是指类实例化等工作）。
+		IOC的原理:
+			DI(依赖注入).
+			注：
+				DI能够让相互协作的软件组件保持松散耦合
+		spring的bean管理器：
+			Spring通过容器，全权负责对象的创建和组装。
+			Spring自带了多个容器实现，可划分为两种类型，bean工厂和应用上下文（推荐）。
+			Spring自带了多种应用上下文的实现，它们之间主要的区别仅仅在于如何加载bean配置。
+			例：
+				使用XML文件配置的bean，选择ClassPathXmlApplicationContext作为应用上下文相对是比较合适的。
+				该类加载位于应用程序类路径下的一个或多个XML配置文件。
+				main()方法调用ClassPathXmlApplicationContext加载knights.xml，再获得bean对象的引用。
+		springBean的生命周期：
+			看文件夹
+	Spring AOP
+
+	数据访问与集成：
+		对于那些更喜欢ORM（Object-Relational Mapping）工具而不愿意直接使用JDBC的开发者，Spring提供了ORM模块。
+		SpringORM模块没有尝试去创建自己的ORM解决方案，而是对许多流行的ORM框架进行了集成，
+		包括Hibernate、Java Persisternce API、Java Data Object和iBATIS SQLMaps。
+		Spring的事务管理支持所有的ORM框架以及JDBC。
+	Web与远程调用：
+		Web：
+			MVC（Model-View-Controller）模式是一种普遍被接受的构建Web应用的方法，
+			它可以帮助用户将界面逻辑与应用逻辑分离。
+		远程调用：
+	Instrumentation：
+		Spring的Instrumentation模块...
+	测试：
+		Spring提供了测试模块以致力于Spring应用的测试。
+	
+spring模板封装：？能自定义样板吗
+	Spring旨在通过模板封装来消除样板式代码。
+	Spring的JdbcTemplate使得执行数据库操作时，避免传统的JDBC样板代码成为了可能。
+	
+Spring Portfolio：
+	SpringPortfolio包括多个构建于核心Spring框架之上的框架和类库。
+	Spring Boot
+		Spring简化了众多的编程任务。
+		Spring Boot项目，致力于简化Spring本身。
+
+	Spring Security
+	...

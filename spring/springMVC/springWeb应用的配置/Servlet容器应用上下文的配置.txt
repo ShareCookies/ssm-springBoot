@@ -1,0 +1,49 @@
+https://blog.csdn.net/qq_32332777/article/details/82225222
+WEB容器：
+	管理和运行Servlet/JSP的容器可称为WEB容器。
+
+Tomcat服务器接受客户请求并做出响应的过程如下：
+	1）客户端（通常都是浏览器）访问Web服务器，发送HTTP请求。 
+	2）Web服务器接收到请求后，传递给Servlet容器。 
+	3）Servlet容器调用某个Servlet实例，向其传递表示请求和响应的对象
+		注：
+			Servlet容器加载完Servlet后，会产生Servlet实例。 
+	4）Servlet实例使用请求对象得到客户端的请求信息，然后进行相应的处理。 
+	5）Servlet实例将处理结果通过响应对象发送回客户端，容器负责确保响应正确送出，同时将控制返回给Web服务器。
+
+
+p178
+应用上下文:
+	就是本应用可能会使用到的前提条件。（活校前提参数）
+Servlet容器是如何配置应用上下文的：
+	I.Servlet 3.0环境 中，容器会在类路径中查找实现 javax.servlet.ServletContainerInitializer接口的类， 如果能发现的话，就会用它来配置Servlet容器。
+	
+	II.Spring提供了这个接口的实现，名为SpringServletContainerInitializer，这个类反过来又会查找实现WebApplicationInitializer的类并将配置的任务交给它们来完成。
+	
+	III.Spring 3.2引入了一个便利的 WebApplicationInitializer接口的基础实现，也就是AbstractAnnotationConfigDispatcherServletInitializer。
+	例子中Spittr-WebAppInitializer扩展了Abs...，因此当部署到Servlet 3.0容器 中的时候，容器会自动发现它，并用它来配置Servlet上下文。
+	
+AbstractAnnotationConfigDispatcherServletInitializer介绍：
+	getServletMappings()：
+		它会将一个或多个路径映射到DispatcherServlet上。
+		例子中：它映射的是“/”，这表示DispatcherServlet会是应用的默认Servlet，它会处理进入应用的所有请求。
+	GetServletConfigClasses() ：
+		返回的带有@Configuration注解的类将会用来义DispatcherServlet应用上下文中的 bean。
+	getRootConfigClasses()：
+		返回的带 有@Configuration注解的类将会用来置ContextLoaderListener创建的应用上下文中的bean。 	
+	
+	spring的两个应用上下文，
+		AbstractAnnotationConfigDispatcherServletInitial会同时创建DispatcherServlet和ContextLoaderListener。
+		
+		DispatcherServlet加载的应用上下文：
+			当DispatcherServlet启动的时候，它会创建Spring应用上下文，并加载配置文件或配置类中所声明的bean。
+			在程序清单5.1的 getServletConfigClasses()方法中，我们要求DispatcherServlet加载应用上下文时，使用定义在WebConfig配置类（使用Java配置）中的bean。
+		ContextLoaderListener加载的应用上下文：
+			但是在Spring Web应用中，通常还会有另外一个应用上下文。另外的 这个应用上下文是由ContextLoaderListener创建的。 
+			
+		总结：
+			我们希望DispatcherServlet加载包含Web组件的bean，如控制器、视图解析器以及处理器映射。
+			而ContextLoaderListener要加载应用中的其他bean，这些bean通常是驱动应用后端的中间层和数据层组件。 
+
+		
+	注：通过 AbstractAnnotationConfigDispatcherServletInitializer来配置DispatcherServlet是传统web.xml方式的替代方案。

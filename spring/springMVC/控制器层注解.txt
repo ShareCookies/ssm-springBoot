@@ -1,0 +1,180 @@
+﻿spring的构造型注解：
+	@Controller：
+		@Controller注解是用来声明控制器的，但实际上这个注解对Spring MVC本身的影响并不大。
+		构造型注解是辅助实现组件扫描，帮助该类注册为Spring应用上下文中的一个bean。
+		替换为@Component注解，它所实现的效果是一样的，但是在表意性上可能会差一些。
+
+spirngMVC的相关注解：
+	请求的处理：
+		@RequestMapping：
+			介绍：
+				RequestMapping是一个用来处理请求地址映射的注解，可用于类或方法上。 
+			用于类上：
+				表示类中的所有响应请求的方法都是以该地址作为父路径。
+				详细：
+					当控制器在类级别上添加@RequestMapping注解时，这个注解会应用到控制器的所有处理器方法上。
+					处理器方法上的@RequestMapping注解会对类级别上的@RequestMapping的声明进行补充。
+			用于方法：
+				例：
+					@RequestMapping("/path")表示该控制器处理所有路劲为“/path”的URL请求。
+			注解有六个属性： 
+				params:指定request中必须包含某些参数值是，才让该方法处理。 
+				headers:指定request中必须包含某些指定的header值，才能让该方法处理请求。 
+				value:
+					1.指定请求的实际地址，指定的地址可以是URI Template 模式 
+					2.value属性能够接受一个String类型的数组。
+					例：
+						@RequestMapping({"/","/home"})
+						类或方法能够映射到对“/”和“/home”的GET请求。
+				method:
+					指定请求的method类型， GET、POST、PUT、DELETE等 。
+					表明它只能处理POST请求。
+					默认： HTTP GET 类型的。
+					
+				consumes:
+					指定处理请求的提交内容类型（Content-Type），如application/json,text/html; 
+					默认：？
+					例：
+						解析：
+							这个方法只会处理Accept头部信息包含“application/json”的请求。
+							其他任何类型的请求，即使它的URL匹配指定的路径并且是GET请求也不会被这个方法处理。
+							这样的请求会被其他的方法来进行处理（如果存在适当方法的话），或者返回客户端HTTP 406（Not Acceptable）响应
+				produces:
+					指定返回的内容类型，仅当request请求头中的(Accept)类型中包含该指定类型才返回					
+		@GetMapping和@PostMapping：
+			@GetMapping和@PostMapping等是一个组合注解，是@RequestMapping(method = RequestMethod.GET)等的缩写。
+	数据的获取：
+		Get请求参数的获取：
+			https://blog.csdn.net/myt0929/article/details/84629973
+			
+			1.默认方式：
+				@RequestMapping(value = "/getUserInfo")
+					public User getUserInfo(Integer id){
+				}
+				默认情况下会从Param（就是URL后面的拼接参数）获取名字是id的项，自动转化成Integer类型，其他的类型也是类似。
+			2.使用@RequestParam
+			3.使用HttpServletRequest
+				@RequestMapping(value = "/getUserInfo")
+				public User getUserInfo(HttpServletRequest request){
+					Integer id = Integer.parseInt(request.getParameter("id"));
+					if (id.intValue() == 0) {
+						return null;
+					}
+				}
+				这个方法是获取整个URL的信息，然后手动获取和分离参数，和类型转化。这个里面带的内容很多，不仅Param还有Header，Cookies等。
+			@RequestParam：
+				https://www.cnblogs.com/zeroingToOne/p/8992746.html
+				介绍：
+					1.修饰方法参数。（即用在方法的参数前面）
+					2.GET请求传的参数会自动转换赋值到@RequestParam 所修饰的变量上。
+					3.@RequestParam修饰的对象可以是基本数据类型和自定义对象。
+
+				属性：
+					value：
+						类似参数重命名
+					defaultValue：
+						参数在请求中不存在的话，就使用默认值
+					required：
+						默认为true
+				例：
+					修饰基本数据类型:@RequestParam(value="username",required=false) String userName
+					修饰对象:
+						对象有name属性，则会把name参数注入到该属性中。
+						@GetMapping("/bgms/student/getStudentPage")
+						public Page<Student> getStudentPage(PagingRequest paging){
+							return this.studentMng.getStudent4Page(paging,null,null);
+						}
+						http://localhost:8092/bgms/student/getStudentPage?currentPage=5
+						参数会自动注入到对象中
+						对象中有级联对象：
+								年龄int：<input type="text" name="age"><br>
+								省份string：<input type="text" name="address.province"><br>
+
+						传到多对象：
+							前端传参数到后端的多个对象。
+							例子：
+								后端：
+									injectMultiObjectTest(Page<Student> page,Student student){...}
+								前端：
+									injectMultiObjectTest?total=111&name=哈哈
+								注：
+									get传参到多对象的话，传参时参数不要带上对象前缀。两对象的属性要不同
+				注：
+					1.@RequestParam同时适用于get和post，只要Content-Type为application/x-www-form-urlencoded。
+					2.@RequestParam加与不加的区别：
+						使用了@RequestParam，则请求必须带有参数。（使用了defaultValue和required例外）
+						不使用@RequestParam，则请求可带参数也可不带参，方法都能执行。
+				解析：?
+					@RequestParam的原理是Spring将Request.getParameter()中的Key-Value参数Map转化成了参数@RequestParam修饰的基本类型数据或对象。
+
+		Post请求参数的获取：
+			介绍：
+				1.post传递的参数可以大致分成两种：
+					一种是表单：
+						1.contenType为正常：
+							请求参数将被放置于request.paramter，解析成map。
+							使用@RequestParam接收即可。
+						2.contenType为mutipart/form-data
+							数据传输会被特殊处理。？
+					第二种application/json：
+						参数是存放在json中的，参数必须要用@RequestBody才能解析出来。
+				
+			@RequestBody：
+				https://www.cnblogs.com/zeroingToOne/p/8992746.html
+				介绍：
+					修饰方法参数。
+					@RequestBody用于json类型的post请求数据，并将其转换成对应的数据类型。
+					@RequestBody只能修饰一个对象。
+					？
+						能修饰一个基本类型吗
+					解析：
+						1.GET请求中，因为没有HttpEntity（是指http消息主体吗），所以@RequestBody并不适用。
+						2.POST请求中，通过HttpEntity传递的参数，必须要在请求头中声明数据的类型Content-Type！
+						3.SpringMVC通过使用HandlerAdapter 配置的HttpMessageConverters来解析HttpEntity中的数据，然后绑定到@RequestBody修饰的对象上。！
+						使用@RequestBody接受的参数是不会被Servlet转化统一放在request对象的Param参数集中？
+
+				例：
+					@RequestBody Dispatch dispatch
+				注：
+					1.多个@RequestBody异常：！
+						原因：
+							@RequestBody的含义是在当前对象获取整个http请求的body里面的所有数据，
+							因此spring就不能将这个数据同时强制包装成Course和List类型，即无法多个body。
+							并且从@requestbody设计上来说，只获取一次就可以拿到请求body里面的所有数据，
+							就没必要出现有多个@requestbody出现在controller的函数的形参列表当中。
+
+	数据的返回：
+		返回的数据可分为1.html页面，2.其他某种格式的数据（如json，xml等）。
+		返回html页面：!
+			...
+		返回json类型数据：
+			@ResponseBody：
+				https://blog.csdn.net/paopao180/article/details/77803818
+				介绍：
+					1.该注解用于控制器方法上。
+						1.告诉Spring跳过正常的模型/视图流程（即不不适用视图解析器），转而使用消息转换器。
+						？
+							为什么消息转换器中不用配置JSON解析器
+						2.该注解将使控制器方法返回的对象，通过适当的HttpMessageConverter(消息转换器)转化为指定格式后，写入到Response对象的body数据区。
+					注：
+						1.一般是把对象转换为json格式
+						2.使用该注解能直接返回数据到前端而不返回到视图。
+							1：控制器方法将无法跳转到视图（如jsp页面）。
+							2：配置的视图解析器将对该类所有控制器方法不起作用，所有控制器方法的返回值将直接通过response返回到前端。
+						
+			@RestController：
+				该注解用于控制器类上。
+				介绍：
+					如果在控制器类上使用@RestController来代替@Controller的话，Spring将会为该控制器的所有处理方法应用消息转换功能。
+					注：
+						1.@RestController注解相当于@ResponseBody ＋ @Controller的组合。
+						即相当于该控制器类下的每个方法都添加@ResponseBody。
+		!:
+			服务器端通过request.getReader() 打出浏览器提交的数据
+
+springMvc输入数据的校验：
+	springMvc.txt 第73行
+
+mvc传递list或数组：
+	https://blog.csdn.net/huangcsdnjava/article/details/75005498
+ServletAPI：？

@@ -1,0 +1,19 @@
+配置文件：
+	https://blog.csdn.net/qq_33524158/article/details/79600434
+	SpringBoot使用一个全局的配置文件，
+	配置文件名是固定的：application.properties或application.yml
+	配置文件用来修改SpringBoot自动配置的默认值；
+	因为SpringBoot在底层都给我们自动配置好大部分信息；
+	注：	
+		配置文件一定要放src/resource下吗！
+springBoot启动类：？
+	@Configuration
+	@ComponentScan
+	@MapperScan({"com.rongji.egov.doc.business.*.mapper"})
+	@EnableTransactionManagement
+	@EnableCaching
+	@EnableAutoConfiguration
+	@Import({DocCommonBusinessConfiguration.class, UserBusinessConfiguration.class, WflowBusinessConfiguration.class,
+			SolrDataBusinessConfiguration.class})
+启动类如何加载application.yml配置文件：
+	https://blog.csdn.net/u014044812/article/details/84256764

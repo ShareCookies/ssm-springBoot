@@ -1,0 +1,107 @@
+Mybaits的简易运行方式1：？
+	介绍：
+		SqlSession中使用mybaits
+
+	1.配置Mybaits
+	2.创建实体类（用来存储sql结果集）
+		注：
+			实体类中不要使用java基本类型，因为基本类型有默认值。
+			基本类型包括： byte int short lo float double char boolean
+			
+			例：在mybaits动态sql中，age!=null 结果总为true ，可能会导致异常
+
+	3.创建Mapper.xml映射文件
+		mybaits可以把mapper.xml的sql表达式映射为方法，并通过sqlSession来执行
+	
+	4.配置Log4J：（多余）
+		针对性地配置Log4j ，让MyBatis在执行数据库操作的时候可以将执行的 SQL和其他信息输出到控制台。
+		例：
+			在src/main/resources 中添加 log4j.properties 配置文件，输入如下内容:
+			＃全局配置   
+			log4j .rootLogger=ERROR, stdout
+			#MyBatis 日志配置   
+			log4j.logger.tk.mybatis .simple .mapper=TRACE
+			＃控制台输出配置   
+			log4j . appender .stdout=org.apache . log4j .ConsoleAppender
+			log4j . appender . stdout . layout=org . apache.log4j . PatternLayout
+			log4j appender.stdout.layout ConversionPattern ＝%5p [%t] -%m%n
+
+			用过 Log4j 日志组件的人可能都会知道，配置中的 log4j.logger.tk.mybatis.simple.mapper
+			对应的是 tk.mybatis.simple.mapper 包。
+			但是在这个例子中， Java录下并没有这个包名 ，只在资源 目录下有 mapper 目录
+			
+			在MyBatis 的日志实现中，所谓的包名实际上是 XML 配置中的 namespace 属性值的一部分。
+			当结合接口使用时，由于namespace值必须和接口全限定类名相同 ，
+			因此才会真正对应到Java 中的包。（当使用纯注解方式时，使用的就是纯粹的包名）
+			
+			MyBatis 日志的 最低级是TRACE ，在这个日志级别下，
+			MyBatis 会输出执行 SQL 过程中的详细信息，这个级别特别适合在开发时使用。
+	5.创建测试类
+		先读取Mybaits配置，
+		根据配置文件中的 mappers 配置，会读取全部的 Mapper.xml 进行具体方法的解析.
+		可用sqlSession来执行方法。
+Mybaits的简易运行方式2：（接口调用sql）？
+		MyBatis 3.0 相比 2.0相比，就是支持使用接口来调用方法。
+		以前使用 SqlSession 执行sql时，首先需要用到命名空间和方法id来调用相应的方法。
+		当参数多于1个的时候，需要将所有参数放到Map对象，通过 Map 传递多个参数，
+		使用起来很不方便，而且还无法避免很多重复的代码。
+		
+		MyBatis 使用 Java 的动态代理可以直接通过接口来调用相应的方法，
+		不需要提供接口的实现类，更不需要在实现类中使用 SqlSession以通过命名空间间接调用。
+		当有多个参数的时候，通过参数注解＠Param 设置参数的名字
+		省去了手动构造 Map 参数的过程。
+		尤其在 Spring 中使用的时候，可以配置为自动扫描所有的接口类 ，直接将接口注入需要用到的地方。
+		
+		1.mybaits配置文件.
+			要在配置文件中的 mappers元素中配置所有的 Mapper.xml。
+			简易配置方式：
+				<mappers>
+					<package name= ” tk.mybatis .simple . mapper这是包名” />
+				</mappers>
+				这种配置方式会先查找包下所有的接口，循环对接口进行如下操作：
+					1. 判断接口对应的命名间是否己经存在，如果存在就抛出异常，
+					不存在就继续进行接下来的操作。！
+					2. 加载接口对应的xml映射文件，将接口全限定名转换为路径。
+					例如 将接口tk.mybatis.mapper.UserMapper 转换为 tk/mybatis/mapper/UserMapper.xml,
+					如果找到就解析XML
+					3.处理接口中的注解方法。!
+		2.创建实体类:User.java ，创建dao层接口类:UserMapper.java
+		3.	创建UserMapper.xml映射文件
+			1.接口与XML文件关联：
+				当 Mapper 接口和 XML 文件关联的时候，命名空间口namespace 值要配置成接口的全限定名称。
+				MyBatis内部会通过这个值将接口和XML 关联起来的。	
+			2.接口中方法和 XML关联:
+				通过XML 中标签的 id 属性值和接口方法名。
+				
+		4.创建代理类，并通过代理类调用接口方法进行测试		
+
+		mapper映射文件介绍：
+			...
+			多个接口参数:
+				1.将多个参数合并JavaBean 中，并使用这个 JavaBean 作为接口方法的参数。
+					例：
+						List<SysRole> selectAll(@Param (”user”) SysUser user,@Param (”role ”) SysRole role); 
+						XML中使用#{user.id}和#{role.enabled}从两个JavaBean 中取出指定属性的值
+				2.使用 Map 类型作为参数。不推荐
+				3.使用＠Param 注解。
+					例：
+						List<SysRole> selectAll(@Param (”userId”) Long userId,@Param (” enabled ”) Integer enabled);
+						不用@Param 可用参数为［0 1 param1 param2]
+						用@Param 可用参数变成了［userid enabled param1 param2]
+						解析：
+							参数配直＠Param注解后， MyBatis 就会自动将参数封装成 Map 类型，
+							＠ Param 注解值作为 Map 中的 key ，因此在 SQL 部分就可以通过配置的注解值来使用参数。
+							
+							当只有1个参数的时候，为什么可以不使用注解。
+							这是因为在这种情况下（除集合和数组外），
+							MyBatis不关心这个参数叫什么名字，会直接把这个唯一的参数值拿来使用。
+			接口的参数是集合或者数组:
+				...
+		注：
+			接口可以配合 XML 使用，也可以配合注解来使用。
+			XML 可以单独使用，但是注解必须在接口中使用。
+		映射 XML 和接口的命名需要符合如下规则：
+			1.当只使用 XML 而不使用接口的时候，namespace的值可以设置为任意不重复的名称
+			2.标签的 id 属性值不能出现英文句号“.”，并且同个命名间下不能现重复的 id
+			3.因为接口方法是可以重载的，所以接口中可以出现多个同名但参数不同的方法，但是
+			XML中id 的值不能重复，因而接口中的所有同名方法会对应着 XML 中的同一个id的方法。
