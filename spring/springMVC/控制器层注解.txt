@@ -68,7 +68,8 @@ spirngMVC的相关注解：
 					1.修饰方法参数。（即用在方法的参数前面）
 					2.GET请求传的参数会自动转换赋值到@RequestParam 所修饰的变量上。
 					3.@RequestParam修饰的对象可以是基本数据类型和自定义对象。
-
+				适用范围：
+					@RequestParam同时适用于get和post，Content-Type为任意。
 				属性：
 					value：
 						类似参数重命名
@@ -100,8 +101,7 @@ spirngMVC的相关注解：
 								注：
 									get传参到多对象的话，传参时参数不要带上对象前缀。两对象的属性要不同
 				注：
-					1.@RequestParam同时适用于get和post，只要Content-Type为application/x-www-form-urlencoded。
-					2.@RequestParam加与不加的区别：
+					1.@RequestParam加与不加的区别：
 						使用了@RequestParam，则请求必须带有参数。（使用了defaultValue和required例外）
 						不使用@RequestParam，则请求可带参数也可不带参，方法都能执行。
 				解析：?
@@ -118,6 +118,7 @@ spirngMVC的相关注解：
 							数据传输会被特殊处理。？
 					第二种application/json：
 						参数是存放在json中的，参数必须要用@RequestBody才能解析出来。
+			
 				
 			@RequestBody：
 				https://www.cnblogs.com/zeroingToOne/p/8992746.html
@@ -125,14 +126,14 @@ spirngMVC的相关注解：
 					修饰方法参数。
 					@RequestBody用于json类型的post请求数据，并将其转换成对应的数据类型。
 					@RequestBody只能修饰一个对象。
-					？
-						能修饰一个基本类型吗
 					解析：
 						1.GET请求中，因为没有HttpEntity（是指http消息主体吗），所以@RequestBody并不适用。
 						2.POST请求中，通过HttpEntity传递的参数，必须要在请求头中声明数据的类型Content-Type！
 						3.SpringMVC通过使用HandlerAdapter 配置的HttpMessageConverters来解析HttpEntity中的数据，然后绑定到@RequestBody修饰的对象上。！
 						使用@RequestBody接受的参数是不会被Servlet转化统一放在request对象的Param参数集中？
 
+				适用范围：
+					@RequestBody适用于post，Content-Type为json。
 				例：
 					@RequestBody Dispatch dispatch
 				注：
