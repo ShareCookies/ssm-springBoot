@@ -1,0 +1,55 @@
+	<select id="listInfoNoticeBack4Page" resultType="map">
+		SELECT
+		B.ID as "id"
+		,B.IS_READ as "isRead"
+		,B.FEEDBACK as "feedback"
+		,U.UNIT_NAME as "unitName"
+		,N.SUBJECT as "subject"
+		,N.NOTICE_TIME as "noticeTime"
+		,N.EXPIRY_TIME as "expiryTime"
+		,N.NOTICE_TYPE as "noticeType"
+		FROM
+		EGOV_INFO_NOTICE_FEEDBACK B
+		LEFT JOIN EGOV_INFO_NOTICE N
+		ON B.NOTICE_ID = N.ID
+		LEFT JOIN EGOV_INFO_UNIT U
+		ON B.UNIT_NO = U.UNIT_NO
+		<where>
+			<include refid="noticeBackQuery" />
+		</where>
+		<!--<choose>-->
+			<!--<when test="pagerModel.sort=='noticeTime'">-->
+				<!--ORDER BY NOTICE_TIME ${pagerModel.order}-->
+			<!--</when>-->
+			<!--<when test="pagerModel.sort=='expiryTime'">-->
+				<!--ORDER BY EXPIRY_TIME ${pagerModel.order} NULLS LAST-->
+			<!--</when>-->
+			<!--<otherwise>-->
+				<!--ORDER BY NOTICE_TIME DESC-->
+			<!--</otherwise>-->
+		<!--</choose>-->
+		<!--) t-->
+		 <!--<![CDATA[-->
+			<!--WHERE rownum <= #{pagerModel.end} -->
+		  <!--]]>-->
+		<!--)-->
+		 <!--<![CDATA[-->
+			<!--WHERE r > #{pagerModel.start}-->
+		 <!--]]>-->
+	</select>
+	
+	Page<Map<String,Object>> listInfoNoticeBack4Page(Map<String, Object> map);
+
+	MNGIMPL:
+	
+	
+	@Transactional(readOnly = true)
+	@Override
+	public Page<Map<String,Object>> listInfoUnit4Page(PagingRequest<InfoUnit> paging, InfoUnit query) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("query", query);
+		map.put("paging", paging);
+		//int totalCounts = infoUnitDao.countInfoUnit(map);
+        Page<Map<String,Object>> list = infoUnitDao.listInfoUnit4Page(map);
+		return list;
+	}

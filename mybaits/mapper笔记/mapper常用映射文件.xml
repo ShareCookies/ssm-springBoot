@@ -6,18 +6,7 @@
 		该写法好处：
 			为应对不同数据库区别和数据不同版本区别！
 增：
-	批量插入：
-		https://www.cnblogs.com/liaojie970/p/5577018.html
-		int insertByBatch(List<AttachmentTable> attachmentTables);
-		<insert id="insertByBatch" parameterType="java.util.List">
-			insert into table (
-			<include refid="Base_Column_List"/>
-			)
-			values
-			<foreach collection="list" item="item" index="index" separator=",">
-				(#{item.name,jdbcType=VARCHAR}, #{item.logid,jdbcType=INTEGER},#{item.url,jdbcType=LONGVARCHAR})
-			</foreach>
-		</insert>
+
 删：
 	/**
      * 通过多个id批量删除
@@ -45,7 +34,7 @@
 				AND USER_NO = #{userNo}
 			  </if>
 			</where>
-		  </delete>
+		</delete>
 改：
 查：
 	/**

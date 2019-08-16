@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongji.egov.info.business.info.mapper.InfoNoticeDao">
+
+    <resultMap type="java.lang.String" id="recUnitList">
+        <result property="recUnit" column="REC_UNIT"/>
+    </resultMap>
+	<resultMap id="infoNoticeResultMap" type="com.rongji.egov.info.business.info.model.InfoNotice">
+		<id property="id" column="ID" jdbcType="CHAR" />
+		<result property="subject" column="SUBJECT" jdbcType="VARCHAR" />
+		<result property="noticeTime" column="NOTICE_TIME" jdbcType="TIMESTAMP" />
+		<result property="expiryTime" column="EXPIRY_TIME" jdbcType="TIMESTAMP" />
+		<result property="noticeType" column="NOTICE_TYPE" jdbcType="VARCHAR" />
+		<result property="secLevel" column="SEC_LEVEL" jdbcType="VARCHAR" />
+		<result property="recUnitType" column="REC_UNIT_TYPE" jdbcType="VARCHAR" />
+        <!--javaType="java.util.List"-->
+        <result property="recUnit" column="REC_UNIT" jdbcType="VARCHAR" />
+		<result property="noticeUnit" column="NOTICE_UNIT" jdbcType="VARCHAR" />
+		<result property="noticeUnitTel" column="NOTICE_UNIT_TEL" jdbcType="VARCHAR" />
+		<result property="noticeContent" column="NOTICE_CONTENT" jdbcType="VARCHAR" />
+		<result property="createUser" column="CREATE_USER" jdbcType="VARCHAR" />
+		<result property="createUserNo" column="CREATE_USER_NO" jdbcType="VARCHAR" />
+		<result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP" />
+		<result property="status" column="STATUS" jdbcType="VARCHAR" />
+		<result property="attId" column="ATT_ID" jdbcType="VARCHAR" />
+
+	</resultMap>
+
+	<resultMap id="infoNoticeBackResultMap" type="com.rongji.egov.info.business.info.model.InfoNoticeBack">
+		<id property="id" column="ID" jdbcType="CHAR" />
+		<result property="feedback" column="FEEDBACK" jdbcType="VARCHAR" />
+		<result property="isRead" column="IS_READ" jdbcType="VARCHAR" />
+		<result property="unitNo" column="UNIT_NO" jdbcType="VARCHAR" />
+		<result property="noticeId" column="NOTICE_ID" jdbcType="VARCHAR" />
+		<association property="infoNotice" column="NOTICE_ID" resultMap="infoNoticeResultMap"></association>
+	</resultMap>
+
+	<sql id="allNoticeCol">
+		ID,SUBJECT,NOTICE_TIME,EXPIRY_TIME,NOTICE_TYPE,SEC_LEVEL,REC_UNIT_TYPE,REC_UNIT,NOTICE_UNIT,NOTICE_UNIT_TEL,NOTICE_CONTENT,CREATE_USER,CREATE_USER_NO,CREATE_TIME,STATUS,ATT_ID
+	</sql>
+
+	<sql id="allNoticeBackCol">
+		ID,FEEDBACK,IS_READ,UNIT_NO,NOTICE_ID
+	</sql>
+
+	<insert id="insertInfoNotice" parameterType="com.rongji.egov.info.business.info.model.InfoNotice">
+		INSERT INTO EGOV_INFO_NOTICE
+		(
+		<include refid="allNoticeCol" />
+		)
+		VALUES
+		(
+		#{id,jdbcType=CHAR},
+		#{subject,jdbcType=VARCHAR},
+		#{noticeTime,jdbcType=TIMESTAMP},
+		#{expiryTime,jdbcType=TIMESTAMP},
+		#{noticeType,jdbcType=VARCHAR},
+		#{secLevel,jdbcType=VARCHAR},
+		#{recUnitType,jdbcType=VARCHAR},
+--         ,javaType=java.util.List
+		#{recUnit,jdbcType=VARCHAR},
+		#{noticeUnit,jdbcType=VARCHAR},
+		#{noticeUnitTel,jdbcType=VARCHAR},
+		#{noticeContent,jdbcType=VARCHAR},
+		#{createUser,jdbcType=VARCHAR},
+		#{createUserNo,jdbcType=VARCHAR},
+		#{createTime,jdbcType=TIMESTAMP},
+		#{status,jdbcType=VARCHAR},
+		#{attId,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<insert id="insertInfoNoticeBack" parameterType="com.rongji.egov.info.business.info.model.InfoNoticeBack">
+		INSERT INTO EGOV_INFO_NOTICE_FEEDBACK
+		(
+		<include refid="allNoticeBackCol" />
+		)
+		VALUES
+		(
+		#{id,jdbcType=CHAR},
+		#{feedback,jdbcType=VARCHAR},
+		#{isRead,jdbcType=VARCHAR},
+		#{unitNo,jdbcType=VARCHAR},
+		#{noticeId,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<update id="updateInfoNotice" parameterType="com.rongji.egov.info.business.info.model.InfoNotice">
+		UPDATE EGOV_INFO_NOTICE
+		<set>
+			<if test="subject!=null">
+				SUBJECT=#{subject,jdbcType=VARCHAR},
+			</if>
+			<if test="noticeTime!=null">
+				NOTICE_TIME=#{noticeTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="expiryTime!=null">
+				EXPIRY_TIME=#{expiryTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="noticeType!=null">
+				NOTICE_TYPE=#{noticeType,jdbcType=VARCHAR},
+			</if>
+			<if test="secLevel!=null">
+				SEC_LEVEL=#{secLevel,jdbcType=VARCHAR},
+			</if>
+			<if test="recUnitType!=null">
+				REC_UNIT_TYPE=#{recUnitType,jdbcType=VARCHAR},
+			</if>
+			<if test="recUnit!=null">
+				REC_UNIT=#{recUnit,jdbcType=VARCHAR},
+			</if>
+			<if test="noticeUnit!=null">
+				NOTICE_UNIT=#{noticeUnit,jdbcType=VARCHAR},
+			</if>
+			<if test="noticeUnitTel!=null">
+				NOTICE_UNIT_TEL=#{noticeUnitTel,jdbcType=VARCHAR},
+			</if>
+			<if test="noticeContent!=null">
+				NOTICE_CONTENT=#{noticeContent,jdbcType=VARCHAR},
+			</if>
+			<if test="status!=null">
+				STATUS=#{status,jdbcType=VARCHAR},
+			</if>
+			<if test="attId!=null">
+				ATT_ID=#{attId,jdbcType=VARCHAR},
+			</if>
+		</set>
+		<where>
+			AND ID = #{id,jdbcType=CHAR}
+		</where>
+	</update>
+
+	<update id="updateInfoNoticeBack" parameterType="com.rongji.egov.info.business.info.model.InfoNoticeBack">
+		UPDATE EGOV_INFO_NOTICE_FEEDBACK
+		<set>
+			<if test="isRead!=null">
+				IS_READ=#{isRead,jdbcType=VARCHAR},
+			</if>
+			<if test="feedback!=null">
+				FEEDBACK=#{feedback,jdbcType=VARCHAR},
+			</if>
+		</set>
+		<where>
+			AND ID = #{id,jdbcType=CHAR}
+		</where>
+	</update>
+
+	<delete id="deleteInfoNotice">
+		DELETE FROM EGOV_INFO_NOTICE
+		<where>
+			ID = #{id,jdbcType=CHAR}
+		</where>
+	</delete>
+
+	<delete id="deleteInfoNoticeByIds">
+		DELETE FROM EGOV_INFO_NOTICE
+		<where>
+			ID IN
+			<foreach item="item" index="index" collection="ids" open="(" separator="," close=")">
+				#{item,jdbcType=CHAR}
+			</foreach>
+		</where>
+	</delete>
+
+	<delete id="deleteInfoNoticeBackById">
+		DELETE FROM EGOV_INFO_NOTICE_FEEDBACK
+		<where>
+			NOTICE_ID = #{id}
+		</where>
+	</delete>
+
+	<sql id="noticeQuery">
+		<if test="query.noticeType!=null and query.noticeType!=''">
+			AND NOTICE_TYPE = #{query.noticeType,jdbcType=VARCHAR}
+		</if>
+		<if test="query.subject!=null and query.subject!=''">
+			AND SUBJECT like '%'||#{query.subject,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test="query.beginTime!=null and query.beginTime!=''">
+			<![CDATA[
+				AND TRUNC(NOTICE_TIME,'dd') >= TO_TIMESTAMP(#{query.beginTime,jdbcType=VARCHAR},'YYYY-MM-DD')
+			]]>
+		</if>
+		<if test="query.endTime!=null and query.endTime!=''">
+			<![CDATA[
+				AND TRUNC(NOTICE_TIME,'dd') <= TO_TIMESTAMP(#{query.endTime,jdbcType=VARCHAR},'YYYY-MM-DD')
+			]]>
+		</if>
+		<if test="query.date!=null">
+			<choose>
+				<when test="query.month!=null">
+					AND TRUNC(CREATE_TIME,'month') = TRUNC(#{query.date}::timestamp,'month')
+				</when>
+				<when test="query.year!=null">
+					AND TRUNC(CREATE_TIME,'YEAR') = TRUNC(#{query.date}::timestamp,'YEAR')
+				</when>
+			</choose>
+		</if>
+		<if test="query.status!=null and query.status!=''">
+			AND STATUS = #{query.status,jdbcType=VARCHAR}
+		</if>
+		<!--<if test="pagerModel.word!=null and pagerModel.word!=''">-->
+			<!--AND (SUBJECT like '%'||#{pagerModel.word}||'%' OR NOTICE_TYPE = #{pagerModel.word})-->
+		<!--</if>-->
+	</sql>
+
+	<select id="listInfoNotice4Page" resultMap="infoNoticeResultMap">
+		SELECT
+		ID,NOTICE_TYPE,EXPIRY_TIME,NOTICE_TIME,SUBJECT,STATUS,CREATE_TIME
+		FROM EGOV_INFO_NOTICE
+		<where>
+			<include refid="noticeQuery" />
+		</where>
+
+	</select>
+
+	<select id="countInfoNotice" resultType="int">
+		SELECT count(*) FROM EGOV_INFO_NOTICE
+		<where>
+			<include refid="noticeQuery" />
+		</where>
+	</select>
+
+	<sql id="noticeBackQuery">
+		AND N.STATUS = '3'
+		<if test="query.noticeType!=null and query.noticeType!=''">
+			AND N.NOTICE_TYPE = #{query.noticeType,jdbcType=VARCHAR}
+		</if>
+		<if test="query.subject!=null and query.subject!=''">
+			AND N.SUBJECT like '%'||#{query.subject,jdbcType=VARCHAR}||'%'
+		</if>
+		<if test="query.unitNos!=null">
+			AND B.UNIT_NO IN
+			<foreach item="item" index="index" collection="query.unitNos" open="(" separator="," close=")">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
+		</if>
+		<if test="query.beginTime!=null and query.beginTime!=''">
+			<![CDATA[
+				AND TRUNC(N.NOTICE_TIME,'dd') >= TO_TIMESTAMP(#{query.beginTime,jdbcType=VARCHAR},'YYYY-MM-DD')
+			]]>
+		</if>
+		<if test="query.endTime!=null and query.endTime!=''">
+			<![CDATA[
+				AND TRUNC(N.NOTICE_TIME,'dd') <= TO_TIMESTAMP(#{query.endTime,jdbcType=VARCHAR},'YYYY-MM-DD')
+			]]>
+		</if>
+		<if test="query.isRead!=null and query.isRead!=''">
+			AND B.IS_READ = #{query.isRead,jdbcType=VARCHAR}
+		</if>
+		<if test="query.noticeId!=null and query.noticeId!=''">
+			AND B.NOTICE_ID = #{query.noticeId}
+		</if>
+		<!--<if test="pagerModel!=null and pagerModel.word!=null and pagerModel.word!=''">-->
+			<!--AND (N.SUBJECT like '%'||#{pagerModel.word}||'%' OR N.NOTICE_TYPE = #{pagerModel.word})-->
+		<!--</if>-->
+		<if test="query.date!=null">
+			<choose>
+				<when test="query.month!=null">
+					AND TRUNC(N.NOTICE_TIME,'month') = TRUNC(#{query.date}::timestamp,'month')
+				</when>
+				<when test="query.year!=null">
+					AND TRUNC(N.NOTICE_TIME,'YEAR') = TRUNC(#{query.date}::timestamp,'YEAR')
+				</when>
+			</choose>
+		</if>
+	</sql>
+
+	<select id="listInfoNoticeBack4Page" resultType="map">
+		SELECT
+		B.ID as "id"
+		,B.IS_READ as "isRead"
+		,B.FEEDBACK as "feedback"
+		,U.UNIT_NAME as "unitName"
+		,N.SUBJECT as "subject"
+		,N.NOTICE_TIME as "noticeTime"
+		,N.EXPIRY_TIME as "expiryTime"
+		,N.NOTICE_TYPE as "noticeType"
+		FROM
+		EGOV_INFO_NOTICE_FEEDBACK B
+		LEFT JOIN EGOV_INFO_NOTICE N
+		ON B.NOTICE_ID = N.ID
+		LEFT JOIN EGOV_INFO_UNIT U
+		ON B.UNIT_NO = U.UNIT_NO
+		<where>
+			<include refid="noticeBackQuery" />
+		</where>
+		<!--<choose>-->
+			<!--<when test="pagerModel.sort=='noticeTime'">-->
+				<!--ORDER BY NOTICE_TIME ${pagerModel.order}-->
+			<!--</when>-->
+			<!--<when test="pagerModel.sort=='expiryTime'">-->
+				<!--ORDER BY EXPIRY_TIME ${pagerModel.order} NULLS LAST-->
+			<!--</when>-->
+			<!--<otherwise>-->
+				<!--ORDER BY NOTICE_TIME DESC-->
+			<!--</otherwise>-->
+		<!--</choose>-->
+		<!--) t-->
+		 <!--<![CDATA[-->
+			<!--WHERE rownum <= #{pagerModel.end} -->
+		  <!--]]>-->
+		<!--)-->
+		 <!--<![CDATA[-->
+			<!--WHERE r > #{pagerModel.start}-->
+		 <!--]]>-->
+	</select>
+
+	<select id="countInfoNoticeBack" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM EGOV_INFO_NOTICE_FEEDBACK B
+		LEFT JOIN EGOV_INFO_NOTICE N
+		ON B.NOTICE_ID = N.ID
+		<where>
+			<include refid="noticeBackQuery" />
+		</where>
+	</select>
+
+	<select id="listUnitUnReadNotice" resultMap="infoNoticeBackResultMap">
+		SELECT
+		B.ID,B.NOTICE_ID,N.EXPIRY_TIME,N.SUBJECT
+		FROM EGOV_INFO_NOTICE_FEEDBACK B
+		INNER JOIN EGOV_INFO_NOTICE N
+		ON
+		B.NOTICE_ID = N.ID
+		<where>
+			AND B.UNIT_NO IN
+			<foreach item="item" index="index" collection="unitNos" open="(" separator="," close=")">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
+			AND B.IS_READ = '0'
+			AND N.STATUS = '3'
+		</where>
+	</select>
+
+	<select id="listNoticeBackByIdAndNo" parameterType="java.util.HashMap" resultType="java.lang.String">
+		SELECT id FROM EGOV_INFO_NOTICE_FEEDBACK where NOTICE_ID = #{noticeId} AND UNIT_NO = #{unitNo}
+	</select>
+
+	<!--<select id="listNoticeBackByIdAndNo" parameterType="java.util.HashMap" resultMap="infoNoticeBackResultMap">-->
+		<!--SELECT-->
+		<!--ID-->
+		<!--FROM EGOV_INFO_NOTICE_FEEDBACK-->
+		<!--<where>-->
+			 <!--NOTICE_ID = #{noticeId} AND UNIT_NO = #{unitNo}-->
+		<!--</where>-->
+	<!--</select>-->
+
+	<select id="getInfoNoticeById" resultMap="infoNoticeResultMap" parameterType="string">
+		SELECT
+		<include refid="allNoticeCol" />
+		FROM EGOV_INFO_NOTICE
+		<where>
+			AND ID = #{id,jdbcType=CHAR}
+		</where>
+	</select>
+
+	<select id="getInfoNoticeBackById" resultMap="infoNoticeBackResultMap">
+		SELECT
+		B.ID,B.NOTICE_ID,B.FEEDBACK
+		,N.NOTICE_CONTENT
+		,N.NOTICE_UNIT
+		,N.NOTICE_UNIT_TEL
+		,N.SEC_LEVEL
+		,N.NOTICE_TYPE
+		,N.EXPIRY_TIME
+		,N.NOTICE_TIME
+		,N.SUBJECT
+		,N.ATT_ID
+		FROM EGOV_INFO_NOTICE_FEEDBACK B
+		LEFT JOIN
+		EGOV_INFO_NOTICE N
+		ON
+		B.NOTICE_ID = N.ID
+		<where>
+			AND B.ID = #{backId,jdbcType=CHAR}
+			AND N.STATUS = '3'
+		</where>
+	</select>
+
+</mapper>

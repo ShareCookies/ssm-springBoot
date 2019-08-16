@@ -1,0 +1,18 @@
+    
+	日期范围：
+	<if test="query.date!=null">
+      <choose>
+        <when test="query.month!=null">
+          AND TRUNC(N.NOTICE_TIME,'month') = TRUNC(#{query.date}::timestamp,'month')
+        </when>
+        <when test="query.year!=null">
+          AND TRUNC(N.NOTICE_TIME,'YEAR') = TRUNC(#{query.date}::timestamp,'YEAR')
+        </when>
+      </choose>
+    </if>
+	
+	<if test="query.beginTime!=null and query.beginTime!=''">
+      <![CDATA[
+				AND TRUNC(N.NOTICE_TIME,'dd') >= TO_TIMESTAMP(#{query.beginTime,jdbcType=VARCHAR},'YYYY-MM-DD')
+		]]>
+    </if>

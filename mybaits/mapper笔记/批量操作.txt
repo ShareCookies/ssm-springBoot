@@ -1,0 +1,111 @@
+Mybatis批量插入性能分析测试：
+	https://www.cnblogs.com/linkstar/p/10230000.html
+批量插入：
+	https://www.cnblogs.com/liaojie970/p/5577018.html
+	sql中使用foreach进行批量insert：
+		int insertByBatch(List<AttachmentTable> attachmentTables);
+		<insert id="insertByBatch" parameterType="java.util.List">
+			insert into table (
+			<include refid="Base_Column_List"/>
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(#{item.name,jdbcType=VARCHAR}, #{item.logid,jdbcType=INTEGER},#{item.url,jdbcType=LONGVARCHAR})
+			</foreach>
+		</insert>
+	解析：
+		sql foreach插入来的效率最高，因为它是一条sql在执行。
+		使用批量插入执行的SQL语句应等价于：
+			 insert into table (id, name,sex,address)
+			 values
+			 (?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?)
+		 注：
+			当插入条数很多的时候会出现异常，所以使用这种方式时一定要主动限制插入的最大条数，不然容易出现异常。
+
+		
+		
+	TODO:!!!
+		public int insertEgovCommonContactsByBatch(List<EgovCommonContacts> list){
+			SecurityUser securityUser = SecurityUtils.getPrincipal();
+			String userNo=securityUser.getUserNo();
+			String orgNo=securityUser.getOrgNo();
+			//构造组织层级字符串
+			UmsOrg umsOrg = userDao.getUmsOrg(orgNo);
+			UmsUser umsUser=userDao.getUmsUser(userNo);
+			String fname=umsUser.getUserName()+"/"+umsOrg.getOrgNameList();
+
+			//删除指定用户的所有联系人数据
+			delEgovCommonContactsByUserNo(userNo);
+
+			// 初始化默认数据
+			ListIterator<EgovCommonContacts> iterator=list.listIterator();
+
+			while (iterator.hasNext()) {
+				EgovCommonContacts item=iterator.next();
+				UmsOrg contactUmsOrg= umsOrgDao.getUmsOrgByNo(item.getContactOrgNo());
+				item.setContactOrgName(contactUmsOrg.getOrgName());
+				UmsUser contactUser = userDao.getUmsUser(item.getContactNo());
+				item.setContactSortNo(contactUser.getSortNo());
+				item.setContactDutyValue(contactUser.getUserLevel());
+
+
+				String id= IdUtil.getUID();
+				//if (StringUtils.isBlank(item.getId())) {
+					item.setId(id);
+				//}
+				item.setUserNo(userNo);
+				item.setUserOrgNo(orgNo);
+				item.setFname(fname);
+				iterator.set(item);
+			}
+			//切割list 然后插入数据库
+			int result=0;
+
+			List<List<EgovCommonContacts>> averageList= averageList(list,list.size()/200<1?1:list.size()/200);
+			for (List<EgovCommonContacts> insertList: averageList) {
+				result+=this.egovCommonContactDao.insertEgovCommonContactsByBatch(insertList);
+			}
+			return result;
+		}
+		
+		/**
+		 * list分割成若干个list
+		 * @param list
+		 * @return
+		 */
+		public static <T> List<List<T>> averageList(List<T> list,int n){
+			List<List<T>> result=new ArrayList<List<T>>();
+			int remaider=list.size()%n;  //(先计算出余数)
+			int number=list.size()/n;  //然后是商
+			int offset=0;//偏移量
+			for(int i=0;i<n;i++){
+				List<T> value=null;
+				if(remaider>0){
+					value=list.subList(i*number+offset, (i+1)*number+offset+1);
+					remaider--;
+					offset++;
+				}else{
+					value=list.subList(i*number+offset, (i+1)*number+offset);
+				}
+				result.add(value);
+			}
+			return result;
+		}	
+批量删除：
+	/**
+     * 通过多个id批量删除
+     * @param idList
+     * @return 返回值为0，则操作失败
+     */
+    int delByIds(List<String> idList) ;
+	<!--根据id批量删除-->
+	<delete id="delByIds" parameterType="java.util.List">
+		DELETE from 表名 where ID in
+        (
+        <foreach collection="idList" item="id" separator=",">
+			#{id}
+		</foreach>
+        )
+	</delete>
+批量更新：
+	！
