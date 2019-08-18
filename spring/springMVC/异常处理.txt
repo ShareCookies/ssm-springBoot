@@ -1,0 +1,64 @@
+spring控制层异常的处理：
+	介绍：
+		Servlet请求的输出都是一个Servlet响应。
+		如果在请求处理的时候，出现了异常，那它的输出依然会是Servlet响应。
+		所以异常必须要以某种方式转换为响应。帮助客户端理解资源或者在请求中出现了什么情况。
+	异常的处理方式：
+		处理异常的最简单方式就是将其映射到HTTP状态码上，放到响应之中.
+	Spring提供了多种方式将异常转换为响应：（即发送错误信息到客户端）
+		1.特定的Spring异常将会自动映射为指定的HTTP状态码，由Spring自身放入到响应中。p264	
+		例：
+			如果DispatcherServlet无法找到适合处理请求的控制器方法，
+			那么将会抛出NoSuchRequestHandlingMethodException异常，最终的结果就是产生具有404状态码的响应。
+			尽管这些内置的映射是很有用的，但是对于应用所抛出的异常它们就无能为力了。
+
+		2.异常类上添加@ResponseStatus注解，从而将异常映射为具有某一个HTTP状态码的响应；
+			如果控制器方法throw 该异常类的话的话，响应将会具有404状态码。
+			例：p265	
+		3.@ExceptionHandler注解：（也称为错误处理器）
+			使用时机：
+				当响应中不仅要包括状态码，还要包含所产生的错误时使用。
+			介绍：
+				1.控制器方法添加@ExceptionHandler注解，当方法抛出指定异常的时候，将会委托给注解指定的类的方法来处理。
+				2.@ExceptionHandler注解能处理同一个控制器中所有处理器方法所抛出的异常。
+					所以同一个控制器不用在每一个可能抛出 DuplicateSpittleException的方法中添加该注解了。
+			
+				3.控制器通知类：
+					使用时机：	
+						当想处理所有控制器中法抛出的异常时，可使用该类。
+					2.控制器通知（controller advice）是任意带有@ControllerAdvice注解的类。
+					3.这个类会包含一个或多个如下类型的方法：
+						@ExceptionHandler注解标注的方法；
+						@InitBinder注解标注的方法；
+						@ModelAttribute注解标注的方法。
+					
+						控制器通知类中，以上所述的这些方法会运用到整个应用程序所有控制器中带有@RequestMapping注解的方法上。!
+			例：
+				p269
+	
+REST风格下异常的处理：
+	REST风格下将异常转换为响应：（即发送错误信息到客户端）
+		1.控制器方法可以返回ResponseEntity对象，该对象能够包含更多响应相关的元数据。		
+			返回ResponseEntity对象：
+				使用ResponseEntity 作为@ResponseBody的替代方案，控制器方法可以返回一个ResponseEntity对象。
+				ResponseEntity中可以包含响应相关的元数据（如头部信息和状态码）以及要转换成资源表述的对象。 
+				例：
+					p518
+				注：
+					ResponseEntity除了包含响应头信息、状态码以及负载以外，还包含了@ResponseBody的语义。
+					因此负载部分将会渲染到响应体中，就像之前在方法上使用@ResponseBody注解一样。
+					即如果返回 ResponseEntity的话，那就没有必要在方法上使用@ResponseBody注 解了。
+			使用时机：
+				想在响应中设置头部信息时使用。
+			例：
+				p524
+		2.使用异常处理器：
+			1.异常处理器中返回ResponseEntity对象。
+				例：
+					p520
+			2.@ExceptionHandler+@ResponseStatus+@ResponseBody
+				例：
+					p521
+注：
+	尽量避免控制器中处理抛出的异常，而是转而使用异常处理器应对错误场景。
+	这样处理器方法就能关注于正常的状况。以提高代码的业务逻辑性。

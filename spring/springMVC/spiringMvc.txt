@@ -112,23 +112,8 @@ springMVC处理请求过程：P175
 				<form>标签现在将enctype属性设置为multipart/formdata。
 				这会告诉浏览器以multipart数据的形式提交表单，而不是以表单数据的形式进行提交。在multipart中，每个输入域都会对应一个part。
 				
-	处理异常：？
-		？
-			Servlet请求的输出都是一个Servlet响应。
-			如果在请求处理的时候，出现了异常，那它的输出依然会是Servlet响应。
-			所以异常必须要以某种方式转换为响应。
-		Spring提供了多种方式将异常转换为响应：
-			1.特定的Spring异常将会自动映射为指定的HTTP状态码；p264	
-			例：
-				如果DispatcherServlet无法找到适合处理请求的控制器方法，
-				那么将会抛出NoSuchRequestHandlingMethodException异常，最终的结果就是产生404状态码的响应（Not Found）。
-				尽管这些内置的映射是很有用的，但是对于应用所抛出的异常它们就无能为力了。
-
-			2.异常上可以添加@ResponseStatus注解，从而将其映射为某一个HTTP状态码；
-			3.在方法上可以添加@ExceptionHandler注解，使其用来处理异常。
-		控制器中处理抛出的异常：
-			尽管带有@RequestMapping注解的方法可以在自身的代码中处理异常，
-			但是如果我们将异常处理的代码抽取到单独的方法中，那么控制器的代码会整洁得多。
+	处理异常：
+		异常处理.txt > spring控制层异常的处理
 	控制器通知:
 		P268
 	请求重定向并传递数据：

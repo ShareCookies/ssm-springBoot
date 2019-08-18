@@ -64,10 +64,13 @@ spirngMVC的相关注解：
 				这个方法是获取整个URL的信息，然后手动获取和分离参数，和类型转化。这个里面带的内容很多，不仅Param还有Header，Cookies等。
 			@RequestParam：
 				https://www.cnblogs.com/zeroingToOne/p/8992746.html
-				介绍：
+				使用：
 					1.修饰方法参数。（即用在方法的参数前面）
 					2.GET请求传的参数会自动转换赋值到@RequestParam 所修饰的变量上。
 					3.@RequestParam修饰的对象可以是基本数据类型和自定义对象。
+					注：
+						@RequestParam修饰对象就是不给对象加@RequestParam注解。
+						请求参数会被自动注入到所有对象的对应属性中。
 				适用范围：
 					@RequestParam同时适用于get和post，Content-Type为任意。
 				属性：
@@ -77,21 +80,19 @@ spirngMVC的相关注解：
 						参数在请求中不存在的话，就使用默认值
 					required：
 						默认为true
+					...
 				例：
-					修饰基本数据类型:@RequestParam(value="username",required=false) String userName
+					修饰基本数据类型:
+						@RequestParam(value="username",required=false) String userName
 					修饰对象:
-						对象有name属性，则会把name参数注入到该属性中。
 						@GetMapping("/bgms/student/getStudentPage")
 						public Page<Student> getStudentPage(PagingRequest paging){
 							return this.studentMng.getStudent4Page(paging,null,null);
 						}
-						http://localhost:8092/bgms/student/getStudentPage?currentPage=5
-						参数会自动注入到对象中
-						对象中有级联对象：
-								年龄int：<input type="text" name="age"><br>
-								省份string：<input type="text" name="address.province"><br>
-
-						传到多对象：
+						1.对象中有级联对象：
+							<input type="text" name="address.province"><br>
+							会被注入到对象属性的属性中！
+						2.传到多对象：
 							前端传参数到后端的多个对象。
 							例子：
 								后端：
@@ -99,11 +100,12 @@ spirngMVC的相关注解：
 								前端：
 									injectMultiObjectTest?total=111&name=哈哈
 								注：
+									total会到page对象，name会注入到student对象
 									get传参到多对象的话，传参时参数不要带上对象前缀。两对象的属性要不同
 				注：
 					1.@RequestParam加与不加的区别：
-						使用了@RequestParam，则请求必须带有参数。（使用了defaultValue和required例外）
-						不使用@RequestParam，则请求可带参数也可不带参，方法都能执行。
+						使用了@RequestParam，则请求必须带有参数。（使用了defaultValue或required=false例外）
+						不使用@RequestParam，则请求可带参数也可不带参，方法都能被访问执行。
 				解析：?
 					@RequestParam的原理是Spring将Request.getParameter()中的Key-Value参数Map转化成了参数@RequestParam修饰的基本类型数据或对象。
 
@@ -123,19 +125,22 @@ spirngMVC的相关注解：
 			@RequestBody：
 				https://www.cnblogs.com/zeroingToOne/p/8992746.html
 				介绍：
+					当使用了该注解，spring将使用消息转换器将json类型的post请求转换为指定对象（控制器方法中被注解的参数对象）。
+				使用：
 					修饰方法参数。
 					@RequestBody用于json类型的post请求数据，并将其转换成对应的数据类型。
 					@RequestBody只能修饰一个对象。
-					解析：
+				适用范围：
+					@RequestBody适用于post，Content-Type为json。
+				解析：
 						1.GET请求中，因为没有HttpEntity（是指http消息主体吗），所以@RequestBody并不适用。
 						2.POST请求中，通过HttpEntity传递的参数，必须要在请求头中声明数据的类型Content-Type！
 						3.SpringMVC通过使用HandlerAdapter 配置的HttpMessageConverters来解析HttpEntity中的数据，然后绑定到@RequestBody修饰的对象上。！
 						使用@RequestBody接受的参数是不会被Servlet转化统一放在request对象的Param参数集中？
 
-				适用范围：
-					@RequestBody适用于post，Content-Type为json。
+
 				例：
-					@RequestBody Dispatch dispatch
+					(@RequestBody Dispatch dispatch
 				注：
 					1.多个@RequestBody异常：！
 						原因：
@@ -143,6 +148,14 @@ spirngMVC的相关注解：
 							因此spring就不能将这个数据同时强制包装成Course和List类型，即无法多个body。
 							并且从@requestbody设计上来说，只获取一次就可以拿到请求body里面的所有数据，
 							就没必要出现有多个@requestbody出现在controller的函数的形参列表当中。
+				解析：
+					当参数上使用了@RequestBody，Spring将会查看请求中的Content-Type头部信息，并查找能够将请求体转换为对象的消息转换器。
+					如客户端发送的数据是JSON表述形式，那么Content-Type头部信息可能就会是“application/json”。
+					在这种情况下，DispatcherServlet会查找能够将JSON转换为Java对象的消息转换器。
+					如果Jackson2库在类路径中，那么MappingJackson2HttpMessageConverter将会担此重任，
+					将JSON表述转换为指定对象，然后传递到控制器方法中。
+					
+					如果控制器方法还使用了@ResponseBody注解，方法返回的对象将会转换为某种资源表述，发送给客户端。
 
 	数据的返回：
 		返回的数据可分为1.html页面，2.其他某种格式的数据（如json，xml等）。
@@ -175,7 +188,7 @@ spirngMVC的相关注解：
 
 springMvc输入数据的校验：
 	springMvc.txt 第73行
-
 mvc传递list或数组：
 	https://blog.csdn.net/huangcsdnjava/article/details/75005498
 ServletAPI：？
+	springMvc中如何访问到servlet的api了。
