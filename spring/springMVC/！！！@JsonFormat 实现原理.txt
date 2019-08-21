@@ -3,7 +3,7 @@
 Jackson时间格式化：
 	  Jackson  是  SpringMvc  官方推荐结合的时间格式化注解。
 	  
-@JsonFormat和@DateTimeFormat ？
+@JsonFormat和@DateTimeFormat 
 	使用@DateTimeFormat和@JsonFormat，来让spring自动处理前后端（请求和控制层之间）的时间数据格式转换。
 	即：
 		前端传到后端的时间数据会转换为指定格式的时间数据。
@@ -11,20 +11,31 @@ Jackson时间格式化：
 	
 	
 	@JsonFormat：
-		@JsonFormat只适合 Content-Type 为application/json的请求，
-		如果是表单请求，请采用@DateTimeFormat
+		@JsonFormat只适合 Content-Type 为application/json的请求。
+		对参数进行序列化与反序列化的。如入参是json，则jsonformat将入参字符转为date。如果向前台返回，则jsonformat将date转为json字符串。！！！
+		hcg：
+			前台向后台输入了，会被格式化成指定日期格式的时间搓date。？
+				1.输入时间戳
+				2.输入字符串
+			向前台，时间会被转换成指定日期格式的时间字符串。
 		
-		
-		？
-		@jsonformat应该不是这个意思。是对参数进行序列化与反序列化的。如入参是json，则jsonformat将入参字符转为date。如果向前台返回，则jsonformat将date转为json字符串。
-		
-		？
-		@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm")
-
+		例:
+			@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm")
+			hcg：
+				timezone我没有效果
 		不适用则：
 			对象的date属性直接通过@ResponseBody返回出去的是一个长整型时间戳。
 
-	@DateTimeFormat：？
-		我怎么感觉这个可以是什么时候都通用的了
+	@DateTimeFormat：！！！
+		如果是表单请求，请采用@DateTimeFormat！
+		json下无法使用！
+		（测试get且json格式化失效）
 		
-	
+手动日期格式化：
+	@GetMapping("/egovNoticeBack/getEgovNoticeBack4Page")
+    public String getEgovNoticeBack4Page(String word, EgovNoticeDTO egovNoticeDTO, PagingRequest<EgovNoticeBack> paging) {
+        Page<Map<String, Object>> page = egovNoticeBackMng.getEgovNoticeBack4Page(paging, egovNoticeDTO, word);
+        SerializeConfig mapping = new SerializeConfig();
+        mapping.put(Timestamp.class, new SimpleDateFormatSerializer("yyyy-MM-dd"));
+        return JSON.toJSONString(page, mapping);
+    }
