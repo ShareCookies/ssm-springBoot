@@ -1,21 +1,16 @@
 bean的三种主要装配机制：
-	在XML中进行显式配置。
-	在Java中进行显式配置。
-	隐式的bean发现机制和自动装配。（推荐）
-	
+	在XML中进行显式配置。p76
+	Spring自动发现和装配bean。（推荐）
+	在Java中进行显式配置。（辅助自动装配）
+		注：
+			一般来说，spring的JavaConfig显示配置是一定会有的，至少需要有一点显式配置来启用组件扫描和自动装配。
 	注：
-		Spring的bean配置风格是可以互相搭配的。
-		所以你可以选择使用XML装配一些bean，使用Spring基于Java的配置（JavaConfig）来装配另一些bean，
-		而将剩余的bean让Spring去自动发现。
-自动化装配bean：
-	Spring从两个角度来实现自动化装配：
-		组件扫描（component scanning）：
-			Spring会自动发现应用上下文中所创建的bean。
-			hcg：
-				就是扫描bean。
-		自动装配（autowiring）：
-			Spring自动满足bean之间的依赖。
-			hcg：
-				就是加载bean。
-	案例：
+		混合配置：
+			介绍：
+				Spring的bean配置风格是可以互相搭配的。
+				所以你可以选择使用XML装配一些bean，
+				使用Spring基于Java的配置（JavaConfig）来装配另一些bean，
+				而将剩余的bean让Spring去自动发现。
+			例子：
+				JavaConfig显式配置.txt
 		

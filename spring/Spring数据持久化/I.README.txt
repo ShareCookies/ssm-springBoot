@@ -4,7 +4,7 @@ Repository：
 	注：
 		尽管Spring鼓励使用接口，但这并不是强制的——你可以使用Spring将bean（DAO或其他类型）直接装配到另一个bean的某个属性中，而不需要一定通过接口注入。！
 		spring注入接口后，是如何找到接口的实现类的了!!
-
+		https://ask.csdn.net/questions/720128?sort=votes_count
 
 了解Spring的数据访问异常体系：
 	前景：

@@ -1,5 +1,3 @@
-参考·：
-	spring实战P65
 1.定义bean：
 	实现方式：
 		1.类上使用@Component注解，定义一个bean

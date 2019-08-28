@@ -73,6 +73,36 @@ spirngMVC的相关注解：
 						请求参数会被自动注入到所有对象的对应属性中。
 				适用范围：
 					@RequestParam同时适用于get和post，Content-Type为任意。
+				要求前端参数格式：
+					1.
+						flowStatus=0&offset=0&limit=15  即get形式放在连接后台。
+					2.
+						------WebKitFormBoundarynR5pmWbelVBBuvp9
+							Content-Disposition: form-data; name="docId"
+							XWU96YSuc0TKCvQr
+						------WebKitFormBoundarynR5pmWbelVBBuvp9
+						------WebKitFormBoundarynR5pmWbelVBBuvp9
+							Content-Disposition: form-data; name="file"; filename="法院推广方案1.0.doc"
+							Content-Type: application/msword
+							二进制文件数据
+						------WebKitFormBoundarynR5pmWbelVBBuvp9--
+						即前端用表单以mutipart形式传输数据。
+						例：
+							手动构造表单对象。
+							const fileForm = new FormData(); // FormData 对象
+							fileForm.append('file', fileObj, fileObj.name); // 文件对象
+							fileForm.append('moduleId', this.module);
+							fileForm.append('docId', this.form.id);
+							fileForm.append('type', 'main_doc');
+							this.$utils.ajax({
+								url: '',
+								method: 'post',
+								data: fileForm
+							}).then((res) => {
+							
+							}).catch((err) => {
+             
+							});
 				属性：
 					value：
 						类似参数重命名
@@ -132,6 +162,9 @@ spirngMVC的相关注解：
 					@RequestBody只能修饰一个对象。
 				适用范围：
 					@RequestBody适用于post，Content-Type为json。
+				要求前端参数格式：
+					{"draft":"浙江","copyNum":null} 即直接传对象
+
 				解析：
 						1.GET请求中，因为没有HttpEntity（是指http消息主体吗），所以@RequestBody并不适用。
 						2.POST请求中，通过HttpEntity传递的参数，必须要在请求头中声明数据的类型Content-Type！

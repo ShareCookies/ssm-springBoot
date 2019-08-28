@@ -1,17 +1,7 @@
 https://www.cnblogs.com/toutou/p/ssm_spring.html
 https://www.cnblogs.com/doudouxiaoye/p/5693399.html
 
-spring 属性自动注入和IOC：
-	1.开启注解扫描器
-	2.@Autowired 属性注解
-	3.配置文件要配bean吗。service实现类，上加@service
-	注：
-		将@Service和@Repository放到实现类上面而不是接口类上面，
-		接口只是一个规范，需要各种实现类去实现这个接口，我们要用的就是这些实用类的方法。
-	
-	构造型（stereotype）注解：
-		开启注解扫描器后，spring会把构造型注解所标注的类,注册为bean，以后这些类对象都有spring管理。
-		如@Service,@Component,@Repository,@Controller，
+
 mybaits与spring的整合：
 	它们的整合是通过spring的sessionFactory来进行的
 	<!-- 配置会话工厂SqlSessionFactory -->
