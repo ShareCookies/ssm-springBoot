@@ -1,0 +1,26 @@
+select a.id fund_id ,a.name ,b.* 
+from fund a left join fund_holding b on a.id=b.fundId
+order by a.id 
+;
+##左连接结果会比左表多，且左表记录都会有。
+	##因为是以左表为准查找但左表的某些记录会显示多条出来，因为右边可能有多条记录与左表的某一条记录有关。
+	##group by 左表某记录，可实现只显示与左表一样多的记录数。但某些记录会被冲没
+select a.id fund_id ,a.name ,b.* 
+from fund a left join fund_holding b on a.id=b.fundId
+group by a.name
+order by a.id 
+;
+##显示左表全部数据，且根据左表记录统计与左表有关的数据数。
+select a.id fund_id ,a.name ,count(b.id) 右边与左表有关的数量,b.* 
+from fund a left join fund_holding b on a.id=b.fundId
+group by a.name
+order by a.id 
+;
+##显示左表全部数据，且根据左表记录统计与左表有关的数据数。加上第三表的记录。
+select a.id fund_id ,a.name ,count(b.id) 右边与左表有关的数量,b.*,c.amount 
+from 
+fund a left join fund_holding b on a.id=b.fundId
+left join financial_account c on b.accId=c.id
+group by a.name
+order by a.id 
+;

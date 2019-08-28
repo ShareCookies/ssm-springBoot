@@ -1,0 +1,22 @@
+group by：
+	介绍：
+		分组,把数据分组并显示同组数据的第一行。
+		通常配合count使用。
+	位置：
+		from 后 order前
+	例子：
+		1.select a.name ,count(a.name)  
+		from fund a group by a.name
+		注：
+			group by 分组后数据并未消失，只是不可见
+
+		count 统计一组内某字段的值有几个
+		2.获取每组中时间最大的数据：
+			由于分组后只显示同组数据的第一行，
+			所以可先把数据排序，
+			再把排序后的数据作为from的条件，
+			在分组，
+			即可获取每组中时间最大的数据。
+		注：
+			直接查询的表默认是以 ID 进行顺序排序的。
+		3.mysql中group by 后order by 排序的是已经从分组中取出的数据。

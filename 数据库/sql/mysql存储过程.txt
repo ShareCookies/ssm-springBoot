@@ -1,0 +1,71 @@
+https://www.cnblogs.com/mark-chan/p/5384139.html
+介绍：
+	存储过程就是将sql语句存储在数据库，作为数据库一可执行对象。 
+	通俗来讲：存储过程其实就是能完成一定操作的一组SQL语句。
+存储过程好处：
+	1.允许模块化程序设计：
+		只需创建一次存储过程，即可多次使用。
+		存储过程可有专门人员创建，并可独立于程序源代码而单独修改。
+	2.改善性能：
+		存储过程只在创造时进行编译，以后每次执行存储过程都不需再重新编译，而一般SQL语句每执行一次就编译一次,所以使用存储过程可提高数据库执行速度。
+	3.减少网络流量：
+		一个需要数百行Sql代码，只需一条执行存储过程的代码即可实现。
+	4.可作为安全机制使用：
+		可设定只有某些用户才具有对指定存储过程的使用权
+创建存储过程：
+	语法：
+		CREATE [DEFINER = { user | CURRENT_USER }] PROCEDURE 存储过程名 ([proc_parameter parameter type[,...]])
+			[characteristic ...] routine_body
+		 
+		proc_parameter:
+			[ IN | OUT | INOUT ] param_name type
+			参数，用来向存储过程传递值，如果有多个参数用","分割开。
+			IN（默认值）：参数的值，调用存储过程时指定。()
+			OUT：该值可在存储过程内部被改变，并可返回。（即参数值在存储过程内部中定义）
+			INOUT：调用时指定，并且可被改变和返回。（即参数值，调用存储过程时指定，并且可以在存储过程内部中修改）
+			
+		characteristic特性:?
+			COMMENT 'string'
+		  | LANGUAGE SQL
+		  | [NOT] DETERMINISTIC
+		  | { CONTAINS SQL | NO SQL | READS SQL DATA | MODIFIES SQL DATA }
+		  | SQL SECURITY { DEFINER | INVOKER }
+		routine_body过程体:
+			是Valid SQL routine statement
+			过程体就是sql语句，且过程体的开始与结束要使用BEGIN与END;进行标识。
+	例：
+		不带参数存储过程:
+			delimiter //　#将语句的结束符号从分号;临时改为两个//可以是自定义)
+			CREATE PROCEDURE delete_matches()
+			BEGIN
+				 select * from fund;
+			END;
+			//
+			delimiter;　　#将语句的结束符号恢复为分号
+			CALL test(); #调用存储过程
+		INOUT参数例子:
+			DELIMITER //
+			  CREATE PROCEDURE inout_param(INOUT p_inout int)
+				BEGIN
+				  SELECT p_inout; #存储过程中获取参数值
+				  SET p_inout=2; #存储过程中设置参数值
+				  SELECT p_inout; 
+				END;
+				//
+			DELIMITER ;
+			#调用
+			SET @p_inout=1; 
+			CALL inout_param(@p_inout) ;
+			SELECT @p_inout; 
+查找存储过程：
+	SHOW PROCEDURE STATUS [WHERE db='数据库名'];
+	#查看存储过程详细信息:
+		SHOW CREATE PROCEDURE 数据库.存储过程名;
+存储过程的修改:
+存储过程的删除:
+	DROP PROCEDURE [过程1[,过程2…]]
+条件，循环，迭代语句：
+函数：
+注：
+	MySQL 5.0 版本开始支持存储过程。
+		

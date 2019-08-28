@@ -1,0 +1,50 @@
+count（）
+	介绍：
+		统计，count统计的是，where等筛选后的数据。
+	例：
+		数据库：
+			目前在数据库中count的用法都是一样的。
+		select count(name)  from fund ;
+	重点：
+		count(*) 统计全表数据总数，包括列值是NULL的;
+		count(列名) 不包含'列名'为NULL的数据;
+
+	注：
+		1.带有count的sql语句只会返回一行记录。
+		2.如果此时你有select 别的列，会发现该列的内容总是为，表中以id排序第一行的内容
+		3.count 函数不能与limit 关键字一起使用，会语法错误：
+			解析：
+				1.带有count的sql语句只会返回一条记录。
+				2.LIMIT 关键字用于强制指定 SELECT 语句返回的记录数。
+				limit是sql语句中最后执行的。
+				因为count只能返回一条数据，limit要返回多条数据，所以limit和count他们作用就会产生冲突。
+
+！！！
+SQL之case when then用法：
+	https://www.cnblogs.com/Richardzhu/p/3571670.html
+	介绍：
+		hcg：为结果值取别名
+	1.简单case函数
+	case sex
+	  when '1' then '男'
+	  when '2' then '女’
+	  else '其他' end
+	2.case搜索函数
+	case when sex = '1' then '男'
+		 when sex = '2' then '女'
+		 else '其他' end  
+	例：
+		select f.id,f.name,
+			(case f.status
+			when 'Y' then '可用'
+			when 'N' then '暂停'
+			else '空的'
+			end
+			)状态
+		from fund f;
+	
+count结合case：
+	select f.description "rowCode1" ,
+	count(case price when '2' then price end) "colSum1",
+	count(case status when 'Y' then status end) "colSum1"
+	from fund f;

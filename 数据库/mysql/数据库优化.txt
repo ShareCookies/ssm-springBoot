@@ -1,0 +1,8 @@
+！！10万条数据的查询 3s 100万条 30s
+1.对查询常用字段建立索引，能提高10多倍速度。
+2.对数据进行分页查询等操作。
+3.冗余字段的建立，减少表之间的关联即减少数据的查询量。
+
+solr，mongo，redis
+Solr与MySQL查询性能对比：
+	https://www.cnblogs.com/luxiaoxun/archive/2015/08/02/4696477.html

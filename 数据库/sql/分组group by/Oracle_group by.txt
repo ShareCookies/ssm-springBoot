@@ -1,0 +1,10 @@
+group by:
+	oracle和mysql，group by是有区别的。
+	1.oracle的gruop by 后跟的必须是select查询出的字段，
+	2.而且group by语句中select指定的字段必须是“分组依据字段”，其他字段若想出现在select中则必须包含在聚合函数中。
+		聚合函数比如：
+			max(列名)       最大值
+			在group中聚合函数有意义吗？
+oracle中group by 和order by同时存在:
+	order by 的栏位必须在group by 中有；例如：select name from TABLE group by name ,id order by id asc
+	那此时排序的对象是谁？
