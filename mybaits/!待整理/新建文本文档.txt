@@ -1,0 +1,2 @@
+1.update与case when的结合使用
+2.mybaits trim
