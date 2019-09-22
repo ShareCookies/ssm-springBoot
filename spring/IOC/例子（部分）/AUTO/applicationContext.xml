@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+    
+	<!-- 该 BeanPostProcessor 将自动对标注 @Autowired 的 Bean 进行注入 --> 
+	<!-- 当 Spring 容器启动时，AutowiredAnnotationBeanPostProcessor 将扫描 Spring 容器中所有 Bean，
+	当发现 Bean 中拥有 @Autowired 注释时就找到和其匹配（默认按类型匹配）的 Bean，并注入到对应的地方中去。    -->  
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+    
+    <!-- 移除 boss Bean 的属性注入配置的信息 -->     
+    <bean id="autoWired" class="com.mybank.fundtrans.test.AutoWired" />    
+ 
+	
+    <bean id="user" class="com.mybank.fundtrans.domain.User">
+	    <property name="name">
+	    	<value>springTest</value>
+	    </property>
+	 </bean>
+</beans>

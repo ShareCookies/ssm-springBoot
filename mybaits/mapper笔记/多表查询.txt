@@ -1,0 +1,37 @@
+多表查询的结果封装：
+	1.resultmap 自定义返回结果集。即专门写个resultmap（一般用在返回的结果很特殊的情况）
+	2.ResultMap级联属性封装关联查询结果（！）
+	https://blog.csdn.net/zjy15203167987/article/details/79455455
+	3.collection解决一对多关联查询（一般用在返回结果为model间一对多的关系）
+	例：
+		<resultMap type="com.rongji.egov.urger.business.model.Urger" id="UrgerResultMap">
+			<result property="id" column="ID"/>
+			<collection property="urgerTasks" resultMap="UrgerTaskResultMap" />
+		</resultMap>
+
+		<resultMap id="UrgerTaskResultMap" type="com.rongji.egov.urger.business.model.UrgerTask">
+			<result property="id" column="T_ID"/>
+			<collection property="urgerTaskNodes" resultMap="UrgerTaskNodeResultMap" />
+		</resultMap>
+
+		<resultMap type="com.rongji.egov.urger.business.model.UrgerTaskNode"  id="UrgerTaskNodeResultMap">
+			<result property="id" column="C_ID"/>
+		</resultMap>
+
+		<select id="getUrgerById" resultMap="UrgerResultMap">
+			SELECT
+				<include refid="allColumns2"/>,
+				B.ID T_ID,
+				C.ID C_ID,
+				FROM EGOV_URGER A
+				left join EGOV_URGER_TASK B ON B.URGER_ID = A.ID
+				left join EGOV_URGER_TASK_NODE C ON C.TASK_ID = B.ID
+				where A.ID = #{docId}
+		</select>
+		
+		解析：
+			sql的查询结果：
+				ID T_ID C_ID
+				a   t1  c1
+				a   t1  c2
+				则model关系 1 1 2

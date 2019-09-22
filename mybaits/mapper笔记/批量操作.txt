@@ -20,8 +20,39 @@ Mybatis批量插入性能分析测试：
 			 values
 			 (?,?,?,?),(?,?,?,?),(?,?,?,?),(?,?,?,?)
 		 注：
-			当插入条数很多的时候会出现异常，所以使用这种方式时一定要主动限制插入的最大条数，不然容易出现异常。
-
+			当values后数量很多的时候会出现异常，所以使用这种方式时一定要主动限制传过来list插入的最大条数，不然容易出现异常。
+			例：
+				//切割list 然后插入数据库
+				int result=0;
+				List<List<EgovCommonContacts>> averageList= averageList(list,list.size()/200<1?1:list.size()/200);
+				for (List<EgovCommonContacts> insertList: averageList) {
+					result+=this.egovCommonContactDao.insertEgovCommonContactsByBatch(insertList);
+				}
+				
+				/**
+				 * list分割成若干个list
+				 * @param list 要切割的list 
+				 * @param n 割成n个list
+				 * @return
+				 */
+				public static <T> List<List<T>> averageList(List<T> list,int n){
+					List<List<T>> result=new ArrayList<List<T>>();
+					int remaider=list.size()%n;  //(先计算出余数)
+					int number=list.size()/n;  //然后是商
+					int offset=0;//偏移量
+					for(int i=0;i<n;i++){
+						List<T> value=null;
+						if(remaider>0){
+							value=list.subList(i*number+offset, (i+1)*number+offset+1);
+							remaider--;
+							offset++;
+						}else{
+							value=list.subList(i*number+offset, (i+1)*number+offset);
+						}
+						result.add(value);
+					}
+					return result;
+				}
 		
 		
 	TODO:!!!

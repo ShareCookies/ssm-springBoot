@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+    <!-- 声明bean的存在,把bean交给spring的IOC容器控制实现控制反转-->
+    <bean id="user" class="com.mybank.fundtrans.test.User">
+    	<!-- 构造器注入 -->
+    	<!-- 
+			constructor-arg标签以下情况报错：
+				1.标签顺序与构造方法参数或类型不同，
+					注：可通过该标签的，index和type属性解决此问题。
+				2.标签数量与构造函数参数不同
+    	 -->
+
+    	<constructor-arg>
+	    	<value>11</value>
+	    </constructor-arg>
+	    <constructor-arg>
+	    	<value>haha</value>
+	    </constructor-arg>
+
+	  	<!-- springSetter注入 -->
+	    <property name="name">
+	    	<value>注入了name值</value>
+	    </property>
+
+	 </bean>
+
+</beans>
