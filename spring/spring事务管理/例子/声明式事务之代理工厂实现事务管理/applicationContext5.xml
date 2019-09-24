@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+        
+    <bean id="user" class="com.mybank.fundtrans.domain.User">
+	</bean>
+
+	 <!-- 声明bean，该bean主要用来声明数据库信息-->
+	 <bean id="dataSource"
+	 	class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	 	<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+	 	<property name="url" value="jdbc:mysql://localhost:3306/fundtransdb" />
+	 	<property name="username" value="root" />
+	 	<property name="password" value="" />
+	 </bean>
+	 
+	 
+
+	 
+
+	 <!-- 定义事物管理器 -->
+	 <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	 	<property name="dataSource">
+	 		<!-- <ref bean="dataSource"/> -->
+	 		<ref local="dataSource"/>
+	 	
+	 	</property>
+	 </bean>
+	 <!-- 定义TransactionProxy -->
+	 <bean id="transactionProxy" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+	 	<property name="transactionManager">
+	 		<ref local="transactionManager"/>
+	 	</property>
+	 	<property name="target">
+	 		<!-- 以内部类的形式指定代理的目标对象 -->
+	 		<bean id="userDaoSpringImpl" class="com.mybank.fundtrans.test.UserDaoSpringImpl">
+	 			<property name="dataSource">
+	 				<ref local="dataSource"/>
+	 			</property>
+	 		</bean>
+	 	</property>
+	 	<!-- 代理对象的生成方式？？？ -->
+	 	<property name="proxyTargetClass" value="true"/>
+	 	<!--事务属性 -->
+		<property name="transactionAttributes">
+			<props>
+				<!--通过正则匹配事务性方法，并指定方法的事物属性。即代理对象中以..开头或结尾或..的就运行在事务中  -->
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	 </bean>
+</beans>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+        
+    <bean id="user" class="com.mybank.fundtrans.domain.User">
+	</bean>
+
+	 <!-- 声明bean，该bean主要用来声明数据库信息-->
+	 <bean id="dataSource"
+	 	class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	 	<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+	 	<property name="url" value="jdbc:mysql://localhost:3306/fundtransdb" />
+	 	<property name="username" value="root" />
+	 	<property name="password" value="" />
+	 </bean>
+	 
+	 
+	<bean id="userDaoSpringImplWithTransaction" class="com.mybank.fundtrans.test.UserDaoSpringImplWithTransaction">
+	 	<property name="dataSource">
+	 		<ref local="dataSource"/>
+	 	</property>
+	 	<property name="transactionManager">
+	 		<ref bean="transactionManager"/>
+	 	</property>
+	 	<property name="transactionTemplate">
+	 		<ref bean="transactionTemplate"/>
+	 	</property>
+	 </bean>
+	 
+	 
+	 <!-- 定义transactionTemplate模版 -->
+	 <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+	 	<property name="transactionManager">
+	 		<ref bean="transactionManager"/>
+	 	</property>
+	 	<!-- 限定事务的传播行为，规定当前方法必须运行在事务中，如果没有事务，则创建一个。新的事务和方法一同开始，随着方法返回或抛出异常而终止。 -->
+<!-- 	 	<property name="propagationBehaviorName">
+	 		<value>PROPAGATION_REQUIRED</value>
+	 	</property> -->
+	 	
+	 </bean>
+	 <!-- 定义事物管理器 -->
+	 <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	 	<property name="dataSource">
+	 		<ref bean="dataSource"/>
+	 	</property>
+	 </bean>
+</beans>
