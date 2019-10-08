@@ -77,8 +77,19 @@
 	<select id="count4Page"  resultType="java.lang.Long">
         SELECT COUNT(*) FROM 表名
     </select>
-
-	
+	where中list遍历：
+		注意list为0的情况
+		<if test="query.groupCateNo!=null and query.groupCateNo.size>0">
+			AND S.GROUP_CATE_NO  in
+			(
+			<foreach collection="query.groupCateNo" item="groupCateNo" separator=",">
+			  #{groupCateNo}
+			</foreach>
+			)
+		</if>
+返回map：
+	返回值Map或List<Map>：
+		https://www.cnblogs.com/xiaoliu66007/p/7908181.html
 参数为map：
     1.只有map，且parameterType设为hashmap
 	List<Receival> getReceivalByYLDYJ(HashMap<String,String> map);
@@ -99,7 +110,7 @@
         ORDER BY DRAFT_DATE DESC
 	</select>	
 	2.@Param有map，此时可以结合别的@Param使用
-		List<Receival> getReceivalByYLDYJ(@Param("map") HashMap<String,String> map);
+		List<Receival> getReceivalByYLDYJ(@Param("map") HashMap<String,String> map,String word);
 
 		<select id="getReceivalByYLDYJ"  resultMap="ReceivalResultMap">
 			SELECT <include refid="allColumns"/> FROM(
