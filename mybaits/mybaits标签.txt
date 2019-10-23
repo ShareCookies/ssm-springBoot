@@ -110,6 +110,10 @@ mybaits动态SQL标签:
 					AND SYSTEM_NO = #{dispatch.systemNo}
 				</if>
 			</where>
+		注：
+			if标签中还可以嵌套别的标签
+	if..else:
+		https://www.cnblogs.com/a8457013/p/8033263.html
 	<foreach>:
 		介绍:
 			遍历集合，动态构造指定sql。

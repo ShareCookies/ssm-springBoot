@@ -1,0 +1,11 @@
+  resultMap实现通用:
+	<typeAlias alias="CardSort" type="com.wulidou.bean.dictionary.transfer.CardSort"/>
+	 <resultMap id="cardSortResultAAAA" class="CardSort" > 
+		<result column="id" property="id" jdbcType="INTEGER" /> 
+		<result column="named" property="named" jdbcType="VARCHAR" /> 
+	  </resultMap>
+
+	<resultMap id="cardSortResult" class="CardSort" extends="cardSortResultAAAA"> 
+		<result column="rank" property="rank" jdbcType="INTEGER" /> 
+		<result column="isShow" property="isShow" jdbcType="CHAR" /> 
+	  </resultMap> 

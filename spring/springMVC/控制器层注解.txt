@@ -223,5 +223,7 @@ springMvc输入数据的校验：
 	springMvc.txt 第73行
 mvc传递list或数组：
 	https://blog.csdn.net/huangcsdnjava/article/details/75005498
+	https://blog.csdn.net/Carson073/article/details/84874693
+
 ServletAPI：？
 	springMvc中如何访问到servlet的api了。
