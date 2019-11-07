@@ -1,0 +1,24 @@
+Servlet:
+	介绍:
+		应用了JavaServlet接口的java程序，运行在服务器上。(就是一个实现了JavaServlet接口的类)
+	servlet创建:
+		继承HttpServlet，重写doGet和doPost方法。
+		注:
+			Servlet调用的是service方法，这个方法中会根据request的Method来判断具体是执行doGet还是doPost。使用父类的service即可无需重写。
+	servlet的声明:
+		在web.xml中定义一个Servlet，因为定义了Servlet，web容器才能知道需要如何去分发请求进行业务处理的。即指定的url转到servlet。
+	作用:
+		用户通过浏览器访问URI时，web服务器接收请求并通过Servlet来分发请求执行不同的内容。(静态页面就就直接访问)
+	servlet容器Tomcat:
+		当客户端发起http请求时，容器会加载servlet(是请求该servlet时才加载还是一次性全加载?应该是第一个)。
+		注:
+			WEB-INF文件夹(网站信息文件)，该文件夹是受保护的，外部无法通过url来访问的。文件夹里面包含了web.xml以及class和libs目录。
+	servlet生命周期:
+		web容器加载servlet，初始化servlet的init()，处理请求service()，处理完成destroy()。
+	注意点:
+		servlet最好放在controller包中，servlet要配置URL地址，jsp不用因为jsp的地址就是文件夹地址。servlet通过配置的地址访问。
+		servlet可用于处理表单提交数据，会话跟踪，设置http头信息。
+		Servlet有一个Jar包，里面包含了一些Servlet的相关设计和细节
+jsp和servlet关系:
+	jsp就是在html里面写java代码，servlet就是在java里面写html代码…
+	jsp经过容器解释之后就是servlet.
