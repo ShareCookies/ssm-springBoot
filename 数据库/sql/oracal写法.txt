@@ -1,0 +1,20 @@
+oracal取别名 as: （mysql无）
+	不用引号包裹：
+		select  test as tt  from  rooms;
+		返回：
+			TT
+			返回字段全大写
+	用双引号包裹：
+		select  test as "tT"  from  rooms;
+		返回：
+			tT
+		注：
+			as 后的t 不能用 '' 包裹。
+	https://blog.csdn.net/sosous/article/details/36177165
+Oracle用union连接时报字符集不匹配异常： （mysql无）
+	解决方案：
+		1.修改数据库字段类型
+		2.使用cast()函数进行类型转换
+	注：
+		用’’做了一个默认值，数据库默认为varchar2
+		

@@ -15,8 +15,6 @@ springBoot启动类：？
 	@EnableAutoConfiguration
 	@Import({DocCommonBusinessConfiguration.class, UserBusinessConfiguration.class, WflowBusinessConfiguration.class,
 			SolrDataBusinessConfiguration.class})
-启动类如何加载application.yml配置文件：
-	https://blog.csdn.net/u014044812/article/details/84256764
 @Configuration：
 	https://www.jianshu.com/p/8268b58daa57
 	1.@Configuration也会被自动扫描到。
@@ -31,3 +29,30 @@ springBoot启动类：？
 			例：
 				将aop的功能写到了公共模块后，然后将公共模块封装成jar包，被其他项目所依赖。
 				但是出现aop功能无法实现，是因为当前项目未扫描到该包下的类，需要在引用模块的启动类中加入扫描的代码或引入配置类。
+启动类如何加载application.yml配置文件：
+	https://blog.csdn.net/u014044812/article/details/84256764
+	配置文件加载位置
+		springboot 启动会扫描以下位置的application.properties或者application.yml文件作为Spring boot的默认配置文
+		件
+		–file:./config/
+		–file:./
+		–classpath:/config/
+		–classpath:/
+		优先级由高到底，高优先级的配置会覆盖低优先级的配置。
+		注：
+			SpringBoot默认加载的是application.yml文件，所以想要引入其他配置的yml文件，就要在application.yml中激活该文件。
+
+	读取yml值：
+		1.创建一个bean来接收配置信息：
+			使用以下两个主键能达到目的。
+			1. 类上：
+				@ConfigurationProperties(prefix = "user")
+			2.属性上：
+				@Value("${user.filepath}")
+		2.读取所有配置信息：
+			@Autowired
+			private Environment env;    //作用是把当前项目中所有的yml配置文件信息存到env中，以键值对（key-value）形式。
+			String accessKeyId =env.getProperty("aliyun.sms.accessKeyId"); //获取env中读取到的配置文件信息   
+
+	yml书写规则：
+		https://www.cnblogs.com/gangle/p/9375865.html

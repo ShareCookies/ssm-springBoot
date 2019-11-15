@@ -1,0 +1,12 @@
+cast():
+	https://blog.csdn.net/qq_21101587/article/details/78642423
+	CAST函数用于将某种数据类型的表达式显式转换为另一种数据类型。
+ifnull() 和 if():
+	https://blog.csdn.net/spurs611/article/details/81481730
+	
+	mysql: ifnull() oracle:nvl()
+	mysql: if() oracle:decode()
+	
+	附：
+		decode()用法：
+			https://www.cnblogs.com/freespider/archive/2010/08/09/1795977.html
