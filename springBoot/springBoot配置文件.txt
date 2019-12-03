@@ -56,3 +56,11 @@ springBoot启动类：？
 
 	yml书写规则：
 		https://www.cnblogs.com/gangle/p/9375865.html
+附：
+	spring Boot 项目命令启动时传参
+		nohup java -jar xxx.jar --spring.profiles.active=test > /dev/null 2>&1 &
+		根据不同的部署环境修改 --spring.profiles.active 值即可
+		
+	SpringBoot属性加载顺序：https://blog.csdn.net/weixin_37490221/article/details/82967526
+	？：
+		跟项目同一个文件夹下有yml，也会读取吗？

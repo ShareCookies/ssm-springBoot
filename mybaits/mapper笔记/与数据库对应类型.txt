@@ -1,0 +1,23 @@
+javaType 和 jdbcType一般是不用写的。
+
+类型：
+	result：
+    参数的读取：
+Date：
+	result：
+		<result property="urgeDate" column="URGE_DATE" javaType="java.util.Date" jdbcType="DATE"/>
+    参数的读取：
+		#{urgeDate,jdbcType=DATE,javaType=java.util.Date}
+		例
+	        <if test="urgeDate != null">
+                URGE_DATE = #{urgeDate,jdbcType=DATE,javaType=java.util.Date},
+            </if>
+Text：
+	result：
+		<result property="contentAbstract" column="CONTENT_ABSTRACT" javaType="java.lang.String" jdbcType="LONGVARCHAR"/>
+	参数的读取：	
+		#{contentAbstract,jdbcType=LONGVARCHAR}
+		例:
+            <if test="contentAbstract != null">
+                CONTENT_ABSTRACT = #{contentAbstract,jdbcType=LONGVARCHAR},
+            </if>	
