@@ -120,4 +120,8 @@ springMVC处理请求过程：P175
 		p269
 注:
 	单元测试之控制器P186
+附录:
+	1.
+		Spring MVC获取所有注册的url
+			https://blog.csdn.net/aitcax/article/details/54089686
 	

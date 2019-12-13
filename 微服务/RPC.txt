@@ -1,0 +1,4 @@
+RPC=Remote Produce Call 是一种技术的概念名词.RPC 包括传输协议和编码协议。 
+HTTP是一种传输协议,RPC可以通过HTTP来实现,也可以通过Socket自己实现一套协议来实现.
+
+RPC框架
