@@ -12,7 +12,8 @@
 			https://www.cnblogs.com/printN/p/6534529.html
 			请求头包含许多有关的客户端环境和请求正文的有用信息。
 			例如，请求头可以声明浏览器所用的语言，请求正文的长度等。例如：
-				
+			content-type：
+				Http协议中，如果不指定Content-Type，则默认传递的参数就是application/x-www-form-urlencoded类型。
 		（3）　请求正文
 			请求头和请求正文之间是一个空行，这个行非常重要，它表示请求头已经结束，接下来的是请求正文。
 HTTP协议：?

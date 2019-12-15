@@ -38,7 +38,8 @@ spring控制层异常的处理：
 	
 REST风格下异常的处理：
 	REST风格下将异常转换为响应：（即发送错误信息到客户端）
-		1.控制器方法可以返回ResponseEntity对象，该对象能够包含更多响应相关的元数据。		
+		I.控制器方法直接返回ResponseEntity对象：
+			该对象能够包含更多响应相关的元数据。		
 			返回ResponseEntity对象：
 				使用ResponseEntity 作为@ResponseBody的替代方案，控制器方法可以返回一个ResponseEntity对象。
 				ResponseEntity中可以包含响应相关的元数据（如头部信息和状态码）以及要转换成资源表述的对象。 
@@ -52,13 +53,27 @@ REST风格下异常的处理：
 				想在响应中设置头部信息时使用。
 			例：
 				p524
-		2.使用异常处理器：
-			1.异常处理器中返回ResponseEntity对象。
+		II.使用异常处理器：
+			1.定义能够处理指定错误的异常处理器：
+				@ExceptionHandler：
+					@ExceptionHandler注解能够应用到方法，指明该方法将用来处理特定的异常。
+					例：
+						@ExceptionHandler(BusinessException.class)
+				设置响应体：
+					通过ResponseEntity对象，即可设置响应体
+					然后异常处理方法中返回ResponseEntity对象。
+				异常处理器定义为切面：
+					@RestControllerAdvice
+					注：
+						方法返回值是存入响应体的body区域，
+						rest的作用是把返回值转为json形式然后存入body区域。
+				编写异常类：
+					例：
+						这是一个很简单的自定义异常类。
+						public class BusinessException extends RuntimeException {
+						}					
 				例：
 					p520
-			2.@ExceptionHandler+@ResponseStatus+@ResponseBody
-				例：
-					p521
 注：
 	尽量避免控制器中处理抛出的异常，而是转而使用异常处理器应对错误场景。
 	这样处理器方法就能关注于正常的状况。以提高代码的业务逻辑性。

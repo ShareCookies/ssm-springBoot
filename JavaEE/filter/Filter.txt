@@ -1,0 +1,97 @@
+https://blog.csdn.net/reggergdsg/article/details/52821502
+Filter(过滤器):
+	介绍：
+		Servlet主要负责处理请求，而Filter主要负责对请求的拦截和放行。
+		当我们编写好Filter，并配置对哪个web资源进行拦截后，
+		WEB服务器在每次通过请求路径，调用web资源的之前，都会先调用一下对应filter的doFilter方法。
+		filter作用：
+			调用目标资源之前，让一段代码执行。
+			是否调用目标资源（即是否让用户访问web资源）。
+			调用目标资源之后，让一段代码执行。
+		注：
+			filter能对返回的资源再次处理。
+			filter只会被调用一次啊，那是怎么实现的了？
+			https://www.debugease.com/javaweb/910762.html
+			
+		hcg：
+			spirng的@getmap 是会生成servlet吗？
+		
+	生命周期：
+		init()：
+			初始化，在创建过滤器对象的时候会被调用。
+			在过滤器在web应用启动时创建，就只创建一次，以后再调用也不会初始化。
+		doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain):
+			执行过滤的主要方法，用于过滤请求和响应，请求一次就调用一次，可以调用多次。
+			
+			FilterChain：
+				调用filterChain的doFilter方法，则请求会被放行。
+				注：
+					不调用doFilter则无法访问web资源。
+			ServletRequest：
+				附：
+					强转成HttpServletRequest才能调用session有关方法。
+		destory():
+			销毁方法，过滤器对象销毁的时候会被调用，也只是调用一次。
+	过滤器的配置：
+		<url-pattern>:
+			地址映射规则，设置该过滤器所能拦截的资源。
+			映射规则：
+				精确匹配：如/foo.htm，只会匹配foo.htm这个URL
+				路径匹配：如/foo/*，会匹配以foo为前缀的URL
+				后缀匹配：如*.htm，会匹配所有以.htm为后缀的URL
+			附：
+				/*所有请求都会被拦截
+				/admin/*.jsp   admin目录下所有jsp
+		<dispatcher> ：
+			<dispatcher> 子元素，设置该过滤器什么样的操作会调用。
+			REQUEST：
+				当用户直接访问页面时，Web容器将会调用过滤器。
+				如果目标资源是通过RequestDispatcher的include()或forward()方法访问时，那么该过滤器就不会被调用。
+			INCLUDE：
+				如果目标资源是通过RequestDispatcher的include()方法访问时，那么该过滤器将被调用。除此之外，该过滤器不会被调用。
+			FORWARD：
+				如果目标资源是通过RequestDispatcher的forward()方法访问时，那么该过滤器将被调用，除此之外，该过滤器不会被调用。
+			ERROR：
+				如果目标资源是通过声明式异常处理机制调用时，那么该过滤器将被调用。除此之外，过滤器不会被调用。
+
+
+Filter链：
+　　1.在一个web应用中，可以开发编写多个Filter，这些Filter组合起来称之为一个Filter链。
+	2.当第一个Filter的doFilter方法被调用时，web服务器会创建一个代表Filter链的FilterChain对象传递给该方法。
+	在doFilter方法中，开发人员如果调用了FilterChain对象的doFilter方法，则web服务器会检查FilterChain对象中是否还有filter，
+	如果有，则调用第2个filter，如果没有，则调用目标资源。
+	过滤器调用顺序：
+		goto：注解法控制执行顺序。
+		goto：web.xml配置法。
+过滤器创建步骤:
+	1.java类实现Filter接口，实现其doFilter方法。
+	2.配置过滤器：
+		1.注解法：
+			例：
+				@WebFilter(filterName="myfilter",urlPatterns={"*.action","/websocket"})
+			注解法控制执行顺序：
+				https://blog.csdn.net/yiranblade/article/details/80639342
+		2.web.xml配置法：
+			例：
+				<filter>
+					<filter-name>struts2</filter-name>
+					<filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter</filter-class>
+				</filter>
+				<filter-mapping>
+					<filter-name>struts2</filter-name>
+					<url-pattern>*.action</url-pattern>
+					<url-pattern>*.jsp</url-pattern>
+				</filter-mapping>
+			注：
+				Filter的调用顺序是根据<filter-mapping>的声明顺序
+附：
+	1.
+        //不过滤的url 
+        String[] str1 = {"login.jsp"};
+        for(String s:str1){
+            String [] urlStrings= request.getRequestURI().split("/");
+            if (urlStrings[urlStrings.length-1].equals(s )) {
+                filterChain.doFilter(request, response);
+		        return;
+            }
+        }

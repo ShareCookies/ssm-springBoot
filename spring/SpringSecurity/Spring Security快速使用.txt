@@ -1,0 +1,65 @@
+https://www.cnblogs.com/demingblog/p/10874753.html
+加入如下依赖，并重启应用,即可引入spring security来保护应用：
+		<dependency>
+		 <groupId>org.springframework.boot</groupId>
+		 <artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+新建一个security配置类，配置spring security：
+	./security/SecurityConfiguration.java
+	请求资源的访问控制：
+		https://www.cnblogs.com/demingblog/p/10874753.html goto：角色-资源 访问控制
+		实现特定资源只能由特定角色访问的功能。
+Spring Security 的token实战:
+	设置用户存储：
+		即指明security如何从数据库获取用户信息。
+		自定义UserDetailsService：
+			该service是用来查找用户的，并返回UserDetails格式的用户信息。
+			例：./security/CustomUserDetailsService.java
+		把自定义UserDetailsService，应用到security用户存储配置中。
+			    //2.配置用户存储 。 （即如何加载用户）
+			@Override
+			protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+				//通过自定义userDetailsService，从数据库中加载用户
+				auth.userDetailsService(userDetailsService)// 该service中自定义了用户的加载。
+					.passwordEncoder(passwordEncoder());// 设置密码编码器
+			}
+	自定义token整合spring security:
+		介绍：前后端项目分离，一般后端并没有登录状态保持，服务器通过客户端传递的token来识别调用者是谁。
+		spring security项目整合token：
+			1.怎么生成token（即怎么登录）：
+				./security/token/README.TXT goto:怎么生成token（即怎么登录）
+			2.spring security怎么根据token得到授权认证信息。
+				./security/token/README.TXT goto:
+		附：
+			使用token进行用户验证的系统流程：
+				1.客户端（react前端，IOS等）调用“登录接口”获得一个包含token的响应（通常是个JSON，如 {“token”:”abcd”,”expires”:1234567890}）
+				2.客户端发起请求并携带token参数，向服务器获取数据。
+				3.
+					服务端根据token发现token过期/错误，返回”请登录”状态码
+					服务器发现token正常，并解析出来是A，返回A的数据。
+				4.……
+
+	设置使用token所需的一些配置：
+		1. goto：禁用spring security 的session
+		2. .and().csrf().disable() //关闭csrf保护
+禁用spring security 的session:
+	spring security 使用了session：
+		开篇例子使用管理员账号密码登录之后，就可以访问/admin/home了，此时修改浏览器地址栏为/product/info之后刷新页面，仍然可以访问，说明认证状态被保持了；
+		如果关闭浏览器重新输入/admin/home就会提示我们重新登录，这有点session的感觉。
+		如果此时，我们将浏览器cookie禁用掉，你会发现登录之后自动跳转只会得到403，403是拒绝访问的意思，是没有权限的意思，说明这种情况下授权状态和session是挂钩的。
+		即spring security使用了session。
+	禁用spring security的session：
+		spring security session四状态：
+			always – a session will always be created if one doesn’t already exist，没有session就创建。
+			ifRequired – a session will be created only if required (default)，如果需要就创建（默认）。
+			never – the framework will never create a session itself but it will use one if it already exists
+			stateless – no session will be created or used by Spring Security 不创建不使用session
+		介绍：
+			目前的应用基本都是前后端分离的，前后端通常以token的方式来交互，
+			后端并没有登录状态保持，服务器通过客户端调用传递的token来识别调用者是谁。
+			所以这里我们要关注的是 stateless，通常称为无状态。
+		例:
+			依然是修改我们之前定义的SecurityConfiguration:
+			http
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

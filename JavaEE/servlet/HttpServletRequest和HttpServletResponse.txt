@@ -1,0 +1,14 @@
+https://blog.csdn.net/jiahao1186/article/details/82026330#commentBox
+
+获取cookie
+	Cookie[] cookies = request.getCookies();
+	String token = "";
+	for (Cookie cookie : cookies) {
+		switch(cookie.getName()){
+			case "token":
+				token = cookie.getValue();
+				break;
+			default:
+				break;
+		}
+	}

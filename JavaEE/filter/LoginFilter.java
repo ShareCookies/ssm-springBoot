@@ -15,7 +15,6 @@ import javax.servlet.http.HttpSession;
 import com.hecaigui.EAS.utils.StringUtils;
 //https://blog.csdn.net/u012188794/article/details/41682559
 @WebFilter(filterName="myfilter",urlPatterns={"*.action","/websocket"})
-//https://blog.csdn.net/reggergdsg/article/details/52821502
 public class LoginFilter implements Filter{
 
 	//初始化方法
