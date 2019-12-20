@@ -1,0 +1,14 @@
+官网：
+	
+mongo issues：
+	https://jira.mongodb.org/plugins/servlet/samlsso?redirectTo=%2F
+简易教材：
+	https://www.runoob.com/mongodb/mongodb-create-database.html
+
+
+
+附
+	mongodb是非关系型数据库，它有的是数据库、集合、文档，分别对应关系型里面的数据库、数据表、和表里面一行一行的数据。在mongodb里，文档构成集合，集合构成数据库
+	1.隐式创建不存在的库和集合，这是 MongoDB 的 Feature 之一。
+	mongodb url 规则
+		https://blog.csdn.net/qq_43029154/article/details/82429384
