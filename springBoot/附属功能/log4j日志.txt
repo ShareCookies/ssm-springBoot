@@ -1,0 +1,25 @@
+https://blog.csdn.net/u011271894/article/details/75735915
+spring官网最新文档：
+	https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-logging
+springBoot 日志：	
+	简易使用：
+		依赖：
+			<!-- springBoot基本依赖已经包含来slf4j依赖-->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter</artifactId>
+			</dependency>
+		yml配置：
+			#日志相关配置
+			logging:
+			  file: F:/test.log
+			#    name: F:/test.log
+			#使用logging.file.name 或 logging.file。具体哪个看你springBoot版本
+		代码：
+			public static final Logger logger = LoggerFactory.getLogger(UserMng.class);
+			logger.error("测试111");
+	附：
+		或使用命令来记录日志：
+			nohup test.jar  >> nohup.log
+			>> 这个是将输出内容追加到目标文件中。
+			使用了这个命令就无需任何配置，因为这是直接将控制台的输出指定到指定文件。

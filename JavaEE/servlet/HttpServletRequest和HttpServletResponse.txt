@@ -1,6 +1,10 @@
 https://blog.csdn.net/jiahao1186/article/details/82026330#commentBox
 
-获取cookie
+HttpServletRequest介绍
+	HttpServletRequest对象代表客户端的请求，当客户端通过HTTP协议访问服务器时，HTTP请求头中的所有信息都封装在这个对象中。
+	通过这个对象提供的方法，可以获得客户端请求的所有信息。
+附录：
+request中获取获取cookie：
 	Cookie[] cookies = request.getCookies();
 	String token = "";
 	for (Cookie cookie : cookies) {

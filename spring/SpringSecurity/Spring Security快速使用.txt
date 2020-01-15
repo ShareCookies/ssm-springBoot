@@ -42,24 +42,27 @@ Spring Security 的token实战:
 	设置使用token所需的一些配置：
 		1. goto：禁用spring security 的session
 		2. .and().csrf().disable() //关闭csrf保护
-禁用spring security 的session:
-	spring security 使用了session：
-		开篇例子使用管理员账号密码登录之后，就可以访问/admin/home了，此时修改浏览器地址栏为/product/info之后刷新页面，仍然可以访问，说明认证状态被保持了；
-		如果关闭浏览器重新输入/admin/home就会提示我们重新登录，这有点session的感觉。
-		如果此时，我们将浏览器cookie禁用掉，你会发现登录之后自动跳转只会得到403，403是拒绝访问的意思，是没有权限的意思，说明这种情况下授权状态和session是挂钩的。
-		即spring security使用了session。
-	禁用spring security的session：
-		spring security session四状态：
-			always – a session will always be created if one doesn’t already exist，没有session就创建。
-			ifRequired – a session will be created only if required (default)，如果需要就创建（默认）。
-			never – the framework will never create a session itself but it will use one if it already exists
-			stateless – no session will be created or used by Spring Security 不创建不使用session
-		介绍：
-			目前的应用基本都是前后端分离的，前后端通常以token的方式来交互，
-			后端并没有登录状态保持，服务器通过客户端调用传递的token来识别调用者是谁。
-			所以这里我们要关注的是 stateless，通常称为无状态。
-		例:
-			依然是修改我们之前定义的SecurityConfiguration:
-			http
-				.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+附：
+	禁用spring security 的session:
+		spring security 使用了session：
+			开篇例子使用管理员账号密码登录之后，就可以访问/admin/home了，此时修改浏览器地址栏为/product/info之后刷新页面，仍然可以访问，说明认证状态被保持了；
+			如果关闭浏览器重新输入/admin/home就会提示我们重新登录，这有点session的感觉。
+			如果此时，我们将浏览器cookie禁用掉，你会发现登录之后自动跳转只会得到403，403是拒绝访问的意思，是没有权限的意思，说明这种情况下授权状态和session是挂钩的。
+			即spring security使用了session。
+		禁用spring security的session：
+			spring security session四状态：
+				always – a session will always be created if one doesn’t already exist，没有session就创建。
+				ifRequired – a session will be created only if required (default)，如果需要就创建（默认）。
+				never – the framework will never create a session itself but it will use one if it already exists
+				stateless – no session will be created or used by Spring Security 不创建不使用session
+			介绍：
+				目前的应用基本都是前后端分离的，前后端通常以token的方式来交互，
+				后端并没有登录状态保持，服务器通过客户端调用传递的token来识别调用者是谁。
+				所以这里我们要关注的是 stateless，通常称为无状态。
+			例:
+				依然是修改我们之前定义的SecurityConfiguration:
+				http
+					.sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+	Spring Security获取当前用户信息：
+		https://blog.csdn.net/LI_AINY/article/details/88694920

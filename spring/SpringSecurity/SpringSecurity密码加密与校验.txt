@@ -1,0 +1,20 @@
+https://www.jianshu.com/p/922963106729
+
+一般在代码中注入PasswordEncoder的实例，然后调用其 matches 方法来匹配当前密码和数据库中保存的“密码”；
+@Autowired
+private PasswordEncoder passwordEncoder;
+
+
+附：
+	security具有的PasswordEncoder 密码编码器：
+		bcrypt 、ldap 、MD4 、 MD5 、noop 、pbkdf2 、scrypt 、SHA-1 、SHA-256
+		BCryptPasswordEncoder：
+			Spring Security 推荐的默认密码编码器
+		NoOpPasswordEncoder：
+			noop 就是不做处理默认保存原密码。
+	一些基本知识：
+		加密/解密 与 Hash ：
+			SHA 系列是 Hash 算法，不是加密算法，加密意味着可以解密，但是 Hash 是不可逆的
+			（无法通过 Hash 值还原得到密码，只能比对 Hash 值看看是否相等）。
+		安全性问题：
+			目前很大一部分存在安全问题的系统一般仅仅使用密码的 MD5 值进行保存，可以通过 MD5 查询库去匹配对大部分的密码（可以直接从彩虹表里反推出来），而且 MD5 计算 Hash 值碰撞容易构造，安全性大大降低。MD5 加盐在本地计算速度也是很快，也是密码短也是极其容易破解；更好的选择是 SHA-256、BCrypt 等等等

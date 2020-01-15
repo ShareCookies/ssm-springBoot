@@ -1,7 +1,7 @@
-RESTful：
+RESTful：RepresentationalStateTransfer"（代表性状态转化）表现层状态转化"
 	RESTful架构：http://www.ruanyifeng.com/blog/2011/09/restful.html
 	http://www.ruanyifeng.com/blog/2018/10/restful-api-best-practices.html
-	REST （Representational State Transfer），表现层状态转换；
+	如果一个架构符合REST原则，就称它为RESTful架构。
 	hcg：
 		一种api设计风格
 	RESTFul风格的请求：

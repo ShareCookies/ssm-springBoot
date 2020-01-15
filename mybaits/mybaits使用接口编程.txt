@@ -1,0 +1,44 @@
+1.编写接口：
+	MyBatis 使用 Java 的动态代理可以直接通过接口来调用相应的方法，不需要提供接口的实现类等。
+	
+	注：
+		注解必须在接口中使用。
+		当有多个参数的时候，通过参数注解＠Param 设置参数的名字。省去了手动构造 Map 参数的过程。
+
+2.编写xml：
+	xml：
+		xml中写sql语句
+		注：
+			namespace 值要配置成接口的全限定名称，MyBatis内部就是通过这个值将接口和XML 关联起来的。
+		附：
+			MyBatis注解方式:
+				MyBatis注解方式是将SQL直接注解写在接口上.
+				https://blog.csdn.net/aa1215018028/article/details/80769277
+3.注册接口：
+	即使mybaits能为这些接口生成代理。
+	I.mybatis-config.xml mappers元素中配置所有的mapper
+	II.
+		<mappers>
+			<package name= ” tk.mybatis.simple.mapper” />
+		</mappers>
+		这种配置方式会先查找 tk.mybatis.simple mapper 包下所有的接口，循环对接口进行如下操作：
+			1. 判断接口对应的命名间是否己经存在，如果存在就抛出异常，不存在就继续进行接下来的操作。
+			2. 将接口全限定名转换为路径,尝试加载接口对应的xml映射文件。
+			例如将接口转换为 tk/mybatis/simple/mapper/UserMapper.xml,搜索 XML 资源，如果找到就解析。
+			注：
+				resource文件夹下 java文件夹下 都行吧。
+				如果接口和 XML 符合第二点，通过该配置就能自动扫描包下 的接口和 XML 映射文件，省去了很多麻烦。
+			3. 处理接口中的注解方法。
+	*III.spring中使用@MapperScan 注解或@Mapper 注解：
+		https://www.xttblog.com/?p=4102
+		@Mapper：
+			Mybatis 会有一个拦截器，会自动的把 @Mapper 注解的接口生成动态代理类。
+			这点可以在 MapperRegistry 类中的源代码中查看。
+		@MapperScan：
+			在@MapperScan 配置一个或多个包路径，Mybatis自动的扫描这些包路径下的类，并为它们生成代理类。
+		附录：
+			xml文件要在resource下：
+				https://baijiahao.baidu.com/s?id=1626496550792151955&wfr=spider&for=pc
+	附：
+		mapper.java和mapper.xml是如何映射起来的：
+			https://blog.csdn.net/ldb987/article/details/88872311

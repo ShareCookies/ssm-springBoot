@@ -1,0 +1,35 @@
+邮件发送的流程:
+	基于 JavaMail 的程序将和SMTP（可以别的协议）服务器通信，通过协议传输消息给邮件服务器。
+	SMTP 服务器会中转消息给接收方 SMTP 服务器。
+	然后程序通过 POP 或 IMAP 协议和接收方服务器进行通信，然后获取邮件信息。
+	发送-》中转-》查询
+	注：
+		如何伪造发送者：
+			自己打邮件服务器。
+			驗不驗證是服務器説了算，你要用JAVAMAIL發郵件，必然是通過網絡中某台服務器代發，例如163，不驗證一定是不通過。
+			要不就自己搭建郵件服務器，自己發。
+
+
+JavaMail解析：
+	https://blog.csdn.net/a2241076850/article/details/52856863
+	javamail例子：
+		https://blog.csdn.net/qq_36468243/article/details/82464022#commentBox
+		https://blog.csdn.net/rhy0619/article/details/81184482
+	JavaMail依赖包：
+			https://mvnrepository.com/artifact/javax.activation/activation/1.1.1
+			https://mvnrepository.com/artifact/com.sun.mail/javax.mail/1.6.2
+SpringBoot整合Mail:
+	* https://blog.csdn.net/qq_37745470/article/details/89094227
+附：
+spring:
+  #邮箱配置
+  mail:
+    host: smtp.163.com
+	port: 465
+	default-encoding: UTF-8
+	#公用的邮件服务器，发送者账号要和验证账号一样的！
+    username: ***@163.com
+    password: 授权码
+    properties:
+      mail:
+		smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory			

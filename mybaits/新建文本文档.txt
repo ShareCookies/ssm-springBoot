@@ -1,12 +1,5 @@
-
-mapper.java和mapper.xml是如何映射起来的：
-	https://blog.csdn.net/ldb987/article/details/88872311
-@MapperScan 注解和 @Mapper 注解：
-	https://www.xttblog.com/?p=4102
 通用Mapper：
 	https://www.jianshu.com/p/5f84624e96bc
-MyBatis注解方式是将SQL直接注解写在接口上 ： 
-	https://blog.csdn.net/aa1215018028/article/details/80769277
 字符串拼接：
 	http://www.cnblogs.com/shuaifing/p/7928628.html
 	https://blog.csdn.net/nu7204li/article/details/73411664

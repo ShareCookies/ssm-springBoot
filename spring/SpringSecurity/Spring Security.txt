@@ -1,6 +1,7 @@
 附录：
 	第9章，主要是Spring Security保护Web层的安全。
 	第14章中，主要是Spring Security如何保护方法的调用。
+	spring security 管方文档：https://docs.spring.io/spring-security/site/docs/4.2.1.RELEASE/reference/htmlsingle/#getting-started
 Spring Security简介：
 	Spring Security是为基于Spring的应用程序提供安全保护的安全性框架。
 	它能够在Web请求级别和方法调用级别，处理身份认证和授权。
@@ -138,23 +139,7 @@ Spring Security具有的模块:p306
 							一个站点欺骗用户提交请求到其他服务器的话， 即CSRF攻击。
 							如果你已经登录了，那么此时这个攻击很可能对你造成严重损失。
 	*Spring Security 的 Web核心概念：
-		spring security核心组件：（即spring security的核心类）
-			https://www.cnblogs.com/demingblog/p/10874753.html goto：Spring Security 核心组件
-			spring security核心组件有SecurityContext、SecurityContextHolder、Authentication、Userdetails 和 AuthenticationManager。
-			SecurityContext：安全上下文
-				用户通过Spring Security 的校验之后，验证信息存储在SecurityContext中。
-			SecurityContextHolder：
-				SecurityContextHolder看名知义，是一个holder,用来hold住SecurityContext实例的。
-			UserDetails接口：
-				该接口的实现用来存储用户信息对象。
-				注：
-					自定义UserDetailsService服务，最后就是返回一个UserDetails接口实现。
-			UserDetailsService接口：
-				该接口的实现可用来为Spring Security 配置用户存储方案。
-			Authentication：
-				在Spring Security 中Authentication用来表示当前用户是谁，
-			AuthenticationManager：
-				AuthenticationManager 的作用就是校验Authentication
+		Spring Security使用Servlet规范中的Filter链来实现保护Web请求的功能。
 		spring security的入口——springSecurityFilterChain：
 			https://www.cnblogs.com/demingblog/p/10874753.html goto：Spring Security的一些工作原理
 			spring security的入口filter就是springSecurityFilterChain。
@@ -177,8 +162,24 @@ Spring Security具有的模块:p306
 				附：
 					Spring Security 就是在 Filter 中创建 Authentication 对象，并调用 AuthenticationManager 进行校验
 					spring security 维护了一个filter chain，每一个filter都具有特定的责任，可根据所需的服务在配置中添加。
-		sprig security 中使用token：
-			./Spring Security快速使用.txt
+		spring security核心组件：（即spring security的核心类）
+			https://www.cnblogs.com/demingblog/p/10874753.html goto：Spring Security 核心组件
+			spring security核心组件有SecurityContext、SecurityContextHolder、Authentication、Userdetails 和 AuthenticationManager。
+			SecurityContext：安全上下文
+				用户通过Spring Security 的校验之后，验证信息存储在SecurityContext中。
+			SecurityContextHolder：
+				SecurityContextHolder看名知义，是一个holder,用来hold住SecurityContext实例的。
+			UserDetails接口：
+				该接口的实现用来存储用户信息对象。
+				注：
+					自定义UserDetailsService服务，最后就是返回一个UserDetails接口实现。
+			UserDetailsService接口：
+				该接口的实现可用来为Spring Security 配置用户存储方案。
+			Authentication：
+				在Spring Security 中Authentication用来表示当前用户是谁，
+			AuthenticationManager：
+				AuthenticationManager 的作用就是校验Authentication
+
 用户的认证：
 	添加自定义的登录页：p311
 	启用HTTP Basic认证：p333
@@ -190,7 +191,9 @@ Spring Security具有的模块:p306
 		默认情况下，这个功能是通过在cookie中存储一个token完成的，这个token默认两周内有效。
 	退出：
 附：
+	sprig security 中使用token：
+		./Spring Security快速使用.txt
 	Spring Security  密码校验和密码加密流程：
-		https://www.jianshu.com/p/922963106729
+		./SpringSecurity密码加密与校验
 	Spring Security 用户认证过程：
 		https://blog.csdn.net/my_learning_road/article/details/79833802

@@ -112,6 +112,8 @@ springMVC处理请求过程：P175
 				<form>标签现在将enctype属性设置为multipart/formdata。
 				这会告诉浏览器以multipart数据的形式提交表单，而不是以表单数据的形式进行提交。在multipart中，每个输入域都会对应一个part。
 				
+		附：
+			springboot文件上传： https://blog.csdn.net/qq_36595528/article/details/88806885
 	处理异常：
 		./异常处理.txt > spring控制层异常的处理
 	控制器通知:
