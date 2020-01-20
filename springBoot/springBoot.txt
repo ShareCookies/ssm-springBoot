@@ -16,7 +16,7 @@ spring文档：
 			2.Spring boot内置了类似tomcat这样的中间件，所以，只要运行DemoApplication中的main方法就可以启动项目了。
 
 Spring Boot四个核心:
-	Starter依赖：
+	Starter依赖：（起步依赖）
 		SpringBootStarter将常用的依赖分组进行了整合，将其合并到一个依赖中，这样就可以一次性添加到项目的Maven或Gradle构建中。
 		解析：
 			起步依赖就是利用Maven和Gradle的传递依赖解析，把常用库聚合在一起，组成了几个为特定功能而定制的依赖。
@@ -33,7 +33,7 @@ Spring Boot四个核心:
 			依赖传递：
 				依赖关系为：C—>B—>A。
 				那么我们执行项目C时，会自动把B、A都下载导入到C项目的jar包文件夹中。
-	自动配置：p643
+	自动配置：p643（约定优先于配置）
 		Spring Boot的自动配置功能削减了Spring配置的数量。
 		它在实现时，会考虑应用中的其他因素并推断你所需要的Spring配置，然后帮你自动配置。
 		即自动配置利用了Spring 4对条件化配置的支持，合理地推测应用所需的bean并自动化配置它们；

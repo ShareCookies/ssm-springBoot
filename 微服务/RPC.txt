@@ -1,4 +1,25 @@
-RPC=Remote Produce Call 是一种技术的概念名词.RPC 包括传输协议和编码协议。 
-HTTP是一种传输协议,RPC可以通过HTTP来实现,也可以通过Socket自己实现一套协议来实现.
+RPC:
+	https://www.jianshu.com/p/2accc2840a1b
+	RPC （Remote Procedure Call ） 远程过程调用。
+	即：
+		从本地机器去执行服务器上的一个函数
+	RPC框架：
+		
+	HTTP 请求与RPC：
+		https://www.jianshu.com/p/a72d226eef84
+		HTTP是一种传输协议,RPC可以通过HTTP来实现,也可以通过Socket自己实现一套协议来实现.
 
-RPC框架
+	
+RPC vs RESTful
+	1.其实这两者并不是一个维度的概念，总得来说RPC涉及的维度更广。
+	如果硬要比较，那么可以从RPC风格的url和Restful风格的url上进行比较。
+	*2.RPC风格，即请求链接是以动词为中心的, REST风格，即请求链接是以名词为中心的。
+	
+	例：
+		你提供一个查询订单的接口，用RPC风格，你可能会这样写：
+			/queryOrder?orderId=123
+		用Restful风格呢？
+			Get  
+			/order?orderId=123
+	弃：
+		https://www.cnblogs.com/hello-/articles/9958943.html

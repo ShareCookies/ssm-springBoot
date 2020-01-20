@@ -1,3 +1,12 @@
+spring RESTFUL 风格：https://blog.csdn.net/w605283073/article/details/51338765
+	？：
+	@RequestBody : 如果方法参数被 @RequestBody注解，Spring将绑定HTTP请求体到那个参数上。如果那样做，Spring将根据请求中的ACCEPT或者 Content-Type header（私下）使用 HTTP Message converters 来将http请求体转化为domain对象。
+
+	 
+
+	@ResponseBody : 如果方法加上了@ResponseBody注解，Spring返回值到响应体。如果这样做的话，Spring将根据请求中的 Content-Type header（私下）使用 HTTP Message converters 来将domain对象转换为响应体。
+
+ 
 Spring是如何支持REST的:
 	P500
 	hcg：
@@ -8,18 +17,7 @@ Spring是如何支持REST的:
 			
 			注：
 				@RestController注解相当于@ResponseBody ＋ @Controller的组合。
-HCG:
-	REST实现关键点：资源的暴露和表述。
-	资源的暴露：（即如何定义对外的url）
-		就是定义url，符合动名词形式。
-	资源的表述：（即使用什么格式来传输数据）
-		客户端和服务器端针对某一资源是如何通信的。
-		可JSON或XML或渲染HTML形式。
-		
-		注：
-			控制器本身通常并不关心资源如何表述。
-			控制器以Java对象的方式来处理资源。
-			控制器完成了它的工作之后，资源才会被转化成最适合客户端的形式。
+
 spring资源的表述：
 	Spring提供了两种方法将资源的Java表述形式转换为发送给客户端的表述形式。
 	内容协商（Content negotiation）：p503？

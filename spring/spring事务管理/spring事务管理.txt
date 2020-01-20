@@ -38,8 +38,9 @@ https://www.jianshu.com/p/5687e2a38fbc
 					...
 				propagation()表示事务的传播属性：
 					...
-				readOnly() 事务超时设置：
-					超过这个时间，发生回滚
+				readOnly()：
+				timeout ：
+					https://blog.csdn.net/qq_18860653/article/details/79907984
 				readOnly() 只读事务:
 					从这一点设置的时间点开始（时间点a）到这个事务结束的过程中，其他事务所提交的数据，该事务将看不见！（查询中不会出现别人在时间点a之后提交的数据）。
 					注意是一次执行多次查询来统计某些信息，这时为了保证数据整体的一致性，要用只读事务
@@ -47,6 +48,7 @@ https://www.jianshu.com/p/5687e2a38fbc
 				rollbackForClassName():
 				noRollbackFor():
 				noRollbackForClassName:
+				
 					
 		*@Transactional 注意事项：
 			1. 默认情况下，如果在事务中抛出了未检查异常（继承自 RuntimeException 的异常）或者 Error，则 Spring 将回滚事务；除此之外，Spring 不会回滚事务。
@@ -59,6 +61,13 @@ https://www.jianshu.com/p/5687e2a38fbc
 				另外一个问题是只能应用在public方法上。
 				1.为解决这两个问题，使用 AspectJ 取代 Spring AOP 代理。
 				2.使用自注入来解决！
+注：
+	Transaction rolled back because it has been marked as rollback-only：
+		https://www.cnblogs.com/wangzhongqiu/p/7241058.html
+		事务的传播机制propagation：
+			可以控制调用另一个配置了事务的方法时如何参与当前事务。
+			https://segmentfault.com/q/1010000004263937?_ea=549435
+
 
 
 			

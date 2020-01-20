@@ -1,12 +1,51 @@
+MYSQL官网手册:
+	https://dev.mysql.com/doc/refman/8.0/en/control-flow-functions.html#function_ifnull
+
 cast():
 	https://blog.csdn.net/qq_21101587/article/details/78642423
 	CAST函数用于将某种数据类型的表达式显式转换为另一种数据类型。
+	ORACAL:
+		例子：
+			CAST(B.SORT_NO AS  INTEGER)
 ifnull() 和 if():
-	https://blog.csdn.net/spurs611/article/details/81481730
-	
-	mysql: ifnull() oracle:nvl()
-	mysql: if() oracle:decode()
-	
-	附：
-		decode()用法：
-			https://www.cnblogs.com/freespider/archive/2010/08/09/1795977.html
+	https://dev.mysql.com/doc/refman/8.0/en/control-flow-functions.html#function_ifnull
+	mysql: ifnull() 
+		oracle:nvl()
+		IFNULL(expr1,expr2)：
+			If expr1 is not NULL, IFNULL() returns expr1; otherwise it returns expr2.
+	mysql: if() 
+		IF(expr1,expr2,expr3)
+			If expr1 is TRUE (expr1 <> 0 and expr1 <> NULL), IF() returns expr2. Otherwise, it returns expr3.
+		oracle:decode()
+			decode()用法：
+				https://www.cnblogs.com/freespider/archive/2010/08/09/1795977.html
+			decode(条件,值1,翻译值1,值2,翻译值2,...值n,翻译值n,缺省值)的理解如下：
+
+			if （条件==值1）
+
+			 then　　　　
+
+			return(翻译值1)
+
+			elsif （条件==值2）
+
+			then　　　　
+
+			return(翻译值2)　　　　
+
+			......
+
+			elsif （条件==值n）
+
+			 then　　　　
+
+			return(翻译值n)
+
+			else　　　　
+
+			return(缺省值)
+
+			end if
+
+			注：其中缺省值可以是你要选择的column name 本身，也可以是你想定义的其他值，比如Other等；
+		
