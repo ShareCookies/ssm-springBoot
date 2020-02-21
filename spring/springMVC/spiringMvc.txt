@@ -8,7 +8,7 @@ springMVC处理请求过程：P175
 		请求是发起:
 			用户在浏览器中点击链接或提交表单的时候，请求就开始工作了。
 		*Spring MVC处理请求过程：
-			springMVC处理请求的过程.png
+			./图片/springMVC处理请求的过程.png
 		
 	控制器的选择：
 		I.请求旅程的第一站是Spring的DispatcherServlet。	
@@ -64,8 +64,8 @@ springMVC处理请求过程：P175
 		...
 	传递模型数据到视图中：
 		例：
-			传递模型数据到视图中.png
-			视图中访问模型数据.png
+			./图片/传递模型数据到视图中.png
+			./图片/视图中访问模型数据.png
 	接收请求的输入：
 		p193
 
@@ -84,11 +84,11 @@ springMVC处理请求过程：P175
 				但这些错误可以通过Errors对象进行访问。
 				所以Errors参数要紧跟在带有@Valid注解的参数后面，然后在方法中调用errors.hasErrors()来检查是否有错误。
 		例：
-			检验请求参数.png
+			./图片/检验请求参数.png
 			结合属性文件使用：p223
 	文件上传:
 		1.multipart形式的数据:
-			表单之multipart形式的数据.png
+			./图片/表单之multipart形式的数据.png
 		I.配置multipart解析器:p255
 			介绍：
 				编写控制器方法处理文件上传之前，我们必须要配置一个multipart解析器，

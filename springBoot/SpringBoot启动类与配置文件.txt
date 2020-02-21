@@ -69,3 +69,7 @@ springBoot启动类：？
 	SpringBoot属性加载顺序：https://blog.csdn.net/weixin_37490221/article/details/82967526
 	？：
 		跟项目同一个文件夹下有yml，也会读取吗？
+	多个@Configuration：
+		一个项目下有多个@Configuration，均会被spring加载。
+		定义加载顺序
+		https://www.cnblogs.com/mrray1105/p/11122883.html

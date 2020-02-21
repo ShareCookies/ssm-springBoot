@@ -1,0 +1,37 @@
+springBoot集成redis：
+	1.引入依赖
+		<dependency>
+			  <groupId>org.springframework.boot</groupId>
+			  <artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+	2.新增配置文件信息
+	spring:
+	  redis:
+		host: 106.54.209.129
+		# Redis数据库索引（默认为0）
+		database: 0
+		port: 6379
+		password: 	
+	3.单元测试	
+		./例/TestRedis.java
+		附：
+			StringRedisTemplate和RedisTemplate的区别：
+				https://www.cnblogs.com/MyYJ/p/10778874.html
+	
+springBoot中使用redis进行缓存：	
+	1.@EnableCaching开启缓存
+	2.@Cacheable(cacheNames="")
+		根据方法的请求参数对其结果进行缓存
+	
+	注：
+		spring缓存流程：
+			先执行@Cacheable注解中的getCache(String name)方法,根据name判断ConcurrentMap中是否有此缓存，
+			如果没有缓存那么创建缓存并保存数据，另外service层的方法也会执行。
+			如果有缓存不再创建缓存，另外service层的方法也不会执行。
+	附：
+		CacheManager源码：
+			https://blog.csdn.net/m0_37335176/article/details/89917880
+		在SpringBoot中配置多个cache，实现多个cacheManager灵活切换
+			https://blog.csdn.net/s674334235/article/details/82593899
+springboot使用redis做缓存：
+	https://www.jianshu.com/p/8b026187dc62

@@ -36,6 +36,7 @@
 			</where>
 		</delete>
 改：
+	https://blog.csdn.net/yjaspire/article/details/81316885
 查：
 	/**
      * 获取所有数据集合
@@ -90,6 +91,24 @@
 返回map：
 	返回值Map或List<Map>：
 		https://www.cnblogs.com/xiaoliu66007/p/7908181.html
+		一、返回值Map
+			1、mapper.xml
+			<select id="selectUserMapLimitOne" resultType="java.util.HashMap">  
+				select id,name  
+				from  
+				user order by id desc limit 1  
+			</select>  
+			2、接口定义
+			Map<String,Object> selectUserMapLimitOne();  
+
+		二、返回值List<Map>
+			1、mapper.xml
+			<select id="selectUserMapList" resultType="java.util.HashMap">  
+				select id,name from  
+				user order by id desc limit 2  
+			</select>  
+			2、接口定义
+			List<Map<String,Object>> selectUserMapList();		
 参数为map：
     1.只有map，且parameterType设为hashmap
 	List<Receival> getReceivalByYLDYJ(HashMap<String,String> map);

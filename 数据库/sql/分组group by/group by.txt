@@ -27,3 +27,6 @@ group by：
 		注：
 			直接查询的表默认是以 ID 进行顺序排序的。
 		3.mysql中group by 后order by 排序的是已经从分组中取出的数据。
+MySQL-this is incompatible with sql_mode=only_full_group_by：
+	https://blog.csdn.net/Peacock__/article/details/90608246
+	https://blog.csdn.net/qq_42175986/article/details/82384160

@@ -29,7 +29,7 @@ Spring Security 的token实战:
 			1.怎么生成token（即怎么登录）：
 				./security/token/README.TXT goto:怎么生成token（即怎么登录）
 			2.spring security怎么根据token得到授权认证信息。
-				./security/token/README.TXT goto:
+				./security/token/README.TXT goto: spring security怎么根据token得到授权认证信息
 		附：
 			使用token进行用户验证的系统流程：
 				1.客户端（react前端，IOS等）调用“登录接口”获得一个包含token的响应（通常是个JSON，如 {“token”:”abcd”,”expires”:1234567890}）
