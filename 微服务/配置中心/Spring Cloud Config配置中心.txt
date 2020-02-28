@@ -1,0 +1,117 @@
+Spring Cloud Config：
+	Spring Cloud Config项目是一个解决分布式系统配置的管理方案。
+	它包含了Client和Server两个部分，server提供配置文件的存储、以接口的形式将配置文件的内容提供出去，
+	client通过接口获取数据、并依据此数据初始化自己的应用。
+	Spring cloud使用git或svn存放配置文件，默认情况下使用git。
+	
+	git存放配置文件：
+	在github上面创建了一个文件夹用来存放配置文件。
+	例：
+		为了模拟生产环境，在config-repo下创建以下三个配置文件：
+		// 开发环境
+		neo-config-dev.properties
+			neo.hello=hello dev
+		// 测试环境
+		neo-config-test.properties
+		// 生产环境
+		neo-config-pro.properties
+
+server端：
+	服务端为客户端（各微服务项目）提供配置信息。
+	负责将git（svn）中存储的配置文件发布成REST接口.
+	1、添加依赖
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-server</artifactId>
+		</dependency>
+
+	2、配置文件
+	server:
+	  port: 8001
+	spring:
+	  application:
+		name: spring-cloud-config-server
+	  cloud:
+		config:
+		  server:
+			git:
+			  uri: https://github.com/ityouknow/spring-cloud-starter/     # 配置git仓库的地址
+			  search-paths: config-repo                             # git仓库地址下的相对地址，可以配置多个，用,分割。
+			  username:                                             # git仓库的账号
+			  password:                                             # git仓库的密码
+	
+	附：
+	Spring Cloud Config也提供本地存储配置的方式：
+		1.只需要设置属性spring.profiles.active=native，Config Server会默认从应用的src/main/resource目录下检索配置文件。
+		2.也可以通过spring.cloud.config.server.native.searchLocations=file:E:/properties/属性来指定配置文件的位置。
+
+	3、启动类
+	启动类添加@EnableConfigServer，激活对配置中心的支持
+	4.测试
+		首先测试server端是否可以读取到github上面的配置信息。
+		直接访问：http://localhost:8001/neo-config-dev.properties
+client端（各项目端）：
+	各业务项目中获取server端的配置信息
+
+	1、添加依赖
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+
+
+	2、配置文件
+		需要配置两个配置文件，application.properties和bootstrap.properties
+		application.properties如下：
+			spring.application.name=spring-cloud-config-client
+			server.port=8002
+		bootstrap.properties如下：
+			spring.cloud.config.name=neo-config  #git上配置文件
+			spring.cloud.config.profile=dev #git上配置文件
+			spring.cloud.config.uri=http://localhost:8001/ #配置中心服务端地址
+			spring.cloud.config.label=master #对应git的分支。如果配置中心使用的是本地存储，则该参数无用
+			#spring.cloud.config.discovery.service-id：指定配置中心的service-id，便于扩展为高可用配置集群。
+		附：
+			上面这些与spring-cloud相关的属性必须配置在bootstrap.properties中，config部分内容才能被正确加载。
+			因为config的相关配置要先于application.properties，而bootstrap.properties的加载是先于application.properties的。
+
+	4、测试
+		web中使用@Value注解来获取server端参数的值
+
+		@RestController
+		class HelloController {
+			@Value("${neo.hello}")
+			private String hello;
+
+			@RequestMapping("/hello")
+			public String from() {
+				return this.hello;
+			}
+		}
+	附：	
+		github配置文件信息更新后，你会发现客户端项目的配置参数并没有实时更新。
+		因为springboot项目只有在启动的时候才会获取配置文件的值。
+refresh:
+	客户端如何去主动获取新的配置信息呢。
+	解决方式就是引入refresh，然后每个客户端通过POST方法触发各自的refresh。
+	1、客户端添加依赖
+	<dependency>
+	  <groupId>org.springframework.boot</groupId>
+	  <artifactId>spring-boot-starter-actuator</artifactId>
+	</dependency>
+	spring-boot-starter-actuator是一套监控的功能，可以监控程序在运行时状态，其中就包括/refresh的功能。
+	2、 开启更新机制
+	需要给加载变量的类上面加载@RefreshScope，在客户端执行/refresh的时候就会更新此类下面的变量值。
+
+	@RestController
+	@RefreshScope // 使用该注解的类，会在接到SpringCloud配置中心配置刷新的时候，自动将新的配置更新到该类对应的字段中。
+	class HelloController {
+		...
+	}
+	3、测试
+		management.security.enabled=false #springboot 1.5.X 以上默认开通了安全认证,所以要先关掉
+		
+		修改配置信息，用该请求去刷新对应客户端的 POST http://客户端地址/refresh
+附：
+	使用svn+Spring Cloud Config来做配置中心：
+		http://www.ityouknow.com/springcloud/2017/05/23/springcloud-config-svn-refresh.html

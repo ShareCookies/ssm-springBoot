@@ -1,0 +1,51 @@
+熔断器介绍：（CircuitBreaker）：
+	1.快速失败
+		在一段时间内侦测到许多类似的错误，会强迫其以后的多个调用快速失败，不再访问远程服务器，从而防止应用程序不断地尝试执行可能会失败的操作。
+		使得应用程序继续执行而不用等待修正错误，或者浪费CPU时间去等到长时间的超时产生。
+	2.能够自动诊断错误是否已经修正。
+	3.熔断只是作用在服务调用这一端？所以eureka本身是没有熔断功能的？
+Hystrix特性
+	1.断路器机制：
+		熔断器模式能够记录最近调用发生错误的次数。
+		失败达到阈值，断路器会切换到开路状态Open。(默认失败数量比例超过50%),
+		熔断器时间窗结束(默认5秒)，自动切换到半开路状态HALF-OPEN。
+		如果下一次请求调用成功，断路器切回闭路状态CLOSED否则回到开路状。			
+	2.Fallback：
+		fallback方法会返回一个预设的值(一般是默认值或者来自缓存)，Fallback相当于是降级操作.
+		对于查询操作, 我们可以实现一个fallback方法, 当请求后端服务出现异常的时候, 可以使用fallback方法返回的值.
+		Fallback使用：	
+			Feign Hystrix：
+			改动spring-cloud-consumer项目相关代码，使其支持Fallback。
+			1、配置文件
+				feign.hystrix.enabled=true
+			2、创建Fallback回调类
+				继承与HelloRemote实现回调的方法
+				@Component
+				public class HelloRemoteHystrix implements HelloRemote{
+					@Override
+					public String hello(@RequestParam(value = "name") String name) {
+						return "hello" +name+", this messge send failed ";
+					}
+				}
+			3.添加fallback属性，指向fallback回调类
+			@FeignClient(name= "spring-cloud-producer",fallback = HelloRemoteHystrix.class)
+			public interface HelloRemote {
+				@RequestMapping(value = "/hello")
+				public String hello(@RequestParam(value = "name") String name);
+			}
+			4、测试
+			1.正常访问。2.关掉服务提供者访问。
+	3.资源隔离：
+		使用Hystrix可以通过线程池来实现资源隔离.
+		例如调用产品服务的Command放入A线程池, 调用账户服务的Command放入B线程池. 
+		这样做的主要优点是运行环境被隔离开了. 
+		这样就算调用服务的代码存在bug或者由于其他原因导致自己所在线程池被耗尽时, 不会对系统的其他服务造成影响. 
+		但是带来的代价就是维护多个线程池会对系统带来额外的性能开销. 
+		如果是对性能有严格要求而且确信自己调用服务的客户端代码不会出问题的话, 可以使用Hystrix的信号模式(Semaphores)来隔离资源.	
+Hystrix-dashboard熔断监控：
+	Hystrix-dashboard是一款针对Hystrix进行实时监控的工具。
+	通过Hystrix Dashboard我们可以在直观地看到各Hystrix Command的请求响应时间, 请求成功率等数据。
+	
+	Turbine：
+		Turbine工具能让我们汇总系统内多个服务的数据并显示到Hystrix Dashboard上
+		

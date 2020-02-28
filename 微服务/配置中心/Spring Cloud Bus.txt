@@ -1,0 +1,83 @@
+Spring Cloud Bus （消息总线）介绍：
+	Spring cloud bus通过轻量消息代理连接各个分布的节点。
+	
+	通常用于广播某一状态的变化（例如配置变化），或者其他的消息指令！。
+		附:
+			可以将它理解为管理和传播所有分布式项目中的消息.
+			利用该机制，进行客户端配置刷新就是典型的应用场景之一。
+	附：
+		Spring bus 核心思想：？
+			通过分布式的启动器对spring boot应用进行扩展，
+			也可以用来建立一个多个应用之间的通信频道。
+			目前通道实现的方式是用AMQP消息代理
+
+Spring Cloud Bus 改造 配置中心服务端：
+	http://www.ityouknow.com/springcloud/2017/05/26/springcloud-config-eureka-bus.html
+	利用Spring Cloud Bus做配置更新步骤如下:
+		1、修改配置，触发post请求发送bus/refresh ？
+		2、server端接收到请求并发送给Spring Cloud Bus
+		3、Spring Cloud bus接到消息并通知给其它客户端
+		4、其它客户端接收到通知，请求Server端获取最新配置
+		5、全部客户端均获取到最新的配置
+	1、新增依赖
+		引入spring-cloud-starter-bus-amqp包，增加对消息总线的支持
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-bus-amqp</artifactId>
+		</dependency>
+	2.新增配置
+		#增加RebbitMq的相关配置。	
+		spring:
+		  rabbitmq:
+			host: 192.168.0.6
+			port: 5672
+			username: admin
+			password: 123456
+		#关闭安全验证？
+		management:
+		  security:
+			 enabled: false	
+	3.测试
+		启动eureka、config-server、2个config-client
+		修改配置信息
+		模拟POST http://localhost:8001/bus/refresh，触发server端bus/refresh.
+		判断客户端是否获取到最新的配置信息
+	附：
+		局部刷新
+			只想刷新部分微服务的配置，此时可通过/bus/refresh端点的destination参数来定位要刷新的应用程序。
+		跟踪总线事件
+			注:
+				想要对接受到的消息自定义自己的处理方式的话，可以添加@EventListener注解的AckRemoteApplicationEvent和SentApplicationEvent类型到你自己的应用中
+		/bus/refresh BUG:
+			对server端执行/bus/refresh,server端也会从Eureka注册中心撤销登记。
+废弃：
+	Spring Cloud Bus 改造 配置中心客户端：
+		利用Spring Cloud Bus 改造 某一个配置中心客户端，
+		来达到利用消息总线触发一个客户端bus/refresh,而刷新所有客户端的配置的目的。
+		1、新增依赖
+			引入spring-cloud-starter-bus-amqp包，增加对消息总线的支持
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-bus-amqp</artifactId>
+			</dependency>
+		2、新增配置.？
+			application.properties：
+				## 刷新时，关闭安全验证
+				management.security.enabled=false
+				## 开启消息跟踪
+				spring.cloud.bus.trace.enabled=true
+
+				spring.rabbitmq.host=192.168.9.89
+				spring.rabbitmq.port=5672
+				spring.rabbitmq.username=admin
+				spring.rabbitmq.password=123456
+		测试
+		附：
+			1.MQ我们使用RabbitMQ了？
+
+			2.
+			在启动spring-cloud-config-client项目的时候我们会发现启动日志会输出这样的一条记录。
+			Mapped "{[/bus/refresh],methods=[POST]}" onto public void org.springframework.cloud.bus.endpoint.RefreshBusEndpoint.refresh(java.lang.String)
+			在上面的流程中，我们已经到达了利用消息总线触发一个客户端bus/refresh,而刷新所有客户端的配置的目的。
+			3.？
+			消息队列是如何刷新所有微服务的项目的。

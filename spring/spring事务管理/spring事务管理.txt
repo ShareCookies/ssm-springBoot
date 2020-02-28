@@ -44,7 +44,22 @@ https://www.jianshu.com/p/5687e2a38fbc
 				readOnly() 只读事务:
 					从这一点设置的时间点开始（时间点a）到这个事务结束的过程中，其他事务所提交的数据，该事务将看不见！（查询中不会出现别人在时间点a之后提交的数据）。
 					注意是一次执行多次查询来统计某些信息，这时为了保证数据整体的一致性，要用只读事务
-				rollbackFor():
+				*rollbackFor():
+					例：
+						@Transactional(rollbackFor=Exception.class)
+						https://www.cnblogs.com/clwydjgs/p/9317849.html
+						加了这个注解，那么这个类里面的方法抛出异常，就会回滚，数据库里面的数据也会回滚。
+						不加，只会在遇到RuntimeException的时候才会回滚。
+						附：
+							1.异常分为Error和Exception。
+							Exception分为RuntimeException（运行时异常）和非运行时异常。
+							@Transactional只会对RuntimeException进行回滚。
+							注：
+								非运行时异常：
+								如IOException、SQLException等以及用户自定义的Exception异常。
+								对于这种异常，JAVA编译器强制要求我们必需对出现的这些异常进行catch并处理，否则程序就不能编译通过。
+								所以，面对这种异常不管我们是否愿意，只能自己去写一大堆catch块去处理可能的异常。
+						
 				rollbackForClassName():
 				noRollbackFor():
 				noRollbackForClassName:

@@ -1,0 +1,73 @@
+Zuul Filter：
+	Filter是Zuul的核心，Zuul大部分功能都是通过过滤器来实现的,用来实现对外服务的控制.
+
+	Filter过滤器类型:
+		这些过滤器类型与请求的典型生命周期对应。
+		PRE： 
+			这种过滤器在请求被路由之前调用。
+			我们可利用这种过滤器实现身份验证、在集群中选择请求的微服务、记录调试信息等。
+		ROUTING：
+			这种过滤器将请求路由到微服务。
+			
+				这种过滤器用于构建发送给微服务的请求，并使用Apache HttpClient或Netfilx Ribbon请求微服务。
+				已经有请求了，为啥还要构建？
+		POST：
+			这种过滤器在路由到微服务，然后在请求返回后执行。
+			这种过滤器可用来为响应添加标准的HTTP Header、收集统计信息和指标、将响应从微服务发送给客户端等。
+		ERROR：
+			在任意阶段发生错误时执行该过滤器。 
+		附：
+			除了默认的过滤器类型，Zuul还允许我们创建自定义的过滤器类型。
+			例如，我们可以定制一种STATIC类型的过滤器，直接在Zuul中生成响应，而不将请求转发到后端的微服务。
+	自定义Filter：
+		http://www.ityouknow.com/springcloud/2018/01/20/spring-cloud-zuul.html	
+		继承ZuulFilter的类，并覆盖其中的4个方法。
+		将自定义Filter加入到请求拦截队列。
+路由熔断：
+	当我们的后端服务出现异常的时候，我们不希望将异常抛出给最外层，期望服务可以自动进行一降级。
+	Zuul给我们提供了这样的支持。当某个服务出现异常时，直接返回我们预设的信息。
+		Zuul 目前只支持服务级别的熔断，不支持具体到某个URL进行熔断。
+	例：
+		ZuulFallbackProvider接口默认有两个方法，getRoute用来指明熔断拦截哪个服务，fallbackResponse一个定制返回内容。
+		后来Spring又扩展了此类，丰富了返回方式，在返回的内容中添加了异常信息，因此建议直接继承类FallbackProvider 。
+		http://www.ityouknow.com/springcloud/2018/01/20/spring-cloud-zuul.html
+路由重试：
+	有时候因为网络或者其它原因，服务可能会暂时的不可用.
+	如果希望可以再次对服务进行重试，Zuul结合Spring Retry 可实现此功能。
+	例：
+	1.
+		在spring-cloud-zuul项目中新增Spring Retry依赖。
+		<dependency>
+			<groupId>org.springframework.retry</groupId>
+			<artifactId>spring-retry</artifactId>
+		</dependency>
+	2.配置文件中配置启用Zuul Retry
+		#是否开启重试功能
+		zuul.retryable=true
+		#对当前服务的重试次数
+		ribbon.MaxAutoRetries=2
+		#切换相同Server的次数
+		ribbon.MaxAutoRetriesNextServer=0
+		这样我们就开启了Zuul的重试功能。
+	3.测试
+	对spring-cloud-producer-2进行改造后，重启 spring-cloud-producer-2和spring-cloud-zuul项目。
+		@RequestMapping("/hello")
+		public String index(@RequestParam String name) {
+			logger.info("request two name is "+name);
+			try{
+				Thread.sleep(1000000);
+			}catch ( Exception e){
+				logger.error(" hello two error",e);
+			}
+			return "hello "+name+"，this is two messge";
+		}
+	注：
+		断路器与路由重试：！
+			用了retry，断路器就只有在该服务的所有实例都无法运作的情况下才能起作用。
+				开启重试在某些情况下是有问题的，比如当压力过大，一个实例停止响应时，路由将流量转到另一个实例，很有可能导致最终所有的实例全被压垮。
+			不用retry，仅使用负载均衡和熔断，就必须考虑到是否能够接受单个服务实例关闭和eureka刷新服务列表之间带来的短时间的熔断。如果可以接受，就无需使用retry。
+Zuul高可用：
+	同时启动多个Zuul实例进行负载
+	1.不同的客户端使用不同的负载将请求分发到后端的Zuul。
+	2.在Zuul的前端使用Spring Cloud Ribbon或Nginx等进行负载转发以达到高可用性。
+	那ng等本身如何负载了？

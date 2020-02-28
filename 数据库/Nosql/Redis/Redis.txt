@@ -1,4 +1,7 @@
 官网：https://redis.io/
+教程：
+	https://www.runoob.com/redis/redis-commands.html
+	https://blog.csdn.net/hellozpc/article/details/81267030
 redis安装：
 	https://github.com/yuyumyself/SHARE_CONTENT2/blob/master/Linux/Linux%E5%AE%89%E8%A3%85%E5%B8%B8%E8%A7%81%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/
 redis配置：
