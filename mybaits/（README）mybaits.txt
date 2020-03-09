@@ -22,28 +22,11 @@ mybaits教程：
 			MyBatis 通过一个映射引擎，声明式地将结果集与对象树映射起来。
 			
 
-Mybaits配置方式（Mybaits的集成方式）：
-	1.以 XML 形式进行配置是最基础的
-		<settings> 中的 logimpl 属性配置指定使用 LOG4J 输出日志
-		<typeAliases ＞元素下面配置了个包的别名，
-		<environments ＞环境 配置中 主要 配置了数据库连接，
-		<mappers ＞中配置了 个包含完整类路径的 CountryMapper.xml ，
-		这是 MyBatisSQL 语句和映射配置文件.
-	2.和 Spring 集成的时候还会使用 Spring bean 方式进行配置
-	3.通过 Java 编码方式进行配置,不常见
 
-java中查看sql执行结果：
-	https://blog.csdn.net/aphysia/article/details/80804963
-	增删改的sql执行之后都会有一个int类型的返回值，表示的意思是这个操作影响的行数。
-	所以经常使用返回值是否大于0来表示修改数据成功，小于0表示修改数据失败。
 
-mybatis多数据库支持：
-	 MyBatis 会加载不带 databaseId 属性和带有匹配当前数据库 databaseId 属性的所有语句。
-	 如果同时找到带有 databaseId 和不带 databaseId 的相同语句，则后者会被舍弃。
-	 sql例子：
-		<select id="selectTime" resultType="String" databaseId="mysql">
-			SELECT NOW() FROM dual
-		</select>
-	 启用：
-		...
+
+mybaits的简易使用:
+	/springBoot/附属功能/springBoot集成Mybaits/
+	附：
+		Mybaits的多种使用方式.txt
 	

@@ -1,5 +1,15 @@
-通用Mapper：
-	https://www.jianshu.com/p/5f84624e96bc
+mybatis多数据库支持：
+	 介绍：
+		MyBatis 会加载不带 databaseId 属性和带有匹配当前数据库 databaseId 属性的所有语句。
+		如果同时找到带有 databaseId 和不带 databaseId 的相同语句，则后者会被舍弃。
+	 例：
+		<select id="selectTime" resultType="String" databaseId="mysql">
+			SELECT NOW() FROM dual
+		</select>
+	 springBoot配置文件启用对应版：
+		mybatis:
+		  configuration:
+			database-id: mysql
 字符串拼接：
 	http://www.cnblogs.com/shuaifing/p/7928628.html
 	https://blog.csdn.net/nu7204li/article/details/73411664

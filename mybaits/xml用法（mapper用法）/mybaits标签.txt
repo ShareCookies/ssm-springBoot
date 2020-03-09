@@ -144,8 +144,10 @@ mybaits动态SQL标签:
 		<![CDATA[]]>的作用：
 			解析xml文件的时候不转义特殊字符，要使用<![CDATA[ ]]>来解决。
 			https://www.cnblogs.com/ferby/p/9799164.html
+			例：
+				<![CDATA[ AND  DRAFT_DATE >= #{map.startDate} ]]>
 		模糊查询 ：！
-			like CONCAT('%', #{lineName}, '%')
+			AND SUBJECT like CONCAT('%', #{lineName}, '%')
 	?
 		resultMap resultType
 		XML中针对不同的数据库编不同的 SQL 语句:
