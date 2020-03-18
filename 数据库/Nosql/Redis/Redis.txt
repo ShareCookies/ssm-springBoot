@@ -38,6 +38,10 @@ redis语法：
 	类型：
 		字符串(String)
 		哈希(Hash)
+			hash 是一个 string 类型的 field 和 value 的映射表，hash 特别适合用于存储对象。
+			Redis 中每个 hash 可以存储 2的32次方 - 1 键值对（40多亿）。
+			总：
+				hash就是一个map<Stirng,String>了
 		列表(List)
 		集合(Set)
 		有序集合(zset(sorted set))

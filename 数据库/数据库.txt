@@ -37,3 +37,14 @@
 				因此，在设计表的时候，不建议使用过长的字段作为主键，也不建议使用非单调的字段作为主键，这样会造成主索引频繁分裂。
 查询缓存：
 	执行查询语句的时候，会先查询缓存。不过，MySQL 8.0 版本后移除，因为这个功能不太实用
+事务：
+	./事务.txt
+	
+池化设计思想：
+	...
+	
+优化：
+	./优化.txt
+
+参考：https://github.com/Snailclimb/JavaGuide/blob/master/docs/database/MySQL.md
+
