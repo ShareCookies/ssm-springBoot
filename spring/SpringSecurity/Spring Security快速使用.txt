@@ -1,35 +1,102 @@
 https://www.cnblogs.com/demingblog/p/10874753.html
-加入如下依赖，并重启应用,即可引入spring security来保护应用：
+1.加入如下依赖，并重启应用,即可引入spring security：
 		<dependency>
 		 <groupId>org.springframework.boot</groupId>
 		 <artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-新建一个security配置类，配置spring security：
-	./security/SecurityConfiguration.java
-	请求资源的访问控制：
-		https://www.cnblogs.com/demingblog/p/10874753.html goto：角色-资源 访问控制
-		实现特定资源只能由特定角色访问的功能。
-Spring Security 的token实战:
-	设置用户存储：
-		即指明security如何从数据库获取用户信息。
-		自定义UserDetailsService：
-			该service是用来查找用户的，并返回UserDetails格式的用户信息。
-			例：./security/CustomUserDetailsService.java
-		把自定义UserDetailsService，应用到security用户存储配置中。
-			    //2.配置用户存储 。 （即如何加载用户）
-			@Override
-			protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-				//通过自定义userDetailsService，从数据库中加载用户
-				auth.userDetailsService(userDetailsService)// 该service中自定义了用户的加载。
-					.passwordEncoder(passwordEncoder());// 设置密码编码器
-			}
-	自定义token整合spring security:
-		介绍：前后端项目分离，一般后端并没有登录状态保持，服务器通过客户端传递的token来识别调用者是谁。
-		spring security项目整合token：
-			1.怎么生成token（即怎么登录）：
-				./security/token/README.TXT goto:怎么生成token（即怎么登录）
-			2.spring security怎么根据token得到授权认证信息。
-				./security/token/README.TXT goto: spring security怎么根据token得到授权认证信息
+2.新建一个security配置类：
+	介绍：
+		1.在该配置类上启用security。
+		2.进行web请求资源的访问控制配置：
+			实现特定资源只能由特定角色访问的功能。
+			./使用security保护Web请求.txt goto: 过滤请求
+		注：到这一步用户只能访问特定的接口（一般我们会开放出登入等链接），将无法访问其余接口。
+		3.设置用户存储：
+			指明security从哪且如何获取用户信息。
+			本文中案例中即指明security如何从数据库获取用户信息：
+			1.自定义UserDetailsService：
+				该service是用来指明查找用户的具体操作，并返回UserDetails格式的用户信息。
+				例：./security/CustomUserDetailsService.java
+			2.把自定义UserDetailsService，应用到security用户存储配置中。
+				@Override
+				protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+					auth.userDetailsService(userDetailsService)
+						.passwordEncoder(passwordEncoder());// 设置密码编码器
+				}
+			注：登入认证的时候，会调用密码编译器将用户提交的密码进行编译，
+				然后在与数据库获取的用户的密码进行对比，认证通过则登入成功。
+				附：Spring Security  密码校验和密码加密流程：
+					./SpringSecurity密码加密与校验.txt
+	例：
+		./security/SecurityConfiguration.java
+	附：
+		@EnableWebSecurity
+			https://blog.csdn.net/andy_zhang2007/article/details/90023901		
+3.编写登入认证接口：（即如何登入然后进行认证）
+    //1,2,3,4步骤都是和spring security交互的，如果完成了则登入成功。
+	// 第5步是我们自己定义的，用来把登入成功后的信息转换成token。
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	@Autowired
+	UserDetailsService userDetailsService;
+    @PostMapping("/user/login/account")
+    public AuthToken loginByAccountReturnToken(@RequestParam(value = "name") String username, @RequestParam String password) {
+        // 1 创建UsernamePasswordAuthenticationToken
+        UsernamePasswordAuthenticationToken token
+                = new UsernamePasswordAuthenticationToken(username, password);
+        // 2 认证
+        Authentication authentication = this.authenticationManager.authenticate(token);
+        // 3 保存认证信息
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // 4 加载UserDetails
+        UserDetails details = this.userDetailsService.loadUserByUsername(username);
+        // 5 生成自定义token
+        User user = new User();
+        user.setName(username);
+        user.setPassword(password);
+        AuthTokenProvider authTokenProvider = new AuthTokenProvider();
+        //User user1 = SecurityUtils.getLoginUser();
+        return authTokenProvider.createToken(user);
+    }
+	附第5步解释：
+		介绍：				
+			客户端可以通过该请求来获得一个token了{"token":"abcd","expires":1234567890}，那么下次请求的时候，带上 token=abcd这个参数（或者也可以是自定义的请求头中），服务端即可从该token中识别出你的信息，无需登入。
+		AuthTokenProvider：
+			自定义的token工具类，该类具有两个方法，一个用来生成token，一个用来验证token（即从token中识别用户）。
+			例：./security/token/AuthTokenProvider.java
+		AuthToken：
+			自定义的token对象，就是保存了token的一些信息。
+			例：./security/token/AuthToken.java
+注：
+	到这一步其实就security的正常流程已经走完了。
+4.Spring Security 的token实战:
+	介绍：
+		前后端项目分离，并不一定均适合使用session方案保持登录状态（如移动端就无法使用cookie）。
+		服务器先向客户端传递token，客户端访问时在带上该token，然后服务端通过token来识别用户是教好的一个解决方案。
+	spring security整合token:
+		1.怎么生成token（即怎么登录）：
+			goto: 3.编写登入认证接口
+		2.spring security怎么根据token得到授权认证信息。
+			客户端有token后，请求的时候带上token=abcd参数。
+			security中使用一个自定义的filter解析token，复原security无状态下的"session"，
+				附：（即手动设置security的authentication，就是把当前用户信息存入security，否则SecurityContext中没有用户信息，后面的流程会检测出"需要登录"）
+			让当前请求的处理线程具有认证授权数据，后面的业务逻辑才能执行。
+			自定义的filter：
+				在该过滤器中来解析token
+				./security/token/filter/MyAuthTokenFilter.java
+			将自定义的filter整合到spring security中:
+				1.将自定义的过滤器整合到SecurityConfigurerAdapter中。
+				./security/token/configuration/MyAuthTokenFilterConfigurer.java
+				2.将SecurityConfigurerAdapter整合到security配置类中：
+					private MyAuthTokenConfigurer securityConfigurerAdapter() {
+					  return new MyAuthTokenConfigurer(userDetailsService, tokenProvider);
+					}
+					@Override
+					protected void configure(HttpSecurity http) throws Exception {
+						http
+							.and()
+							.apply(securityConfigurerAdapter());// 增加自定义的securityConfigurerAdapter
+					}			
 		附：
 			使用token进行用户验证的系统流程：
 				1.客户端（react前端，IOS等）调用“登录接口”获得一个包含token的响应（通常是个JSON，如 {“token”:”abcd”,”expires”:1234567890}）
@@ -39,9 +106,9 @@ Spring Security 的token实战:
 					服务器发现token正常，并解析出来是A，返回A的数据。
 				4.……
 
-	设置使用token所需的一些配置：
+	security使用了token认证方案后要关闭的一些设置：
 		1. goto：禁用spring security 的session
-		2. .and().csrf().disable() //关闭csrf保护
+		2. .and().csrf().disable() //关闭csrf保护 （Cross-site request forgery 跨站请求伪造）
 附：
 	禁用spring security 的session:
 		spring security 使用了session：
@@ -64,5 +131,10 @@ Spring Security 的token实战:
 				http
 					.sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-	Spring Security获取当前用户信息：
+	Spring Security中如何获取当前登入用户信息：
 		https://blog.csdn.net/LI_AINY/article/details/88694920
+		//通过SecurityContextHolder来获取当前登入用户信息
+		Object principl = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if(principl instanceof UserDetails) {
+			currentUser = ((UserDetails)principl).getUsername();
+		}
