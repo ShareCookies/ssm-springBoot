@@ -106,3 +106,10 @@ sql查询优化：
 			尽量不要对数据进行分片，因为拆分会带来逻辑、部署、运维的各种复杂度 。
 			一般的数据表在优化得当的情况下支撑千万以下的数据量是没有太大问题的。
 			如果实在要分片，尽量选择客户端分片架构，这样可以减少一次和中间件的网络I/O。
+附：
+	Mysql高性能优化规范建议：
+		https://www.cnblogs.com/huchong/p/10219318.html
+	一条SQL语句执行得很慢的原因有哪些：			
+		https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485185&idx=1&sn=66ef08b4ab6af5757792223a83fc0d45&chksm=cea248caf9d5c1dc72ec8a281ec16aa3ec3e8066dbb252e27362438a26c33fbe842b0e0adf47&token=79317275&lang=zh_CN#rd
+	一条SQL语句在MySQL中如何执行的：
+		https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485097&idx=1&sn=84c89da477b1338bdf3e9fcd65514ac1&chksm=cea24962f9d5c074d8d3ff1ab04ee8f0d6486e3d015cfd783503685986485c11738ccb542ba7&token=79317275&lang=zh_CN#rd

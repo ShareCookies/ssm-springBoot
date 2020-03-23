@@ -1,0 +1,56 @@
+对应的sql：
+	UPDATE 
+	  URGER_TYPE_CONFIG_copy U
+	SET
+		SUBSET = 
+			CASE
+				WHEN SORT_NO = 1 THEN one 
+				WHEN SORT_NO = 2 THEN two
+			END
+		,
+	  SYSTEM_NO = 
+		CASE
+			WHEN SORT_NO = 1 THEN first
+			WHEN SORT_NO = 2 THEN second
+		END
+	#不加where 进行第二层过滤的话，会导致没在条件中的列被更新未NULL.
+	WHERE SORT_NO = 1 
+	  OR SORT_NO = 2
+CASE WHEN:
+	/数据库/sql/CASE WHEN.txt
+mybaits标签说明：
+	<trim>
+	属性说明：
+		1.prefix,suffix 表示在trim标签包裹的部分的前面或者后面添加内容 
+		prefixOverrides,suffixOverrides
+			去除多余的指定前缀或后缀内容，如：suffixOverrides=","，去除trim标签内sql语句多余的后缀","。
+			附：
+				2.如果同时有prefixOverrides,suffixOverrides 表示会用prefix,suffix覆盖Overrides中的内容。 
+				3.如果只有prefixOverrides,suffixOverrides 表示删除开头的或结尾的xxxOverides指定的内容。
+
+https://blog.csdn.net/yjaspire/article/details/81316885
+mybaits:
+  <!--传入参数为List<对象类名>-->
+  <update id="update对象类名ByBatch"   parameterType="java.util.List">
+    update 表名
+    <trim prefix="set" suffixOverrides=",">
+      <!--<trim prefix="被更新的列名1water_meter_id =case" suffix="end,">-->
+        <!--<foreach collection="list" item="i" index="index">-->
+          <!--<if test="i.要更新为对象那个属性!=null">-->
+            <!--when ID=#{i.id} then #{i.要更新为对象那个属性}-->
+          <!--</if>-->
+        <!--</foreach>-->
+      <!--</trim>-->
+      <!--<trim prefix="被更新的列名2water_meter_source_type =case" suffix="end,">-->
+        <!--<foreach collection="list" item="i" index="index">-->
+          <!--<if test="i.要更新为对象那个属性!=null">-->
+            <!--when ID=#{i.id} then #{i.要更新为对象那个属性}-->
+          <!--</if>-->
+        <!--</foreach>-->
+      <!--</trim>-->
+    </trim>
+    where
+    <foreach collection="list" separator="or" item="i" index="index" >
+      ID=#{i.id}
+    </foreach>
+  </update>

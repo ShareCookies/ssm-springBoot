@@ -1,0 +1,41 @@
+https://blog.csdn.net/rongtaoup/article/details/82183743
+
+介绍：
+	在SQL的世界中CASE语句类似if else  语句，
+	作用是根据条件返回对应结果，
+	我认为这个语句的优先级时最高的，时会被最新执行的。
+
+Case具有两种格式：
+
+	1.简单Case函数
+		CASE sex
+		WHEN '1' THEN '男'
+		WHEN '2' THEN '女'
+		ELSE '其他' END
+	2.CASE WHEN条件表达式函数（Case搜索函数）
+		CASE WHEN sex = '1' THEN '男'
+		WHEN sex = '2' THEN '女'
+		ELSE '其他' END
+		格式：
+			CASE WHEN condition THEN result
+			[WHEN...THEN...]
+			ELSE result
+			END
+			
+			1.condition是一个返回布尔类型的表达式，
+			如果表达式返回true，则整个函数返回相应result的值，
+			如果表达式皆为false，则返回ElSE后result的值，如果省略了ELSE子句，则返回NULL。
+
+	
+	这两种方式，可以实现相同的功能。
+	注：
+		如果省略了else，那么未符合条件时返回，NULL
+例：
+	SELECT
+    STUDENT_NAME,
+    (CASE WHEN score < 60 THEN '不及格'
+        WHEN score >= 60 AND score < 80 THEN '及格'
+        WHEN score >= 80 THEN '优秀'
+        ELSE '异常' END) AS REMARK
+	FROM
+		TABLE

@@ -4,25 +4,12 @@
 		例：
 			DRAFT_DATE
 		该写法好处：
-			为应对不同数据库区别和数据不同版本区别！
+			为应对不同数据库区别和数据库不同版本区别！
 增：
-
+	./批量操作.txt goto:批量插入
 删：
-	/**
-     * 通过多个id批量删除
-     * @param idList
-     * @return 返回值为0，则操作失败
-     */
-    int delByIds(List<String> idList) ;
-	<!--根据id批量删除-->
-	<delete id="delByIds" parameterType="java.util.List">
-		DELETE from 表名 where ID in
-        (
-        <foreach collection="idList" item="id" separator=",">
-			#{id}
-		</foreach>
-        )
-	</delete>
+	通过多个id批量删除
+	./批量操作.txt goto:批量删除
 	
 	根据条件删除：
 	    int delFlowFrequentContactByUserNo(FlowFrequentContact flowFrequentContact);
@@ -36,7 +23,8 @@
 			</where>
 		</delete>
 改：
-	https://blog.csdn.net/yjaspire/article/details/81316885
+	批量更新：
+		./批量更新.txt
 查：
 	/**
      * 获取所有数据集合

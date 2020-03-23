@@ -1,20 +1,27 @@
+https://blog.csdn.net/hejingyuan6/article/details/36633631
 https://blog.csdn.net/reggergdsg/article/details/52821502
 Filter(过滤器):
 	介绍：
-		Servlet主要负责处理请求，而Filter主要负责对请求的拦截和放行。
-		当我们编写好Filter，并配置对哪个web资源进行拦截后，
-		WEB服务器在每次通过请求路径，调用web资源的之前，都会先调用一下对应filter的doFilter方法。
+		ServletAPI提供了一个Filter接口，开发web应用时如果编写的Java类实现了这个接口，则把这个java类称之为过滤器Filter。
+
+		通过Filter技术，开发人员可以实现用户在访问某个目标资源之前，对访问的请求和响应进行拦截。
+		简单说，就是可以实现web容器对某资源的访问前截获进行相关的处理，还可以在某资源向web容器返回响应前进行截获进行处理。
+		:
+			我碰到一个问题，我在web应用中发起的发起的请求被自己应用的filter给拦截了，为什么了。好吧是我搞错了
+			
+
 		filter作用：
 			调用目标资源之前，让一段代码执行。
 			是否调用目标资源（即是否让用户访问web资源）。
 			调用目标资源之后，让一段代码执行。
-		注：
-			filter能对返回的资源再次处理。
-			filter只会被调用一次啊，那是怎么实现的了？
-			https://www.debugease.com/javaweb/910762.html
+		附：
+			1.Servlet主要负责处理请求，而Filter主要负责对请求的拦截和放行。
+			2.filter能对返回的资源再次处理:
+				filter只会被调用一次啊，那是怎么实现的了？
+				https://www.debugease.com/javaweb/910762.html
 			
-		hcg：
-			spirng的@getmap 是会生成servlet吗？
+			3.
+				spirng的@getmap 是会生成servlet吗？
 		
 	生命周期：
 		init()：
@@ -90,7 +97,7 @@ Filter链：
         String[] str1 = {"login.jsp"};
         for(String s:str1){
             String [] urlStrings= request.getRequestURI().split("/");
-            if (urlStrings[urlStrings.length-1].equals(s )) {
+            if (urlStrings[urlStrings.length-1].equals(s)) {
                 filterChain.doFilter(request, response);
 		        return;
             }

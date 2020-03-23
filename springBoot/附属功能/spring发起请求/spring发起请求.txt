@@ -1,0 +1,13 @@
+spring发起http请求：
+	https://www.cnblogs.com/javazhiyin/p/9851775.html
+
+拦截器等：https://www.jianshu.com/p/90ec27b3b518
+
+Spring RestTemplete支持Https安全请求：
+	https://blog.csdn.net/weixin_33835103/article/details/86278376
+	https://blog.csdn.net/justry_deng/article/details/82531306#commentBox
+	
+	
+HttpClient 关于 https：	
+	https://blog.csdn.net/xiaoxian8023/article/details/49866397
+	https://blog.csdn.net/xiaoxian8023/article/details/49865335

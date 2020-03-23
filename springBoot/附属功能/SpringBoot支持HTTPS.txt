@@ -1,0 +1,23 @@
+https://segmentfault.com/a/1190000020052375
+https://www.jianshu.com/p/8d4aba3b972d
+
+
+https 简介：
+	HTTPS 超文本传输安全协议(HyperText Transfer Protocol Secure),https是一种通过计算机网络进行安全通信的传输协议；
+	常称为 HTTP over TLS、HTTP over SSL 或 HTTP Secure）,HTTPS 经由 HTTP 进行通信，但利用 SSL/TLS 来加密数据包。
+	HTTPS 开发的主要目的，是提供对网站服务器的身份认证，保护交换数据的隐私与完整性。
+
+准备一https 证书：
+	首先我们需要有一个 https 证书，我们可以从各个云服务厂商处申请一个免费的。
+	不过自己做实验没有必要这么麻烦，我们可以直接借助 Java 自带的 JDK 管理工具 keytool 来生成一个免费的 https 证书。
+
+	进入到 %JAVVA_HOME%\bin 目录下，执行如下命令生成一个数字证书：
+		keytool -genkey -alias tomcathttps -keyalg RSA -keysize 2048 -keystore D:\javaHttpsCertificate.p12 -validity 365
+spring 引入 https：
+	将上面生成的 文件 拷贝到 Spring Boot 项目的 resources 目录下。
+	然后在 application.properties 中添加如下配置：
+		server.ssl.key-store=classpath:javaHttpsCertificate.p12 密钥文件名。
+		server.ssl.key-alias=tomcathttps 密钥别名。
+		server.ssl.key-store-password=就是在cmd命令执行过程中输入的密码。
+http请求转发：
+	

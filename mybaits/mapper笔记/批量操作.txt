@@ -139,6 +139,4 @@ Mybatis批量插入性能分析测试：
         )
 	</delete>
 批量更新：
-	！
-	https://blog.csdn.net/nextaction/article/details/80453843#!/xh?tdsourcetag=s_pctim_aiomsg
-	https://www.cnblogs.com/ldj3/p/9288187.html
+	./批量更新.txt

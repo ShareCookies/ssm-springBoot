@@ -4,3 +4,39 @@ https://www.cnblogs.com/real9527/p/8242408.html
 https://www.runoob.com/sql/sql-groupby.html
 https://www.jianshu.com/p/8b135d373df1
 https://www.jianshu.com/p/7f532985ff39
+
+
+
+
+
+  <select id="getEgovCommonContactsGroup" resultType="java.util.HashMap">
+   SELECT GROUP_NO,ANY_VALUE(GROUP_NAME),ANY_VALUE(GROUP_SORT_NO)
+    FROM EGOV_COMMON_CONTACTS
+    <where>
+      <if test="userNo != null">
+        AND USER_NO = #{userNo}
+      </if>
+    </where>
+    GROUP BY GROUP_NO
+  </select>
+  
+	Dao层：
+    public List<Map<String,Object>> getEgovCommonContactsGroup(String userNo){
+        List<Map<String,Object>> restructData = mapper.getEgovCommonContactsGroup(userNo);
+        Iterator<Map<String,Object>> iterator = restructData.iterator();
+        while (iterator.hasNext()){
+            Map<String,Object> item = iterator.next();
+            if (item == null ){
+                iterator.remove();
+            } else if (item.containsKey("ANY_VALUE(GROUP_NAME)")){
+                String keyValue  = (String) item.get("ANY_VALUE(GROUP_NAME)");
+                item.remove("ANY_VALUE(GROUP_NAME)");
+                item.put("GROUP_NAME",keyValue);
+            } else if (item.containsKey("ANY_VALUE(GROUP_SORT_NO)")){
+                String keyValue  = (String) item.get("ANY_VALUE(GROUP_SORT_NO)");
+                item.remove("ANY_VALUE(GROUP_SORT_NO)");
+                item.put("GROUP_SORT_NO",keyValue);
+            }
+        }
+        return restructData;
+    }

@@ -1,0 +1,17 @@
+https://blog.csdn.net/justry_deng/article/details/82933941
+
+
+		<!-- spring mybaits 分页插件-->
+		<!-- exclusions作用：如果已经有mybatis-spring-boot-starter依赖,那么自动不引入pagehelper依赖,因为mybatis-spring-boot-starter会自动引入pagehelper。-->
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper-spring-boot-starter</artifactId>
+			<version>1.2.13</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>mybatis-spring-boot-starter</artifactId>
+					<groupId>org.mybatis.spring.boot</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- spring mybaits 分页插件-->
