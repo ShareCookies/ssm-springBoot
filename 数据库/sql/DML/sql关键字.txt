@@ -1,0 +1,77 @@
+mysql sql注意事项：
+	1.判断某字段为空	is null
+	2.某字段不为空	is not null
+	3.where status!=4 不会列出（比较）为null的
+	4.mysql字段值默认不区分大小写，以二进制形式保存的区分大小写
+	
+	附：
+		1.SQL关键字不区分大小写：
+			如create CREATE 同效
+		2.
+			分号是在数据库系统中分隔每条 SQL 语句的标准方法。
+			这样就可以在对服务器的相同请求中执行一条以上的语句。
+		3.变量值用单应号包裹
+			如where id = '1111'
+关键字：
+	or and：
+		注：
+			or and 混用最好加括号
+			./例/or and混用.txt
+	表连接：
+		./sql详细/表连接
+	group by:分组
+		./sql详细/分组group by
+	CASE WHEN :(条件语句，类似if else)
+		./sql详细/CASE WHEN.txt
+	as 取别名 :  
+		oracal：
+			不用引号包裹：
+				select  test as tt  from  rooms;
+				返回：
+					TT
+					返回字段全大写
+			用双引号包裹：
+				select  test as "tT"  from  rooms;
+				返回：
+					tT
+				注：
+					as 后的t 不能用 '' 包裹。
+			https://blog.csdn.net/sosous/article/details/36177165
+	union 合并结果集：
+		UNION 操作符用于合并两个或多个 SELECT 语句的结果集。
+		Oracle：
+			Oracle用union连接时报字符集不匹配异常：  
+			解决方案：
+				1.修改数据库字段类型
+				2.使用cast()函数进行类型转换
+			注：
+				用’’做了一个默认值，数据库默认为varchar2
+附：
+	mysql常见控制台命令：
+		quit：
+			退出mysql
+		show tables;
+			https://www.cnblogs.com/123456789qq/p/5891289.html
+			显示数据库
+		导入|导出：
+			https://www.cnblogs.com/jwlfpzj/articles/7998395.html
+			导入数据库source d:/dbname.sql
+		改密码：
+			use mysql;//此时要会提示Database changed
+			update user set password=password("") where user="root";
+			flush privileges; //刷新权限,使密码生效
+		命令帮助手册：
+			例 help drop indexa
+		注：
+			linux调用mysql控制台：
+				mysql -uroot -p
+			linux mysql的启动：
+				https://www.cnblogs.com/microcat/p/6610963.html
+			linux mysql的启动服务
+				service mysql start　　　
+			linux mysql的关闭服务
+				service mysql stop
+
+	navicat导出数据库:
+		要导出的数据库上右击鼠标->点击“转储SQL 文件”->“数据跟结构”。
+

@@ -64,7 +64,8 @@ mapper映射文件介绍：
 				2.映射到java.lang.Map,key大小写敏感？	
 	resultMap与resultType区别：
 		1.sql查询结果字段名和pojo的属性名不一致，建议使用resultMap进行映射。
-
+	<collection>
+		...
 CURD标签：
 	<select>：
 		介绍：

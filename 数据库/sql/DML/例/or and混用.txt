@@ -1,0 +1,12 @@
+1.select * from URGER_TYPE_CONFIG_copy WHERE SUBSET = '2' AND SORT_NO = '4' OR SYSTEM_NO IN ('1')
+等价于：select * from URGER_TYPE_CONFIG_copy WHERE (SUBSET = '2' AND SORT_NO = '4' )OR SYSTEM_NO IN ('1')
+	
+2.select * from URGER_TYPE_CONFIG_copy WHERE SUBSET = '2' OR SYSTEM_NO IN ('1') AND SORT_NO = '4' 
+等价于：select * from URGER_TYPE_CONFIG_copy WHERE  (SUBSET = '2' OR SYSTEM_NO IN ('1') )AND SORT_NO = '4' 
+
+
+1,2的结果是不同的
+	实验表：
+		INSERT INTO `URGER_TYPE_CONFIG_copy` VALUES ('XZFuoNmO6Mugu4EO', '1', 'XagqpFS1Gs9kM6CQ', 'XZGtl9mODK7TnfhI', '2', 4, '2');
+		INSERT INTO `URGER_TYPE_CONFIG_copy` VALUES ('XZFuytmO6Mugu4EP', '2', 'Xak1fVS1syWgeGRO', 'XZGtq9mODK7TnfhJ', 'FF', 3, 'FFF');
+		INSERT INTO `URGER_TYPE_CONFIG_copy` VALUES ('XZFyldmOCUNUYeab', '3', 'XagqpFS1Gs9kM6CQ', 'XZGsCNmODK7TnfhH', '1', 1, '1');

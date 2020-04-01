@@ -19,7 +19,12 @@ count（）
 				limit是sql语句中最后执行的。
 				因为count只能返回一条数据，limit要返回多条数据，所以limit和count他们作用就会产生冲突。
 
-！！！
+count结合case：
+	select f.description "rowCode1" ,
+	count(case price when '2' then price end) "colSum1",
+	count(case status when 'Y' then status end) "colSum1"
+	from fund f;
+
 SQL之case when then用法：
 	https://www.cnblogs.com/Richardzhu/p/3571670.html
 	介绍：
@@ -43,8 +48,3 @@ SQL之case when then用法：
 			)状态
 		from fund f;
 	
-count结合case：
-	select f.description "rowCode1" ,
-	count(case price when '2' then price end) "colSum1",
-	count(case status when 'Y' then status end) "colSum1"
-	from fund f;

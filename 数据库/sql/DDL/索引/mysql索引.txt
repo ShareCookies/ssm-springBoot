@@ -1,0 +1,84 @@
+数据查找过程：
+	数据库管理系统，执行一个在Student表上根据指定的Sno，查找该学生信息的语句。
+	没有索引：
+		如果没有索引，则数据库管理系统需要从Student表的第一行开始，并逐行检索指定的Sno值。
+		从数据结构的算法知道我们知道，有序数据的查找比无序数据的查找效率要高很多。
+	有索引：
+		数据库管理系统发现查找条件中有索引项，
+		然后在索引表查找Sno，找到sno后根据其对应的数据的存储位置，直接检索出需要的信息。
+		部分有索引，部分没有索引了？
+
+索引介绍：
+	索引也可以理解为一张表，该表保存索引字段，并指向实体表的记录。
+	例：
+		简易索引文件的理解.png
+
+	索引优缺点:
+	　	优点：索引可以极大的提高数据的查询速度。 
+		缺点：
+			索引会降低更新表的速度，当进行其他DML时，会更新索引文件。
+			建立索引会占用磁盘空间的索引文件。
+	建设原则:
+		1.
+			创建索引时，你需要确保该索引是应用在SQL查询语句的条件(一般为 WHERE 子句的条件)。
+			如果某个大表经常使用某个字段进行查询，并且检索行数小于总表行数的5%，则应该考虑。
+		2.对于两表连接的字段，应该建立索引。
+		3.如果经常在某表的一个字段进行Order By 则也可进行索引。
+		4.不应该在小表上建设索引。	
+		合理的设计且使用索引的MySQL是一辆兰博基尼的话，那么没有设计和使用索引的MySQL就是一个人力三轮车。
+索引的存储结构：
+	MySQL索引使用的数据结构主要有BTree索引 和 哈希索引 。
+	在绝大多数需求为单条记录查询的时候，可以选择哈希索引，查询性能最快；其余大部分场景，建议选择BTree索引。
+	哈希索引:
+		底层的数据结构就是哈希表.
+	BTree索引:
+		BTree按搜索关键字排序，因此可以在组成搜索关键字的，任何字词条集合上进行高效搜索。
+			例：
+				对一个有A,B,C三个列组成的索引，可以在A以及A,B和A,B,C上对其进行高效搜索。
+		MySQL的BTree索引使用的是B树中的B+Tree，但对于主要的两种存储引擎的实现方式是不同的。
+		InnoDB: 
+			其数据文件本身就是索引文件。
+			表数据文件本身就是按B+Tree组织的一个索引结构，树的叶节点data域保存了完整的数据记录。
+			(MyISAM索引文件和数据文件是分离的)
+			附：
+				这个索引的key是数据表的主键，因此InnoDB表数据文件本身就是主索引。这被称为“聚簇索引（或聚集索引）”。
+				而其余的索引都作为辅助索引，辅助索引的data域存储相应记录主键的值而不是地址，这也是和MyISAM不同的地方。
+				在根据主索引搜索时，直接找到key所在的节点即可取出数据；在根据辅助索引查找时，则需要先取出主键的值，再走一遍主索引。 
+				因此，在设计表的时候，不建议使用过长的字段作为主键，也不建议使用非单调的字段作为主键，这样会造成主索引频繁分裂。
+
+索引的常见操作：
+	创建索引：
+		https://www.cnblogs.com/tommy-huang/p/4483684.html
+		语法：
+			MYSQL:
+				CREATE [UNIQUE|FULLTEXT]  INDEX <索引名> ON <表名> （列名 [,...n](length)）
+				UNIQUE ：表示要创建的索引是唯一索引	
+				FULLTEXT：旧版的MySQL的全文索引只能用在MyISAM表格的char、varchar和text的字段上。！！！
+				length：可以指定索引长度！！！
+			单列索引:
+				即一个索引只包含单个列，一个表可以有多个单列索引，但这不是组合索引。
+			组合索引:
+				一个索引包含多个列。
+			注：
+				创建的索引类型是非聚集索引。（MYSQL不支持非主键的聚集索引。）
+		例：
+			1.为Student表的sname列，创建一个名为snameIndex的非聚集索引
+				CREATE INDEX snameIndex ON Student(sname)
+			2.为Student表的sname和lastName列，创建一个名为sIndex的唯一非聚集索引
+				CREATE UNIQUE INDEX sIndex ON Student(sname,lastName)
+		使用ALTER 命令添加：！
+			ALTER TABLE tbl_name ADD PRIMARY KEY (column_list): 该语句添加一个主键，这意味着索引值必须是唯一的，且不能为NULL。
+			ALTER TABLE tbl_name ADD UNIQUE index_name (column_list): 这条语句创建索引的值必须是唯一的（除了NULL外，NULL可能会出现多次）。
+			ALTER TABLE tbl_name ADD INDEX index_name (column_list): 添加普通索引，索引值可出现多次。
+			ALTER TABLE tbl_name ADD FULLTEXT index_name (column_list):该语句指定了索引为 FULLTEXT ，用于全文索引。
+	删除索引：
+		语法：
+			Mysql: DROP INDEX <索引名> on <表名>
+			SqlServer: drop index <表名>.<索引名>
+		例：
+
+	注：
+		查看表上拥有的索引：
+			show index from <表名>;		
+
+

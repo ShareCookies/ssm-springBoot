@@ -1,6 +1,8 @@
 MYSQL官网手册:
 	https://dev.mysql.com/doc/refman/8.0/en/control-flow-functions.html#function_ifnull
-
+count(*)： 统计
+	./sql详细/统计.txt
+	注：count 函数不能与limit 关键字一起使用
 cast():
 	https://blog.csdn.net/qq_21101587/article/details/78642423
 	CAST函数用于将某种数据类型的表达式显式转换为另一种数据类型。

@@ -98,3 +98,20 @@
 		Next-key lock：record+gap 锁定一个范围，包含记录本身。
 			innodb对于行的查询使用next-key lock，解决了幻读问题。
 			当查询的索引含有唯一属性时，将next-key lock降级为record key
+一个sql语句本身算事务吗：
+	https://bbs.csdn.net/topics/300178999
+	SQL Server 以下列事务模式运行。
+
+		自动提交事务 
+		        每条单独的语句都是一个事务。
+
+		显式事务 
+		       每个事务均以 BEGIN TRANSACTION 语句显式开始，以 COMMIT 或 ROLLBACK 语句显式结束。
+
+		隐式事务 
+		       在前一个事务完成时新事务隐式启动，但每个事务仍以 COMMIT 或 ROLLBACK 语句显式完成。
+
+		附：
+			自动提交事务---数据库引擎的默认模式。每个单独的 Transact-SQL 语句都在其完成后提交。不必指定任何语句来控制事务。
+			即一个sql就算一个事务。
+			但是你也可以把事务的控制交给程序，这要通过显式事务来完成.

@@ -11,8 +11,13 @@
 			namespace 值要配置成接口的全限定名称，MyBatis内部就是通过这个值将接口和XML 关联起来的。
 		附：
 			MyBatis注解方式:
-				MyBatis注解方式是将SQL直接注解写在接口上.
-				https://blog.csdn.net/aa1215018028/article/details/80769277
+				MyBatis注解方式是将SQL直接注解写在接口上，不用再写sql。
+				例：
+					https://www.cnblogs.com/qlqwjy/p/8540443.html
+					https://blog.csdn.net/aa1215018028/article/details/80769277
+				SQL 语句构建器：
+					https://mybatis.org/mybatis-3/zh/statement-builders.html
+					https://blog.csdn.net/only_musm/article/details/78804773
 3.注册接口：
 	改步骤的最终作用是为了让mybaits能为这些接口生成代理。
 	（推荐）方式1.spring中使用@MapperScan 注解或@Mapper 注解：
@@ -25,6 +30,12 @@
 		附录：
 			xml文件要在resource下：
 				https://baijiahao.baidu.com/s?id=1626496550792151955&wfr=spider&for=pc
+			    xml文件要在resource下，且xml所在的包名（路径名）要和mapper类的包名一样。
+			@MapperScan与@Mapper的区别：
+			    @MapperScan类似于@Mapper的整合版，
+			    用了@MapperScan(包名)就可以不用@Mapper了。
+			    同时有的话，有先@MapperScan。
+			    当然也可以只用@Mapper，不用@MapperScan。
 	附：
 		方式2.mybatis-config.xml mappers元素中配置所有的mapper
 		方式3.spring XML配置文件添加一下配置

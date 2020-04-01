@@ -1,7 +1,12 @@
 mybaits教程：
+	官网：
+		https://blog.mybatis.org/ 
+		官网中文手册：https://mybatis.org/mybatis-3/zh/index.html
 	https://www.yiibai.com/mybatis/install_configure.html
 	http://www.dba.cn/book/mybatis/
 	MyBatis从入门到精通.pdf 刘增辉
+	https://mp.baomidou.com/guide/page.html
+	https://baomidou.oschina.io/mybatis-plus-doc/#/?id=%E7%AE%80%E4%BB%8B
 介绍：
 	MyBatis 是一款优秀的支持自定义 SQL 查询、存储过程和高级映射的持久层框架。
 	MyBatis消除了几乎所有的 JDBC 代码和参数的手动设置以及结果集的检索 。

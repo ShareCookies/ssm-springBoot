@@ -23,5 +23,13 @@ springBoot集成Mybaits：
 			有了以上配置信息后Spring Boot 就可以自动配置数据源了。
 	3.编程实现操作数据库：
 		./mybaits使用接口编程.txt
-Spring boot启动报错(If you want an embedded database , please put it on the classpath)：	
-	https://blog.csdn.net/qq_27046951/article/details/82850394
+附：
+	spring boot 打印mybatis sql日志：
+		可以在你的application.properties文件里添加代码
+		logging:
+		  level:
+			com.test.business: debug
+		#com.test.business 是包名
+		https://blog.csdn.net/Dongguabai/article/details/80742219
+	Spring boot启动报错(If you want an embedded database , please put it on the classpath)：	
+		https://blog.csdn.net/qq_27046951/article/details/82850394
