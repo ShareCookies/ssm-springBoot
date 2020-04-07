@@ -111,3 +111,30 @@
 		./HttpServletRequest.txt
 	@CookieValue，@RequestHeader，@PathVariable...:
 		https://blog.csdn.net/a350204530/article/details/60763379
+	    @GetMapping("/urger/exportExcel")
+	HttpServletRequest HttpServletResponse:
+		@GetMapping("/urger/exportExcel")	
+		public void exportExcel(String beginDate, String endDate,HttpServletResponse response) throws Exception {
+			//生产excel
+			//HSSFWorkbook wb = ;
+
+			//输出excel
+			OutputStream output=null ;
+			try {
+				response.setContentType("application/octet-stream");
+				response.addHeader("Content-Disposition",
+						String.format("attachment;filename*=utf-8'zh_cn'%s", URLEncoder.encode("省高院收文登记表.xls", "UTF-8")));
+				//response.setHeader("Content-disposition", "attachment;filename=createList.xls");
+				output=response.getOutputStream();
+				//wb.write(output);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new BusinessException("导出失败");
+			}finally {
+				if(output!=null){
+					output.flush();
+					output.close();
+				}
+			}
+		}
+		

@@ -1,4 +1,6 @@
-https://github.com/Snailclimb/JavaGuide/blob/master/docs/database/MySQL.md
+mysql官网：
+	https://www.mysql.com/
+	https://github.com/Snailclimb/JavaGuide/blob/master/docs/database/MySQL.md
 
 SQL可分为两个部分：
 	数据操作语言 (DML DataManipulateLanguage) 和 数据定义语言 (DDL)。
@@ -18,3 +20,31 @@ SQL可分为两个部分：
 附：
 	查询缓存：
 		执行查询语句的时候，会先查询缓存。不过，MySQL 8.0 版本后移除，因为这个功能不太实用
+附2：
+	navicat导出数据库:
+		要导出的数据库上右击鼠标->点击“转储SQL 文件”->“数据跟结构”。
+	mysql常见控制台命令：
+		quit：
+			退出mysql
+		show tables;
+			https://www.cnblogs.com/123456789qq/p/5891289.html
+			显示数据库
+		导入|导出：
+			https://www.cnblogs.com/jwlfpzj/articles/7998395.html
+			导入数据库source d:/dbname.sql
+		改密码：
+			use mysql;//此时要会提示Database changed
+			update user set password=password("") where user="root";
+			flush privileges; //刷新权限,使密码生效
+		命令帮助手册：
+			例 help drop indexa
+		注：
+			linux调用mysql控制台：
+				mysql -uroot -p
+			linux mysql的启动：
+				https://www.cnblogs.com/microcat/p/6610963.html
+			linux mysql的启动服务
+				service mysql start　　　
+			linux mysql的关闭服务
+				service mysql stop
+

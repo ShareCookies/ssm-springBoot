@@ -13,17 +13,11 @@ mysql sql注意事项：
 		3.变量值用单应号包裹
 			如where id = '1111'
 关键字：
-	or and：
-		注：
-			or and 混用最好加括号
-			./例/or and混用.txt
-	表连接：
-		./sql详细/表连接
-	group by:分组
-		./sql详细/分组group by
-	CASE WHEN :(条件语句，类似if else)
-		./sql详细/CASE WHEN.txt
 	as 取别名 :  
+		mysql：
+			例：
+			select rec.name as "rowCode1" from fund as rec;
+			简写:select rec.name "rowCode1" from fund rec;
 		oracal：
 			不用引号包裹：
 				select  test as tt  from  rooms;
@@ -39,6 +33,12 @@ mysql sql注意事项：
 			https://blog.csdn.net/sosous/article/details/36177165
 	union 合并结果集：
 		UNION 操作符用于合并两个或多个 SELECT 语句的结果集。
+		mysql：
+			例：
+			SELECT * FROM financial_account UNION SELECT * FROM financial_account;
+			注:
+			1.UNION 结果集中的列名总是等于 UNION 中第一个 SELECT 语句中的列名。
+			2.默认UNION 操作符选取不同的值,如果允许重复的值，请使用 UNION ALL。
 		Oracle：
 			Oracle用union连接时报字符集不匹配异常：  
 			解决方案：
@@ -46,32 +46,132 @@ mysql sql注意事项：
 				2.使用cast()函数进行类型转换
 			注：
 				用’’做了一个默认值，数据库默认为varchar2
-附：
-	mysql常见控制台命令：
-		quit：
-			退出mysql
-		show tables;
-			https://www.cnblogs.com/123456789qq/p/5891289.html
-			显示数据库
-		导入|导出：
-			https://www.cnblogs.com/jwlfpzj/articles/7998395.html
-			导入数据库source d:/dbname.sql
-		改密码：
-			use mysql;//此时要会提示Database changed
-			update user set password=password("") where user="root";
-			flush privileges; //刷新权限,使密码生效
-		命令帮助手册：
-			例 help drop indexa
-		注：
-			linux调用mysql控制台：
-				mysql -uroot -p
-			linux mysql的启动：
-				https://www.cnblogs.com/microcat/p/6610963.html
-			linux mysql的启动服务
-				service mysql start　　　
-			linux mysql的关闭服务
-				service mysql stop
+	distinct：选取不重复的行
+		介绍：
+			在表中，一个列可能会包含多个重复值，distinct能输出列中不同的值。
+			位置：
+				select 后，筛选的列名 前
+		样例：
+			SELECT DISTINCT status FROM fund	--输出status不同的行
+			SELECT DISTINCT status,id FROM fund	--输出id和status均不同的行
+		附：
+		group_concat函数：
+			group_concat([DISTINCT]  [Order BY ASC/DESC ] [Separator ''])：
+			https://blog.csdn.net/HibonLi/article/details/72897486
+			样例：
+				以id分组，把去冗余的name字段的值打印在一行
+				select id,group_concat(distinct name) from aa group by id;		
+	表连接：
+		./sql详细/表连接				
+	子查询：
+			https://blog.csdn.net/qq_27623337/article/details/52814235
+			子查询作为数据源：
+				样例：
+				SELECT     M.Name AS ProductName  FROM        
+				(SELECT     Name, ProductModelID
+				 FROM    Production.ProductModel) AS M 
+			子查询作为筛选条件：
+				样例：
+				.. WHERE 某字段 IN  (SELECT 某字段 FROM .. WHERE ..)
+				注:
+				1.not  in 为不存在
+				2.()中条件只允许返回一个字段，即 in引导的子句只能返回一个字段
+				3.not  in 的()查询中返回的任意一条记录含有空值，则整个查询将不返回任何记录。
 
-	navicat导出数据库:
-		要导出的数据库上右击鼠标->点击“转储SQL 文件”->“数据跟结构”。
+			注：
+			SQL JOIN 中 on 与 where 的区别 ?			
+	exists:（NOT EXISTS） 子查询检查
+		EXISTS 检测子查询是否至少返回一条数据。
+		EXISTS用于检查子查询是否至少会返回一行数据,该子查询实际上并不返回任何数据,而是返回值True或False
+		https://www.cnblogs.com/xuanhai/p/5810918.html
+		例：
+			比较使用 EXISTS 和 IN 的查询。注意两个查询返回相同的结果。
+			select * from TableIn where exists(select BID from TableEx where BNAME=TableIn.ANAME)
+			select * from TableIn where ANAME in(select BNAME from TableEx)
+			
+			例2：
+				select * from EGOV_URGER where true 返回全部
+				select * from EGOV_URGER where FALSE 一条都不返回
+		SQL中in 、or、和exist 区别：
+			https://blog.csdn.net/qq_32800367/article/details/82467804
+		
+	IN：（NOT IN）列查询
+		介绍：指定某个列的多个可能值
+		样例：
+		Select * from fund where price in (2,3);
+		特殊条件:
+		空值判断： is null
+		样例：
+		Select * from user where realname  is   null;
+
+	BETWEEN	：列范围
+		列值在某个范围内
+		样例：
+		SELECT * FROM `fund` WHERE price between 3 and 4
+		SELECT * FROM `fund` WHERE price >=3 and price <=4	--比较运算符号实现between功能
+	运算符：
+		比较符运算符：
+			=	等于
+			<>或 !=	不等于。
+			>	大于		>=	大于等于
+			<	小于		<=	小于等于
+		逻辑运算符：
+			符号：()    not        and         or
+			逻辑运算的优先级：
+				()    not        and         or
+			()：
+				介绍：被()的内容会被当作一个整体，不会被拆开运算
+				样例：
+				SELECT * FROM fund	WHERE price > 2	 
+				AND (id>'10' OR id=1);	
+			or and：
+				注：
+					or and 混用最好加括号
+					./例/or and混用.txt		
+	CASE WHEN :(条件语句，类似if else)
+		./sql详细/CASE WHEN.txt		
+	LIKE：
+		模糊查询：
+		% 	表示多个字值。
+		_ 	表示一个字符。
+		[] 匹配括号中任意一个字符。
+		[^] 不匹配括号中任意一个字符
+
+		样例：
+		SELECT *  FROM  `fund`  WHERE name LIKE  '%华__' 	--查询倒数第3位为华的内容
+		精准查询：
+		样例：
+		SELECT *  FROM  `fund`  WHERE name LIKE  '新华基金' 
+	ORDER BY 排序：
+		介绍：
+			ORDER BY 用于对结果集按照一列或多列进行排序。
+			位置：where后，limit前
+		样例：
+			SELECT * FROM `fund` WHERE 1 ORDER BY price DESC
+		注：
+			1.asc 升序（默认）；desc 降序
+			2.可排序数字，英文，中文
+			英文根据字母排序。
+			中文根据？排序
+		多字段排序：
+			1.SELECT * FROM fund ORDER BY createTime DESC,price asc;
+			先是按 createTime 降序排列  （优先）
+			如果 createTime  字段 有些是一样的话   再按price 升序排列 (前提是满足createTime 降序排列)
+			总结：当第一个条件相等时，才会用第二个条件去排序
+	limit 返回数限制：
+		介绍：
+		 	LIMIT 关键字用于强制指定 SELECT 语句返回的记录数。
+			位置：
+				order 后，即sql语句最后
+		用法：
+			limit 数据偏移量（即默认从第一条记录开始输出）
+			limit 输出记录的初始位置,数据偏移量（即输出几条记录）
+		样例：
+			SELECT * FROM 表名 LIMIT 8;	--从表获取8条数据（LIMIT 8 就是limit 0,8）
+			SELECT * FROM 表名 LIMIT 10,3;	--从第11条记录开始查询3条记录
+		注：
+		1.先降序排序在limit可获取最新记录
+	group by:分组
+		./sql详细/分组group by		
+
 
