@@ -31,6 +31,15 @@
 			1.对象中有级联对象：
 				<input type="text" name="address.province"><br>
 				会被注入到对象属性的属性中！
+				例：
+					public class UrgerExporExcel {
+						Urger urger;
+						String word;
+						List<String> exportFields;
+						get set ...
+					}
+					前端参数要求：
+						?urger.subject=测试&exportFields=subject,urgeStatus&word=0
 			2.传到多对象：
 				前端传参数到后端的多个对象。
 				例1：

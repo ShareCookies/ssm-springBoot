@@ -1,0 +1,25 @@
+https://blog.csdn.net/u013992339/article/details/78455208
+https://blog.csdn.net/weixin_42795831/article/details/81209195
+
+JSP上传图片为什么图片保存在/.metadata目录下而不是workspace的直接目录下：
+	https://bbs.csdn.net/topics/390984690
+	解决方案1：
+		eclipse指定项目的发布路径到tomcat下
+		eclipse中修改deploy path 到 tomcat目录/webapps/
+
+		
+
+		.metadata下文件夹介绍：
+	https://blog.csdn.net/xiongyouqiang/article/details/80764662
+一般上传的文件,都保存在哪个目录下：
+	https://bbs.csdn.net/topics/390930547?list=lz
+	建议：
+		单独放，不放项目下
+.getServletContext().getRealPath("/"); 
+	获取服务器中当前WebRoot的物理路径
+getServletContext().getRealPath("/")相关问题收集:
+	https://blog.csdn.net/lzm18064126848/article/details/50011301
+	获取当前类的编译绝对路径....:
+		http://www.cnblogs.com/deptop/p/9416251.html
+		
+		

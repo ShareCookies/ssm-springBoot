@@ -1,1 +1,36 @@
 https://my.oschina.net/u/4006148/blog/3171507
+介绍：
+	上线一般分为两种。
+	一种是打包成jar包直接执行(内嵌tomcat)，
+	另一种是打包成war包放到tomcat服务器下。
+打包成jar包：
+	使用的是maven来管理项目，执行以下命令：
+		cd 项目根目录（和pom.xml同级）
+		mvn clean package -Dmaven.test.skip=true  删除 target 目录，跳过测试打包到本项目的 target 目录下
+
+	注：
+		1.运行聚合工程前记得先将依赖的工程都先Maven install到本地仓库
+		2.Maven打包找不到符号的问题排查：
+			1.看看依赖的springboot工程中有没有用了打包插件，有的话可移除试试看。
+			只有用了内嵌tomcat项目启动的springboot项目才要使用打包插件。
+			2.https://blog.csdn.net/weixin_33753845/article/details/86248454
+
+		附：
+			1.打包完成后jar包会生成到target目录下，命名一般是项目名+版本号.jar
+			2.推荐的jar包运行命令：
+			先杀掉原有tomcat进程：
+				lsof -i:6051 -t|xargs kill -9   https://www.cnblogs.com/sparkbj/p/7161669.html
+			运行jar包：
+				nohup java -Xmx512m -Xms256m -jar -Dspring.profiles.active=dev（激活的springboot配置环境） -Dfile.encoding=UTF-8 包名.jar  >> nohup.log 2>&1 &
+附：
+	什么是可执行jar包：
+		https://blog.csdn.net/programmer0804/article/details/78509846
+		https://www.cnblogs.com/yjmyzz/p/executable-jar.html
+		可直接运行的jar包（jar包中有main入口方法）
+		例：
+			使用命令即可运行jar包
+			java -jar test.jar 
+		注：
+			普通jar包：jar里是一些通用的工具类（不包含main入口方法）
+	maven命令：
+		SHARE_CONTENT\编程常用工具笔记\maven\maven命令介绍.txt

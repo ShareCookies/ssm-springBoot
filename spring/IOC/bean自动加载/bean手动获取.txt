@@ -1,0 +1,57 @@
+@Autowired或@Resource注入的时机是在spring容器初始化之后。
+	？那spring容器是什么时候初始化了
+过滤器的创建时优先于spring容器的。
+
+手动获取bean：
+	@WebFilter(urlPatterns = "/*")
+	@Order(Integer.MAX_VALUE-2)
+	public class SSOFilter implements Filter {
+		private static RedisTemplate redisTemplate;
+		@Override
+		public void init(FilterConfig filterConfig) throws ServletException {
+			ServletContext servletContext = filterConfig.getServletContext();
+			ApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+			redisTemplate = ctx.getBean("redisTemplate",RedisTemplate.class);
+		}
+	}
+	
+spring在向IOC容器中注入Bean的时候，有三种注入方式：
+	https://www.cnblogs.com/panchangde/p/11684133.html
+	属性注入
+	构造器注入
+	工厂方法注入	
+获取ServletContext：
+	https://www.cnblogs.com/yysbolg/p/9018559.html
+	(1)生命周期
+
+	　　ServletContext中的属性的生命周期从创建开始，到服务器关闭而
+
+	(2).获取ServletContext
+
+	　　1、request获取servletContext
+
+	　　　　ServletContext servletContext = request.getServletContext();
+
+	　　2、使用ContextLoader
+
+	　　　　ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
+			？
+				枚举方法中获取失败
+
+	　　3、使用spring注入自动注入
+
+	　　　　@Autowired
+
+	　　　　private ServletContext servletContext;
+
+	(3).使用ServletContext存取
+
+	　　1、添加属性：setAttribute(String name,Object ob);
+
+	　　2、得到值：   getAttribute(String);    //返回Object
+
+	　　3、删除属性：removeAttribute(String name);
+枚举中自动注入bean失败：
+	https://blog.stormbirds.cn/articles/2019/07/12/1562916064589.html
+spring中的循环依赖解决方案：	
+	https://www.jianshu.com/p/b65c57f4d45d

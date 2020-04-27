@@ -65,7 +65,8 @@ mapper映射文件介绍：
 	resultMap与resultType区别：
 		1.sql查询结果字段名和pojo的属性名不一致，建议使用resultMap进行映射。
 	<collection>
-		...
+		解决一对多关联查询
+		../mapper笔记/多表查询.txt
 CURD标签：
 	<select>：
 		介绍：

@@ -22,3 +22,34 @@ public class requestTest {
         requestTest.get();
     }
 }
+
+exchange:
+        String resultJsonStr = "";
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add("Content-Type", "application/json;charset=UTF-8");
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(null, requestHeaders);
+
+        ResponseEntity<String> responseEntity=restTemplate.exchange(url, HttpMethod.GET,requestEntity, String.class);
+        resultJsonStr=responseEntity.getBody();
+post：
+		private JSONObject  postForObj (String postUrl , JSONObject postObj){
+			RestTemplate restTemplate = new RestTemplate();
+			String remoteHost = ExCommon.getRequestUrl(this.rmsParamDao, "remoteHost");
+			String url = remoteHost+postUrl;
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+			HttpEntity request = new HttpEntity<>(postObj, headers);
+			ResponseEntity<String> response = restTemplate.postForEntity( url, request , String.class );
+			System.out.println(response.getBody());
+			JSONObject jsonResult = JSON.parseObject(response.getBody());
+			return jsonResult;
+		}
+		请求参数格式：
+		post headers{Content-Type：application/json}
+		参数为对象：
+			{
+				"fileUrl":"http://192.168.210.171:6051/egovAtt/downloadEgovAttFile?id=Xp1CAeD_o7WsO1N9",
+				"fileName":"417督办类型数据修改",
+				"ext":"doc",
+				"docId":"XpaEO4SuklmVoZFO"
+			}

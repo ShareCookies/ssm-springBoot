@@ -1,0 +1,167 @@
+spring文件下载：
+	https://blog.csdn.net/weixin_44521892/article/details/86624200
+
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.Bus;
+import org.springframework.core.env.Environment;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.sql.Timestamp;
+import java.util.List;
+
+/**
+ *  
+ */
+@RestController
+public class EgovAttController {
+    @Resource
+    private EgovAttMng egovAttMng;
+    @Resource
+    private OssMng ossMng;
+    @Resource
+    private Environment env;
+
+
+    /**
+     * 上传附件 单文件上传
+     *
+     * @param multipartFile 附件对象
+     * @return
+     */
+    @PostMapping("/egovAtt/uploadEgovAttFile")
+    public EgovAtt uploadEgovAttFile(@RequestParam("multipartFile") MultipartFile multipartFile, HttpServletRequest request) throws Exception {
+       String moduleId = request.getParameter("moduleId");
+       String docId = request.getParameter("docId");
+       String type = request.getParameter("type");
+       String extension = request.getParameter("extension");
+
+        EgovAtt egovAtt = new EgovAtt();
+        String fileName = multipartFile.getOriginalFilename();
+        Long size = multipartFile.getSize();
+        byte[] fileByte = multipartFile.getBytes();
+
+        egovAtt.setModuleId(moduleId);
+        egovAtt.setDocId(docId);
+        egovAtt.setFileSize(size.intValue());
+        egovAtt.setStatus("1");
+        egovAtt.setType(type);
+        egovAtt.setFile(fileByte);
+        egovAtt.setExtension(extension);
+        egovAtt.setIp(IpUtil.getRemoteAddress(request));
+        egovAtt.setContentType(multipartFile.getContentType());
+        //添加文件名及后缀
+        Utils.setFileNameAndSuffix(egovAtt, fileName);
+
+        SecurityUser user = SecurityUtils.getPrincipal();
+        egovAtt.setSystemNo(user.getSystemNo());
+        egovAttMng.insertEgovAtt(egovAtt);
+        return egovAttMng.getEgovAttById(egovAtt.getId(), false);
+    }
+
+    /**
+     * 上传附件，多文件上传
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/egovAtt/uploadEgovAttFiles")
+    public @ResponseBody
+    String handleFileUpload(HttpServletRequest request) {
+        List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("file");
+        String moduleId = request.getParameter("moduleId");
+        String docId = request.getParameter("docId");
+        String type = request.getParameter("type");
+        String extension = request.getParameter("extension");
+
+        MultipartFile file = null;
+        BufferedOutputStream stream = null;
+        for (int i = 0; i < files.size(); ++i) {
+            file = files.get(i);
+            if (!file.isEmpty()) {
+                EgovAtt egovAtt = new EgovAtt();
+                String fileName = file.getOriginalFilename();
+                try {
+                    Long size = file.getSize();
+                    byte[] fileByte = file.getBytes();
+
+                    egovAtt.setModuleId(moduleId);
+                    egovAtt.setDocId(docId);
+                    egovAtt.setFileSize(size.intValue());
+                    egovAtt.setStatus("1");
+                    egovAtt.setType(type);
+                    egovAtt.setFile(fileByte);
+                    egovAtt.setExtension(extension);
+                    egovAtt.setContentType(file.getContentType());
+                    egovAtt.setIp(IpUtil.getRemoteAddress(request));
+                    //添加文件名及后缀
+                    Utils.setFileNameAndSuffix(egovAtt, fileName);
+
+                    SecurityUser user = SecurityUtils.getPrincipal();
+                    egovAtt.setSystemNo(user.getSystemNo());
+                    int num=egovAttMng.insertEgovAtt(egovAtt);
+
+                    //添加正文时pdf转格式
+                    if("main_doc".equals(type) && num==1 && "pdf".equals(egovAtt.getFileSuffix().toLowerCase())){
+                        //标识-有正在转格式的文件
+                        egovAtt.setEgovFileIdBak("1");
+                        egovAttMng.updateEgovAtt(egovAtt);
+                        egovAttMng.pdf2JpgPdf(fileByte,egovAtt);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return "upload successful";
+    }
+    /**
+     *
+     * @param id 附件id
+     * @param response
+     */
+    @GetMapping("/egovAtt/downloadEgovAttFileBak")
+    public void downloadEgovAttFileBak(@RequestParam("id") String id, HttpServletResponse response) {
+        EgovAtt egovAtt = egovAttMng.getEgovAttById(id, true,true);
+        if(egovAtt==null){
+            throw new BusinessException("加载超时，请重新打开");
+        }
+        String fileName = egovAtt.getFileName() + "." + egovAtt.getFileSuffix();
+        byte[] fileByte = egovAtt.getFile();
+        response.setContentType(egovAtt.getContentType());
+        Utils.downloadFile(response, fileByte, fileName);
+    }
+
+    /**
+     * 下载附件
+     *
+     * @param id 附件id
+     * @param response
+     */
+    @GetMapping("/egovAtt/downloadEgovAttFile")
+    public void downloadEgovAttFile(@RequestParam("id") String id, HttpServletResponse response, HttpServletRequest request, @CurrentUser SecurityUser securityUser) {
+        EgovAtt egovAtt = egovAttMng.getEgovAttById(id, true);
+        String fileName = egovAtt.getFileName() + "." + egovAtt.getFileSuffix();
+        String ip = IpUtil.getRemoteAddress(request);
+        byte[] fileByte = egovAtt.getFile();
+
+        String isOss = env.getProperty("oss.isOss");
+        if (StringUtils.isNotEmpty(egovAtt.getOssFileNo()) && isOss.equals("SendAndDownload")) {
+            byte[] bytes = ossMng.downloadByOss(egovAtt.getOssFileNo(), ip, egovAtt.getModuleId(),egovAtt.getCreateUserName());
+            Utils.downloadFile(response, bytes, fileName);
+        }else {
+            response.setContentType(egovAtt.getContentType());
+            Utils.downloadFile(response, fileByte, fileName);
+        }
+
+    }
+}

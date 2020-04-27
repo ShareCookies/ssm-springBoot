@@ -1,10 +1,6 @@
-https://www.jianshu.com/p/922963106729
+原文：https://www.jianshu.com/p/922963106729
 
 一般在代码中注入PasswordEncoder的实例，然后调用其 matches 方法来匹配当前密码和数据库中保存的“密码”；
-@Autowired
-private PasswordEncoder passwordEncoder;
-
-
 附：
 	security具有的PasswordEncoder 密码编码器：
 		bcrypt 、ldap 、MD4 、 MD5 、noop 、pbkdf2 、scrypt 、SHA-1 、SHA-256
@@ -27,4 +23,102 @@ private PasswordEncoder passwordEncoder;
 				spring的DigestUtils.java
 				Digest翻译过来是摘要,不是加密. 既然是摘要,也就不能解密的, 就象你不能用论文摘要还原整个论文一样.
 				摘要的作用不是加密, 而是防篡改. 至于很多摘要算法用于密码变形,则是完全的另一回事,不要看成是加密.
+
+BCryptPasswordEncoder的密码加密与密码匹配过程：
+	BCryptPasswordEncoder.java
+	加密过程：
+		传入原密码，原密码与随机密码盐混合加密生产新密码并返回。（这个得到的密码可以用于保存在数据库中了）
+		public String encode(CharSequence rawPassword) {
+			String salt;
+			if (strength > 0) {
+				if (random != null) {
+					// 生成随机密码盐
+					salt = BCrypt.gensalt(strength, random);
+				}
+				else {
+					// 生成随机密码盐
+					salt = BCrypt.gensalt(strength);
+				}
+			}
+			else {
+				// 生成随机密码盐
+				salt = BCrypt.gensalt();
+			}
+			//原密码与随机密码盐混合加密生产新密码并返回
+			return BCrypt.hashpw(rawPassword.toString(), salt);
+		}
+		注：
+			1.int strength, SecureRandom random 这两个构造参数是 BCryptPasswordEncoder(int strength, SecureRandom random) 构造方法按需传入，如果不指定strength和random，默认执行 BCrypt.gensalt() 这行代码生成也相应密码随机盐。
+			2.“同一个密码计算 Hash 不应该是一样的吗，每次使用 BCryptPasswordEncoder 编码同一个密码都是不一样的。	
+			因为用到的随机密码盐每次都是不一样的，同一个密码和不同的密码盐组合计算出来的 Hash 值肯定不一样啦，所以编码同一个密码得到的结果都是不一样。
+
+	密码匹配过程：
+		传入原密码和经过BCryptPasswordEncoder.encode(CharSequence rawPassword) 编码后保存在数据库的密码。
+		matches(CharSequence rawPassword, String encodedPassword) 方法根据两个参数都可以知道
+		public boolean matches(CharSequence rawPassword, String encodedPassword) {
+			if (encodedPassword == null || encodedPassword.length() == 0) {
+				logger.warn("Empty encoded password");
+				return false;
+			}
+
+			if (!BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
+				logger.warn("Encoded password does not look like BCrypt");
+				return false;
+			}
+
+			return BCrypt.checkpw(rawPassword.toString(), encodedPassword);
+		}
+		首先判断是否数据库保存的“密码”（后面简称：“密码”）是否为空或者 null ，在通过正则表达式匹配“密码”是否符合格式，最后通过 BCrypt 的 checkpw(String plaintext, String hashed) 方法进行密码匹配
+		
+		.........
+		就是从数据库密码中获取相应的密码盐，
+		利用这个密码盐对传入的原密码进行计算，最后两个密码进行匹配。
+
+
+这里认证的时候会调用到密码校验编码器进行密码的校验。
+package org.springframework.security.authentication;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+
+/**
+ * Processes an {@link Authentication} request.
+ *
+ * @author Ben Alex
+ */
+public interface AuthenticationManager {
+	// ~ Methods
+	// ========================================================================================================
+
+	/**
+	 * Attempts to authenticate the passed {@link Authentication} object, returning a
+	 * fully populated <code>Authentication</code> object (including granted authorities)
+	 * if successful.
+	 尝试去认证传递过来的Authentication对象，如果成功，则会返回一个全面详细（包含了授权信息）的Authentication对象。
+	 * <p>
+	 * An <code>AuthenticationManager</code> must honour the following contract concerning
+	 * exceptions:
+	 * <ul>
+	 * <li>A {@link DisabledException} must be thrown if an account is disabled and the
+	 * <code>AuthenticationManager</code> can test for this state.</li>
+	 * <li>A {@link LockedException} must be thrown if an account is locked and the
+	 * <code>AuthenticationManager</code> can test for account locking.</li>
+	 * <li>A {@link BadCredentialsException} must be thrown if incorrect credentials are
+	 * presented. Whilst the above exceptions are optional, an
+	 * <code>AuthenticationManager</code> must <B>always</B> test credentials.</li>
+	 * </ul>
+	 * Exceptions should be tested for and if applicable thrown in the order expressed
+	 * above (i.e. if an account is disabled or locked, the authentication request is
+	 * immediately rejected and the credentials testing process is not performed). This
+	 * prevents credentials being tested against disabled or locked accounts.
+	 *
+	 * @param authentication the authentication request object
+	 *
+	 * @return a fully authenticated object including credentials
+	 *
+	 * @throws AuthenticationException if authentication fails
+	 */
+	Authentication authenticate(Authentication authentication)
+			throws AuthenticationException;
+}
 

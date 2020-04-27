@@ -2,11 +2,10 @@
 	介绍：
 		虽然可以在方法中添加代码来检查参数的合法性，但与其让校验逻辑弄乱我们的处理器方法，
 		还不如使用Spring对Java校验API（Java Validation API，又称JSR-303）的支持。
-	Java校验API所提供的校验注解：
-		p206
-		https://zhuanlan.zhihu.com/p/69663614
 	实现步骤：
 		I.将校验注解添加到域模型的属性上。
+			附：
+				一个类属性可以应用多个校验注解
 		II.控制器方法参数添加了@Valid注解，这会告知Spring，往该对象上注入的值要满足对象属性上的校验限制。
 		III.控制器方法多加一个Error参数，校验结果将会放入到该对象中。
 		注：
@@ -16,3 +15,115 @@
 	例：
 		./检验请求参数.png
 		结合属性文件使用：p223
+		
+附：
+	校验分组 group：
+		校验注解设置了分组，在验证时要指定对应分组才会生效。
+			注：验证时分组，那么只有对应分组的校验注解才会生效。
+		例：
+		应用校验注解：
+			1.有分组：
+				@NotBlank(message = "分类类别不能为空", groups = {Group1.class, Group2.class})
+				private String name;
+			2.无分组：
+				@Length(min=3,max=6,message = "最好长度需要在3到6位之间")
+				
+		验证：
+			1.有分组：
+				这里只会应用Group1分组的校验注解
+				@PostMapping("/user/insertUser")
+				public User insertUser(@Validated({Group1.class}) User user, BindingResult bindingResult) {
+				if (bindingResult.hasErrors()) {
+					throw new 自定义异常(bindingResult.getFieldError().getDefaultMessage());
+				}
+			2.无分组：
+				这里只会应用没定义 groups 的校验注解
+				@Validated() Classify classify
+	自定义的校验：
+
+JSR 303提供的标准注解：
+	https://zhuanlan.zhihu.com/p/69663614
+	@Valid
+		功能：
+			参数
+		支持类型：
+		例：
+			@Valid // 表明应对driver对象内字段继续做校验
+			@NotNull
+			private Driver driver;		
+	AssertFalse
+	AssertTrue
+		功能：
+			参数
+		支持类型：
+		例：
+			@AssertTrue // registered不为null时,则值必须是true
+			private Boolean registered;
+	DecimalMax
+		功能：
+			参数
+		支持类型：
+	DecimalMin
+		功能：
+			参数
+		支持类型：	
+	Digits
+		功能：
+			参数
+		支持类型：	
+	Email
+	
+	Future
+	
+	FutureOrPresent
+	
+	Max
+	Min
+		功能：
+			参数
+		支持类型：	
+		例：
+			@Min(2)
+			@Max(5) // 注意,未添加NotNull注解,所以seatCount可以为null,只有当seatCount不为null@Min @Max才会做校验
+			private Integer seatCount;
+	Negative
+	
+	NegativeOrZero
+	
+	NotBlank
+		功能：
+			参数不能为null,不能为空字符串
+		支持类型：
+			支持的是字符串类型字段
+	NotEmpty
+		功能：
+			参数
+		支持类型：
+			支持的是字符串类型字段
+	NotNull
+		不能为null
+	Null
+	
+	Past
+	
+	PastOrPresent
+	
+	Pattern
+	
+	Positive
+	
+	PositiveOrZero
+	
+	Size		
+		功能：
+			参数
+		支持类型：
+			集合，字符串
+		例：
+			@Size(min = 2, max = 14) // 字符串长度位于2到14之间
+			private String licensePlate;
+			@Size(max = 2) // 表明passengers最多只能有两个对象
+			private List<String> passengers;
+	注:
+		有些注解是不为null时才会生效：
+			1.未添加NotNull注解,所以seatCount可以为null,只有当seatCount不为null@Min @Max才会做校验

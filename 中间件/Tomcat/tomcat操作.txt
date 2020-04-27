@@ -1,0 +1,69 @@
+启停tomcat：
+	catalina.sh详解：https://blog.csdn.net/qq_29663071/article/details/80176977
+	概述：
+		脚本catalina.sh用于启动和关闭tomcat服务器，是最关键的脚本。
+		注：
+			startup.sh和shutdown.sh都是使用不同的参数调用了该脚本。
+	例:
+		bin/catalina.sh run
+	注：
+		建议使用nohup 命令
+tomcat配置：
+	修改tomcat端口：
+		修改Tomcat默认监听端口的配置文件在Tomcat安装目录下的conf/servel.xml：
+			<Connector port="8080" protocol="HTTP/1.1"
+				   connectionTimeout="20000"
+				   redirectPort="8443" />
+	tomcat实现默认访问某项目：
+		https://blog.csdn.net/MR_ZFJ/article/details/84295810
+		server.xml配置文件-》<Host>标签-》于其内添加<Context path=”” docBase=”项目名” />
+
+	配置虚拟路径映射：
+		https://blog.csdn.net/aviciie/article/details/79533294
+		介绍：
+			http://localhost:8080/Test/upload/153114663045.png
+			其中Test/upload/会替换为tomcat的临时目录。
+			配置虚拟路径映射你就可以把Test/upload/，
+			映射为指定的路径。
+		实现方案：
+			在tomcat的server.xml的Host标签中加上：
+			<Context path="/images" docBase="D:\imagesSpace" debug="0" reloadable="true" crossContext="true" ></Context>
+		备注：
+			你上传的文件就可以存储在指定路劲，
+			而不是存在tomcat临时目录中。
+			这样你清空tomcat或重新部署项目，
+			就不会清掉你上传的文件。
+tomcat诊断：
+	查看Tomcat是否以关闭：
+		ps -ef|grep java	
+			ps查看进程 grep文本搜索
+			如果出现java的内存等消息说明Tomcat还没有关闭
+	查看tomcat日志：
+		tail：
+			tail -f catalina.out 实时刷新文件最后10行
+			tail -n 100 catalina.out
+			注：
+			catalina.out 启动时日志
+			catalina.2019-02-01.log 运行时日志  
+		退出tail命令：Ctrl+c
+		暂停刷新：ctrl+s暂停终端
+		继续终端：ctrl+q。
+	附:
+	tomcat的catalina.out 和 catalina.log区别：
+		http://www.cnblogs.com/operationhome/p/9680040.html
+		https://segmentfault.com/q/1010000010953226
+tomcat异常：
+	tomcat Context 不起作用：（即设置了默认的访问项目但无效）
+		https://blog.csdn.net/tengdazhang770960436/article/details/39554041
+		tomcat/work目录缓存清空即可
+	.metadata临时文件夹中文件或目录找不到：
+		介绍：temp临时文件夹，用来存放tomcat存放临时文件的地方。
+		原因：有时你清空tomcat或项目中新建一个文件夹，在重启项目后部分临时文件tomcat不会重创或新建，这是你可尝试重建tomcat。
+		解决方案：重建tomcat。
+
+
+附:
+
+	清理tomcat缓存：
+		http://fogandsun.blog.163.com/blog/static/366588742011279491017/
+		注：静态页面的话注意要先清浏览器缓存	

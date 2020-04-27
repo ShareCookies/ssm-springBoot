@@ -21,8 +21,11 @@ SQL可分为两个部分：
 	查询缓存：
 		执行查询语句的时候，会先查询缓存。不过，MySQL 8.0 版本后移除，因为这个功能不太实用
 附2：
-	navicat导出数据库:
-		要导出的数据库上右击鼠标->点击“转储SQL 文件”->“数据跟结构”。
+
+	mysql数据备份：
+		https://www.runoob.com/mysql/mysql-database-export.html
+		navicat导出数据库:
+			要导出的数据库上右击鼠标->点击“转储SQL 文件”->“数据跟结构”。
 	mysql常见控制台命令：
 		quit：
 			退出mysql
@@ -47,4 +50,4 @@ SQL可分为两个部分：
 				service mysql start　　　
 			linux mysql的关闭服务
 				service mysql stop
-
+	

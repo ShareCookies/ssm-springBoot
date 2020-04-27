@@ -1,0 +1,25 @@
+什么是中间件：
+	https://azure.microsoft.com/zh-cn/overview/what-is-middleware/
+	1.中间件是介于操作系统和在其上运行的应用程序之间的软件。
+	2.中间件实质上充当隐藏转换层，它有时被称为管道，因为它将两个应用程序连接在一起。
+	例使数据和数据库可在“管道”间轻松传递。
+
+	3.常见的中间件示例包括：数据库中间件、应用程序服务器中间件、面向消息的中间件、Web 中间件和事务处理监视器。	
+nginx:
+	官网：http://nginx.org/en/download.html
+	Nginx：
+		Nginx("engine x")是一款是由俄罗斯的程序设计师Igor Sysoev，
+		开发的高性能 Web 和 反向代理 服务器，也是一个 IMAP/POP3/SMTP 代理服务器。
+		在高连接并发的情况下，Nginx是Apache服务器不错的替代品。
+	nginx的安装：
+		SHARE_CONTENT\Linux\Linux安装常见开发环境\linux安装nginx.txt
+	
+	反向代理：
+		https://www.cnblogs.com/anruy/p/4989161.html
+	ng支持https：
+		https://www.cnblogs.com/jingxiaoniu/p/6745254.html
+		注：从nginx 1.15以及更新的版本，不在支持ssl on;的写法 了
+tomcat:
+	./Tomcat/
+	tomcat安装：
+		SHARE_CONTENT\Linux\Linux安装常见开发环境\linux安装tomcat.txt

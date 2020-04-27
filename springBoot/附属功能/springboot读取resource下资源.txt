@@ -1,0 +1,17 @@
+SpringBoot读取Resource下文件的几种方式
+	https://www.jianshu.com/p/7d7e5e4e8ae3
+	类加载器可以读取jar包中文件和编译后的class文件。
+附：
+/**
+* 路径获取
+*/
+public static void main(String[] args) {
+	// 用户的当前工作目录 !（获得项目相对路径） F:\autoGenerateMapper
+	String currentUserWorkingPath = System.getProperty("user.dir");
+	System.out.println(System.getProperty("user.dir"));
+
+	//当前类路径
+	//Thread.currentThread().getContextClassLoader() and Class.getClassLoader() 的区别：https://blog.51cto.com/tianya23/731287
+	String path = Thread.currentThread().getContextClassLoader().getResource(".").getPath();
+	System.out.println(path);
+}

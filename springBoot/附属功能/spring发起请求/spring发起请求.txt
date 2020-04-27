@@ -1,5 +1,21 @@
 spring发起http请求：
 	https://www.cnblogs.com/javazhiyin/p/9851775.html
+	RestTemplate
+		是Spring用于同步client端的核心类，简化了与http服务的通信，并满足RestFul原则，程序代码可以给它提供URL，并提取结果。
+		默认情况下，RestTemplate默认依赖jdk的HTTP连接工具。
+		当然你也可以 通过setRequestFactory属性切换到不同的HTTP源，比如Apache HttpComponents、Netty和OkHttp。
+
+		get：
+			getForObject()：
+				getForObject()其实比getForEntity()多包含了将HTTP转成POJO的功能，但是getForObject没有处理response的能力。
+				因为它拿到手的就是成型的pojo。省略了很多response的信息。
+			getForEntity()方法：
+				与getForObject()方法不同的是返回的是ResponseEntity对象，如果需要转换成pojo，还需要json工具类的引入。
+	附：
+		postForEntity方法发送带有xml类型的数据：
+			https://ask.csdn.net/questions/771239
+
+
 
 拦截器等：https://www.jianshu.com/p/90ec27b3b518
 
@@ -11,3 +27,4 @@ Spring RestTemplete支持Https安全请求：
 HttpClient 关于 https：	
 	https://blog.csdn.net/xiaoxian8023/article/details/49866397
 	https://blog.csdn.net/xiaoxian8023/article/details/49865335
+	
