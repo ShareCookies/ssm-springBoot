@@ -1,14 +1,55 @@
 https://www.cnblogs.com/clsn/p/8214194.html
-
-官网：
+https://www.runoob.com/mongodb/mongodb-create-database.html
+什么是MongoDB:
+	MongoDB 是由C++语言编写的，是一个基于分布式文件存储的开源数据库系统。
+	MongoDB 将数据存储为一个文档.
+	文档的数据结构由键值(key=>value)对组成。字段值可以包含其他文档，数组及文档数组。类似JSON 对象
+MongoDB安装：
 	
-mongo issues：
-	https://jira.mongodb.org/plugins/servlet/samlsso?redirectTo=%2F
-简易教材：
-	https://www.runoob.com/mongodb/mongodb-create-database.html
+MongoDB基础概念：
+	数据库,集合,文档,域，主键，索引
+	数据库：
+		MongoDB命令：
+			运行 MongoDB 服务：
+					$ ./mongod
+					注：
+						1.通过 mongo安装目录/bin/mongod 来启动mongdb服务
+						2.如果你的数据库目录不是/data/db，可以通过 --dbpath 来指定。
+
+						
 
 
+			show dbs 命令可以显示所有数据的列表：
+				> show dbs
+			db  命令可以显示当前数据库对象或集合：
+				> db
+			use命令，可以连接到一个指定的数据库：
+				> use local
+			
+		附：
+			1.
+				MongoDB的默认数据库为"db"，该数据库对应/data/db目录。
+				/data/db 是 MongoDB 默认启动的数据库路径(--dbpath)。
+				
+			2.
+			有一些数据库名是保留的，可以直接访问这些有特殊作用的数据库。
+			admin： 	
+				从权限的角度来看，这是"root"数据库。要是将一个用户添加到这个数据库，这个用户自动继承所有数据库的权限。一些特定的服务器端命令也只能从这个数据库运行，比如列出所有的数据库或者关闭服务器。
+			local: 
+				这个数据永远不会被复制，可以用来存储限于本地单台服务器的任意集合
+			config: 
+				当Mongo用于分片设置时，config数据库在内部使用，用于保存分片的相关信息。
 
+	附：
+		下表将辅助你理解Mongo中的一些概念：
+		SQL术语/概念	MongoDB术语/概念	解释/说明
+		database	database	数据库
+		table	collection	数据库表/集合
+		row	document	数据记录行/文档
+		column	field	数据字段/域
+		index	index	索引
+		primary_key primary_key	主键,MongoDB自动将_id字段设置为主键	
+	
 附
 	mongodb是非关系型数据库，它有的是数据库、集合、文档，分别对应关系型里面的数据库、数据表、和表里面一行一行的数据。在mongodb里，文档构成集合，集合构成数据库
 	1.隐式创建不存在的库和集合，这是 MongoDB 的 Feature 之一。

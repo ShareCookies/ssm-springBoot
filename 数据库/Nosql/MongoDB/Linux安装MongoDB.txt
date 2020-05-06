@@ -1,0 +1,35 @@
+https://www.runoob.com/mongodb/mongodb-linux-install.html
+
+安装：	
+	1.curl -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.0.6.tgz    # 下载
+	2.tar -zxvf mongodb-linux-x86_64-3.0.6.tgz                                   # 解压
+	3.MongoDB 的可执行文件位于 bin 目录下，所以可以将其添加到 PATH 路径中：
+		export PATH=<mongodb-install-directory>/bin:$PATH
+	4.创建默认数据库目录：
+		mkdir -p /data/db
+		注：
+			/data/db 是 MongoDB 默认启动的数据库路径(--dbpath)。	
+			MongoDB的数据默认存储在data目录的db目录下，但是这个目录在安装过程不会自动创建，所以你需要手动创建data目录，并在data目录中创建db目录。
+	5.运行 MongoDB 服务：
+		$ ./mongod
+		你可以再命令行中执行mongo安装目录中的bin目录执行mongod命令来启动mongdb服务。
+		
+		注：
+			如果你的数据库目录不是/data/db，可以通过 --dbpath 来指定。
+			2.加上nohup不挂起运行
+	附：
+		MongoDB 提供了 linux 各发行版本 64 位的安装包 https://www.mongodb.com/download-center#community
+
+附：
+	MongoDB后台管理 Shell
+		MongoDB Shell是MongoDB自带的交互式Javascript shell,用来对MongoDB进行操作和管理的交互式环境。
+		当你进入mongoDB后台后，它默认会链接到 test 文档（数据库）：
+			$ cd /usr/local/mongodb/bin
+			$ ./mongo
+			MongoDB shell version: 3.0.6
+			connecting to: test
+			Welcome to the MongoDB shell.
+			……
+
+
+		

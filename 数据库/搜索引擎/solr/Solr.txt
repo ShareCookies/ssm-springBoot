@@ -2,3 +2,6 @@
 solr项目实战  ？
 solr基本查询语法：
 	https://www.cnblogs.com/cuihongyu3503319/p/9391513.html
+	
+	例子：
+	http://:6001/solr/空间名/select?fq=S_module:URGER&q=R_readers:U000001+AND+S_systemNo:ZJGY+AND+NOT+id:(Xpmm_oSuDQHVH9Ej%20ADN%20XprlroSuDQHVH-Dv)+AND+S_flowStatus:9+AND+S_draftTime:[*+TO+*]
