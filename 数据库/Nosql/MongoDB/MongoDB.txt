@@ -2,22 +2,23 @@ https://www.cnblogs.com/clsn/p/8214194.html
 https://www.runoob.com/mongodb/mongodb-create-database.html
 什么是MongoDB:
 	MongoDB 是由C++语言编写的，是一个基于分布式文件存储的开源数据库系统。
-	MongoDB 将数据存储为一个文档.
-	文档的数据结构由键值(key=>value)对组成。字段值可以包含其他文档，数组及文档数组。类似JSON 对象
+	MongoDB 将数据存储为一个文档.文档的数据结构由键值(key=>value)对组成。字段值可以包含其他文档，数组及文档数组。
 MongoDB安装：
-	
-MongoDB基础概念：
-	数据库,集合,文档,域，主键，索引
-	数据库：
+	./Linux安装MongoDB.txt
+	附：
 		MongoDB命令：
-			运行 MongoDB 服务：
-					$ ./mongod
-					注：
-						1.通过 mongo安装目录/bin/mongod 来启动mongdb服务
-						2.如果你的数据库目录不是/data/db，可以通过 --dbpath 来指定。
+			以守护进程的方式 启动 MongoDB 服务(MongoDB数据库服务)：
+				https://www.jianshu.com/p/fb8edf5a1a04
+				如果想在后台运行，启动时只需添加 --fork函数即可。
+				$ ./mongod --fork --logpath=/data/db/log.log
 
-						
-
+				附：
+					1.mongod命令在 mongo安装目录/bin/mongod下
+					2.启动时，如果你的数据库目录不是/data/db，可以通过 --dbpath 来指定。
+					3.执行启动操作后，mongodb 在输出一些必要信息后不会输出任何信息。
+					之后就会等待连接的建立，当连接被建立后，会打印日志信息。
+					4.MongoDB的启动与停止（一）
+						https://www.cnblogs.com/lemon-le/p/7132038.html
 
 			show dbs 命令可以显示所有数据的列表：
 				> show dbs
@@ -25,7 +26,40 @@ MongoDB基础概念：
 				> db
 			use命令，可以连接到一个指定的数据库：
 				> use local
-			
+		MongoDB连接：
+			标准 URI 连接语法：
+				mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
+				
+				mongodb:// 这是固定的格式，必须要指定。
+				username:password@ 可选项，如果设置，在连接数据库服务器之后，驱动都会尝试登陆这个数据库
+				host1 必须指定至少一个host。它指定了要连接服务器的地址。如果要连接复制集，请指定多个主机地址。
+				portX 可选的指定端口，如果不填，默认为27017
+				/database 如果指定username:password@，连接并验证登陆指定数据库。若不指定，默认打开 test 数据库。
+				?options 是连接选项。如果不使用/database，则前面需要加上/。所有连接选项都是键值对name=value，键值对之间通过&或;（分号）隔开
+					标准的连接格式包含了多个选项(options)，如下所示：
+
+					选项	描述
+					replicaSet=name	验证replica set的名称。 Impliesconnect=replicaSet.
+					slaveOk=true|false	
+					true:在connect=direct模式下，驱动会连接第一台机器，即使这台服务器不是主。在connect=replicaSet模式下，驱动会发送所有的写请求到主并且把读取操作分布在其他从服务器。
+					false: 在 connect=direct模式下，驱动会自动找寻主服务器. 在connect=replicaSet 模式下，驱动仅仅连接主服务器，并且所有的读写命令都连接到主服务器。
+					safe=true|false	
+					true: 在执行更新操作之后，驱动都会发送getLastError命令来确保更新成功。(还要参考 wtimeoutMS).
+					false: 在每次更新之后，驱动不会发送getLastError来确保更新成功。
+					w=n	驱动添加 { w : n } 到getLastError命令. 应用于safe=true。
+					wtimeoutMS=ms	驱动添加 { wtimeout : ms } 到 getlasterror 命令. 应用于 safe=true.
+					fsync=true|false	
+					true: 驱动添加 { fsync : true } 到 getlasterror 命令.应用于 safe=true.
+					false: 驱动不会添加到getLastError命令中。
+					journal=true|false	如果设置为 true, 同步到 journal (在提交到数据库前写入到实体中). 应用于 safe=true
+					connectTimeoutMS=ms	可以打开连接的时间。
+					socketTimeoutMS=ms	发送和接受sockets的时间。
+
+
+MongoDB基础概念：
+	数据库,集合,文档,域，主键，索引
+	
+	数据库：	
 		附：
 			1.
 				MongoDB的默认数据库为"db"，该数据库对应/data/db目录。
@@ -39,6 +73,20 @@ MongoDB基础概念：
 				这个数据永远不会被复制，可以用来存储限于本地单台服务器的任意集合
 			config: 
 				当Mongo用于分片设置时，config数据库在内部使用，用于保存分片的相关信息。
+	文档(Document):
+		文档是一组键值对(即BSON)。
+		一个简单的文档例子：
+			{"site":"www.runoob.com", "name":"菜鸟教程"}
+		注：
+			MongoDB 中存储的文档必须有一个 _id 键（文档的唯一标识）。
+			这个键的值可以是任何类型的，默认是个 ObjectId 对象
+
+
+	集合:
+		集合就是 MongoDB 文档组
+		比如，我们可以将以下不同数据结构的文档插入到集合中：
+			{"site":"www.baidu.com"}
+			{"site":"www.google.com","name":"Google"}
 
 	附：
 		下表将辅助你理解Mongo中的一些概念：
@@ -49,9 +97,58 @@ MongoDB基础概念：
 		column	field	数据字段/域
 		index	index	索引
 		primary_key primary_key	主键,MongoDB自动将_id字段设置为主键	
+	附：
+		元数据
+			数据库的相关信息也是存储在集合中的。
+			在MongoDB数据库中命名空间 <dbname>.system.* 是包含多种系统信息的特殊集合(Collection)，如下:
+				集合命名空间	描述
+				dbname.system.namespaces	列出所有名字空间。
+				dbname.system.indexes	列出所有索引。
+				dbname.system.profile	包含数据库概要(profile)信息。
+				dbname.system.users	列出所有可访问数据库的用户。
+				dbname.local.sources	包含复制对端（slave）的服务器信息和状态。
+
+MongoDB 数据类型：
+	String	字符串。
+		存储数据常用的数据类型。在 MongoDB 中，UTF-8 编码的字符串才是合法的。
+	Integer	整型数值。用于存储数值。根据你所采用的服务器，可分为 32 位或 64 位。
+	Boolean	布尔值。用于存储布尔值（真/假）。
+	Double	双精度浮点值。用于存储浮点值。
+	Min/Max keys	将一个值与 BSON（二进制的 JSON）元素的最低值和最高值相对比。
+	Array	用于将数组或列表或多个值存储为一个键。
+	Timestamp	时间戳。
+		BSON 有一个特殊的时间戳类型用于 MongoDB 内部使用。记录文档修改或添加的具体时间。
+	Object	用于内嵌文档。
+	Null	用于创建空值。
+	Symbol	符号。该数据类型基本上等同于字符串类型，但不同的是，它一般用于采用特殊符号类型的语言。
+	Date	日期时间。
+		表示当前距离 Unix新纪元（1970年1月1日）的毫秒数。
+		例：
+			> var mydate1 = new Date()     //格林尼治时间
+			> mydate1
+			ISODate("2018-03-04T14:58:51.233Z")
+		附
+			日期类型是有符号的, 负数表示 1970 年之前的日期。
+	Object ID	对象 ID。
+		ObjectId 唯一标识，可用来快速排序。
+		附：
+		ObjectId的构成：
+			ObjectId包含 12 bytes。
+			前 4 个字节表示创建 unix 时间戳,格林尼治时间 UTC 时间，比北京时间晚了 8 个小时
+			接下来的 3 个字节是机器标识码
+			紧接的两个字节由进程 id 组成 PID
+			最后三个字节是随机数
+		获取文档的创建时间：
+			由于 ObjectId 中保存了创建的时间戳，所以你不需要为你的文档保存时间戳字段，你可以通过 getTimestamp 函数来获取文档的创建时间:
+
+			> var newObject = ObjectId()
+			> newObject.getTimestamp()
+		ObjectId 转为字符串：
+			> newObject.str		
+
+	Binary Data	二进制数据。用于存储二进制数据。
+	Code	代码类型。用于在文档中存储 JavaScript 代码。
+	Regular expression	正则表达式类型。用于存储正则表达式。		
+Spring Boot 中使用 MongoDB ：
+	./springBoot/附属功能/mongoDb/spring中mongoDb的使用.txt
 	
-附
-	mongodb是非关系型数据库，它有的是数据库、集合、文档，分别对应关系型里面的数据库、数据表、和表里面一行一行的数据。在mongodb里，文档构成集合，集合构成数据库
-	1.隐式创建不存在的库和集合，这是 MongoDB 的 Feature 之一。
-	mongodb url 规则
-		https://blog.csdn.net/qq_43029154/article/details/82429384
