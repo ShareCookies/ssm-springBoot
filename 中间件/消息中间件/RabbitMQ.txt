@@ -1,0 +1,4 @@
+官网：
+	https://www.rabbitmq.com/
+	https://github.com/mr-ping/RabbitMQ_into_Chinese
+https://blog.csdn.net/hellozpc/article/details/81436980
