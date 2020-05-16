@@ -1,0 +1,74 @@
+主从架构（Master-Slave）：
+	主从架构一般用于备份或者做读写分离。
+	由两种角色构成：
+	主(Master)
+		可读可写，当数据有修改的时候，会同步到所有连接的salve上去。
+	从(Slave)
+		只读不可写，自动从Master同步数据。
+	符：
+		1.对于Mongodb来说，并不推荐使用Master-Slave架构，因为Master-Slave其中Master宕机后不能自动恢复，推荐使用Replica Set。
+		2.Master-Slave不支持链式结构，Slave只能直接连接Master。
+		Redis的Master-Slave支持链式结构，Slave可以连接Slave，成为Slave的Slave。
+	Mongodb搭建过程：
+		https://www.jianshu.com/p/2825a66d6aed
+副本集架构（Replica Set）：
+	介绍：
+		Replication介绍：
+				在主从数据库结构中，从数据库的内容基本上可以说是主数据库的一份全拷贝，这样的技术称之为Replication。
+		主从数据同步原理：	
+			Replication在实现主从数据同步时，通常采用Transaction Log的方式。
+			当一条数据插入到主数据库的时候，主数据库会像Trasaction Log中插入一条记录来声明这次数据库写纪录的操作。
+			之后，一个Replication Process会被触发，这个进程会把Transaction Log中的内容同步到从数据库中。
+
+		副本集架构作用：
+			1.防止单点故障
+				当发生硬件故障或者其它原因造成的宕机时，可以使用副本进行恢复，最好能够自动的故障转移（failover）。
+			2.为了读写分离
+				有时引入副本是为了读写分离，将读的请求分流到副本上，减轻主（Primary）的读压力。
+			...
+				自动复制和故障切换
+				多数据中心支持滚动维护无需关机支持最多50个成员
+			Mongodb的Replica Set都能满足这些要求。
+		mongod的Replica Set角色：
+			mongod的Replica Set实例集合，它们有着同样的数据内容，但分为三类角色：
+			主节点（Primary）
+				1.接收所有的写请求，然后把修改同步到所有Secondary。
+				2.默认读请求也是发到Primary节点处理的，需要转发到Secondary需要客户端修改一下连接配置。
+				3.一个Replica Set只能有一个Primary节点，当Primar挂掉后，其他Secondary节点会重新选举出来一个主节点。
+				
+			副本节点（Secondary）
+				与主节点保持同样的数据集。当主节点挂掉的时候，参与选主。
+			仲裁者（Arbiter）
+				不保有数据，不参与选主，只进行选主投票。
+				使用Arbiter可以减轻数据存储的硬件需求，Arbiter跑起来几乎没什么大的硬件资源需求
+				重要的一点是，在生产环境下它和其他数据节点不要部署在同一台机器上。
+
+			注：
+				一个自动failover的Replica Set节点数必须为奇数，目的是选主投票的时候要有一个大多数才能进行选主决策。
+	Mongodb副本集架构搭建过程：
+		https://www.jianshu.com/p/2825a66d6aed
+		https://www.cnblogs.com/shenshangzz/p/8261064.html
+		仅通过Primary和Secondary搭建的Replica Set：
+			1.启动3个数据节点
+				mongod --port 2001 --dbpath rs0-1 --replSet rs0
+				mongod --port 2002 --dbpath rs0-2 --replSet rs0
+				mongod --port 2003 --dbpath rs0-3 --replSet rs0
+				注：
+					通过replSet参数设置副本集名称
+			2.初始化副本集
+				连接任意一个服务器，执行一次初始化命令，当前节点即可被选为Primary。
+					mongo --port 2001
+					rs.initiate()
+					rs.add("<hostname>:2002")
+					rs.add("<hostname>:2003")
+					rs.conf()
+				附：
+					1.rs.status() 查看副本集状态
+					2.发现自己变成了secondary节点，另一个数据库变成了startup2状态。
+					没关系，等下自己会变成primary节点，等另一个数据库同步数据完成，会自动变成secondary节点。
+
+			附：其中Secondary宕机，不受影响，若Primary宕机，会进行重新选主：
+		符：	
+			客户端连接单个mongod和副本集的操作是相同的，只需要配置好连接选项即可。
+			例：
+				spring.data.mongodb.uri=mongodb://192.168.252.121:20000,192.168.252.122:20000,192.168.252.12:20000/demo

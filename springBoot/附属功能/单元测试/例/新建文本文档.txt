@@ -1,0 +1,14 @@
+写一个测试配置类TestConfig，指定基本包扫描。
+	@Configuration
+	@ComponentScan(basePackages = { "com.baeldung.circulardependency" })
+	public class TestConfig {
+	}
+写一个JUnit测试，以检查循环依赖。该测试方法体可以是空的，因为循环依赖将上下文加载期间被检测到。
+	@RunWith(SpringJUnit4ClassRunner.class)
+	@ContextConfiguration(classes = { TestConfig.class })
+	public class CircularDependencyTest {
+		@Test
+		public void givenCircularDependency_whenConstructorInjection_thenItFails() {
+			// Empty test; we just want the context to load
+		}
+	}

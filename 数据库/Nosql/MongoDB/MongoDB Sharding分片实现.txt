@@ -1,0 +1,84 @@
+附：
+	MongoDB Sharding 分片原理：
+		分片是指将数据库中的数据分成若干组，每一组放到一台 MongoDB 服务器上。
+		附：
+			shard: 每一个 Shard 服务器存储数据的一个子集。
+			mongos: 处理来自应用服务器的请求，它是在应用服务器和Shard 集群之间的一个接口。
+			config server: 存储 shard 集群的配置信息，通常部署在一个 replica set 上。
+		案例说明分片原理：
+			1.数据切分后，存放入Shard 集群。
+				比如你有一张数据表存放用户基本信息，可能由于你的应用很受欢迎，短时间内就积攒了上亿个用户，这样当你在这张表上进行查询时通常会耗费比较长的时间，这样这个用户表就称为了你的应用程序的性能瓶颈。
+				很显然的做法是对这张用户表进行拆分，存放入Shard 集群。
+					mongodb数据拆分方式分为两种：
+						1.mongdb默认切分，和迁移。
+						2.配合zone进行切分和迁移。
+							假设用户表中有一个age年龄字段，我们先做一个简单的拆分操作，按照用户的年龄段把数据放到不同的服务器上，以 20 为一个单位，20 岁以下的用户放到 server1，20 到 40 岁的用户放到 server2，40 岁后的用户放到 server3。
+				
+							在这个例子中，用户年龄age就是我们进行Sharding（切分）的Shard Key（关于 Shard Key 的选择后面会详细介绍），拆分出来的server1,server2,server3就是这个集群中的 3 个Shard（分区）服务器。
+				
+			2.通过mongos从Shard 集群获取数据。
+				好，Shard 集群已经有了，并且数据已经拆分完好，当用户进行一次查询请求的时候我们如何向这四个 Shard 服务器发送请求呢。
+				
+					例如：我的查询条件是用户年龄在 18 到 35 岁之间，这样个查询请求应当发送到server1和server2，因为他们存储了用户年龄在 40 以下的数据，我们不希望这样的请求发送到另外两台服务器中因为他们并不会返回任何数据结果。
+				此时，另外一个成员就要登场了mongos，它可以被称为 Shard 集群中的路由器，就像我们网络环境中使用的路由器一样，它的作用就是讲请求转发到对应的目标服务器中，有了它我们刚才那条查询语句就会正确的转发给server和server2，而不会发送到server3和server4上。
+				mongos可以根据用户年龄（Shard Key）分析查询语句，并把语句发送到相关的 shard 服务器中。
+			3.mongos从config server或去Shard 集群具体信息：
+				除了mongos和shard之外，另一个必须的成员是配置服务器，config server，它存储 Shard 集群中所有其他成员的配置信息。
+				mongos会到这台config server查看集群中其他服务器的地址
+					这是一台不需要太高性能的服务器，因为它不会用来做复杂的查询计算。
+					值得注意的是，在 MongoDB3.4 以后，config server必须是一个replica set。
+MongoDB Sharding 分片实现：
+	从零开始构建分片集群
+	1.创建一个 MongoDB Shard 集群：
+		至少包含 1 个mongos路由，1个config服务器，2 个shard服务器。	
+		注：
+			mongodb 现在要求配置服务器也必须以副本集方式运行
+		https://www.mongodb.org.cn/tutorial/21.html
+		或
+		https://www.cnblogs.com/zhanjindong/archive/2013/04/10/3013121.html
+	2.配置 Shard 数据库
+		建立好Shard 集群后，默认是不会将存入的数据进行分片处理，需要在数据库和集合的粒度上都开启分片功能。
+			未设置分片功能通常是被分配到了第一个 shard 服务器中。
+		开启test库的分片功能：
+			通过客户端连接mongos路由，开启test库的分片功能
+			1.    ./bin/mongo –port 20000
+			2.    mongos> use admin 
+			3.    switched to db admin
+			4.    mongos> db.runCommand({"enablesharding":"test"})
+			5.    { "ok" : 1 }
+		开启user集合分片功能：
+
+			1.    mongos> db.runCommand({"shardcollection":"test.user","key":{"_id":1}})
+			2.    { "collectionsharded" : "test.user", "ok" : 1 }
+		注：
+			需要切换到admin库执行命令。
+			片键：上面的key就是所谓的片键（shard key）。
+			MongoDB不允许插入没有片键的文档。
+	
+	附：
+		Chunk块：
+			在一个shard server内部，MongoDB还是会把数据分为chunks，每个chunk代表这个shard server内部一部分数据。
+			chunk有以下两个用途：
+				Splitting：自动分裂
+					数据不断插入到 mongos 的过程中，chunk 的大小会发生变化，当一个chunk的大小超过配置中的chunk size时，MongDB的后台进程会把这个chunk切分成更小的chunk，从而避免chunk过大的情况。
+					注：chunk 的默认大小是 64M。
+				Balancing：自动平衡
+					在MongoDB中，balancer是一个后台进程，负责均衡shard server数据。
+					当进行 chunk 切分后，会导致数据分配的不均匀，如果存在多个可用的分片，
+					且当前分区，块的数量达到一定阀值后，balancer 会被调用来进行数据迁移，把数据迁移到其他分片上，这个迁移的过程叫做平衡。
+		
+	Zones
+		chunk 是 MongoDB 在多个 shard 集群中迁移数据的最小单元。
+		有时候数据的分配不会按照我们臆想的方向进行，就拿上面的例子来说，虽然我们选择了用户年龄作为 shard key，但是 MongoDB 并不会按照我们设想的那样来分配数据。
+		如何进行数据分配就是通过 Zones 来实现。Zones 解决了 shard 集群与 shard key 之间的关系，我们可以按照 shard key 对数据进行分组，每一组称之为一个 Zone，之后把 Zone 在分配给不同的 Shard 服务器。
+		一个 Shard 可以存储一个或多个 Zone，前提是 Zone 之间没有数据冲突。
+		Balancer 在运行的时候会把在 Zone 里的 chunk 迁移到关联这个 Zone 的 shard 上。
+MongoDB Sharding 分片案例:
+		对已有数据进行分片：
+			实际中架构是一个演进的过程，一开始都不会进行分片，只有当数据量增长到一定程序才会考虑分片。
+			案例1.
+				https://www.cnblogs.com/zhanjindong/archive/2013/04/11/3015394.html	
+			案例2.
+				通过Zones，实现将数据库表中的数据按照一定的边界分成若干组，每一组放到一台 MongoDB 服务器上。
+				例20 岁以下的用户放到 server1，20 到 40 岁的用户放到 server2，40-60 岁的用户放到 server3，60 岁以上放到 server4。
+				https://www.jianshu.com/p/f33570f0cd30
