@@ -1,0 +1,12 @@
+
+安装：
+	https://www.runoob.com/linux/nginx-install-setup.html
+
+卸载：
+	https://jingyan.baidu.com/article/15622f24dd22a5fdfcbea586.html
+常见命令：
+	/usr/local/webserver/nginx/sbin/nginx -s reload            # 重新载入配置文件
+	/usr/local/webserver/nginx/sbin/nginx -s reopen            # 重启 Nginx
+	/usr/local/webserver/nginx/sbin/nginx -s stop              # 停止 Nginx	
+	/usr/local/webserver/nginx/sbin/nginx            			# 启动 Nginx	
+	/usr/local/webserver/nginx/sbin/nginx -t #检查配置文件nginx.conf的正确性命令：
