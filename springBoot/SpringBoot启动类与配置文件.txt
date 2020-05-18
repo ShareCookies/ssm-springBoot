@@ -48,13 +48,13 @@ springBoot启动类：？
 			SpringBoot默认加载的是application.yml文件，所以想要引入其他配置的yml文件，就要在application.yml中激活该文件。
 
 	读取yml值：
-		1.创建一个bean来接收配置信息：
+		方式1.创建一个bean来接收配置信息：
 			使用以下两个主键能达到目的。
 			1. 类上：
 				@ConfigurationProperties(prefix = "user")
 			2.属性上：
 				@Value("${user.filepath}")
-		2.读取所有配置信息：
+		方式2.读取所有配置信息：
 			@Autowired
 			private Environment env;    //作用是把当前项目中所有的yml配置文件信息存到env中，以键值对（key-value）形式。
 			String accessKeyId =env.getProperty("aliyun.sms.accessKeyId"); //获取env中读取到的配置文件信息   

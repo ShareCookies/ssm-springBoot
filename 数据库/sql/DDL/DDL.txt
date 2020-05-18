@@ -44,3 +44,6 @@ DDL之库表操作常识：
 		https://zhuanlan.zhihu.com/p/88425702
 		阿里巴巴Java开发.pdf goto：数据库
 
+	字段长度：
+		https://blog.csdn.net/weixin_41588181/article/details/83929611?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-1
+		https://zhidao.baidu.com/question/2121425850053132267.html?qbl=relate_question_0&word=mysql%B3%A4%B6%C8%D6%B8%B5%C4%CA%C7%CA%B2%C3%B4
