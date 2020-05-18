@@ -2,6 +2,24 @@
 	？那spring容器是什么时候初始化了
 过滤器的创建时优先于spring容器的。
 
+
+
+spring bean的加载顺序：
+	Spring上下文在加载所有的bean时，他会尝试按照他们关联关系的顺序进行创建。
+	所以当不存在循环依赖时，就可顺利加载bean。
+	例：
+		Bean A → Bean B → Bean C
+		Spring会先创建Bean C，再创建Bean B（并将Bean C注入到Bean B中），最后再创建Bean A(并将Bean B注入到Bean A中)。
+	注：
+		1.如果我们存在循环依赖，Spring上下文不知道应该先创建哪个Bean,因为它们依赖于彼此。
+		Spring会在加载上下文时，就会抛出一个BeanCurrentlyInCreationException。
+		2.使用构造方法进行注入时，会遇到这种情况。
+		但使用其它类型的注入时，应该不会遇到这个问题。
+		因为其他方式是在需要时才会被注入，而不是上下文加载时就被注入。
+
+
+
+
 手动获取bean：
 	@WebFilter(urlPatterns = "/*")
 	@Order(Integer.MAX_VALUE-2)
@@ -37,11 +55,8 @@ spring在向IOC容器中注入Bean的时候，有三种注入方式：
 	　　　　ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
 			？
 				枚举方法中获取失败
-
 	　　3、使用spring注入自动注入
-
 	　　　　@Autowired
-
 	　　　　private ServletContext servletContext;
 
 	(3).使用ServletContext存取
@@ -55,3 +70,31 @@ spring在向IOC容器中注入Bean的时候，有三种注入方式：
 	https://blog.stormbirds.cn/articles/2019/07/12/1562916064589.html
 spring中的循环依赖解决方案：	
 	https://www.jianshu.com/p/b65c57f4d45d
+	解决方法：
+		方式1：重新设计：
+			当你有一个循环依赖，很可能你的各责任没有得到很好的分离。
+			有很多种方法来应对Spring的循环依赖，但首先你应该考虑重新设计你的bean，它们通常意味着是一种可以被提高的设计症状。
+		方式2：使用 @Lazy
+			使用 @Lazy对一个Bean进行延时加载。
+			即这个Bean并没有完全的初始化完，实际上他注入的是一个代理，只有当他首次被使用的时候才会被完全的初始化。
+			例：
+				@Component
+				public class CircularDependencyA {
+					private CircularDependencyB circB;
+					@Autowired
+					public CircularDependencyA(@Lazy CircularDependencyB circB) {
+						this.circB = circB;
+					}
+				}
+		方式3：使用 Setter/Field 注入
+			其中最流行的解决方法，就是Spring文档中建议，使用setter注入。
+			例：
+				private CircularDependencyA circA;
+				@Autowired
+				public void setCircA(CircularDependencyA circA) {
+					this.circA = circA;
+				}
+			注：
+				使用该方式创建Bean，实际上它的依赖并没有被注入，只有在你须要的时候他才会被注入进来。
+		方式4：使用 @PostConstruct
+		方式5：实现ApplicationContextAware and InitializingBean接口
