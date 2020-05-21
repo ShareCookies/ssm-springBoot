@@ -1,0 +1,28 @@
+1.慢查询日志
+	查看是否开启：show variables like '%slow_query_log%';
+	开启慢查询日志：set global slow_query_log=1;（重启后失效）；
+	设置阀值时长命令：
+　	　set global long_query_time=3   （修改为阀值到3秒钟的就是慢sql）（500ms）
+	附：
+		查看慢日志相关信息：show variables like '%slow%';
+	https://www.cnblogs.com/xingxia/p/mysql_slow_query_log.html
+	https://www.cnblogs.com/Life-is-Demo/p/11113741.html
+	https://www.cnblogs.com/zhuleixiao/p/9364489.html
+2.druid
+	https://blog.csdn.net/java_collect/article/details/83660809
+	https://blog.csdn.net/nuliPerfect/article/details/52108036
+	http://ip:端口/druid/ 
+	
+如何诊断页面为何加载慢：
+	如果页面打开慢，那么就看下打开这个页面要那些请求，然后看下这些请求的发起与加载时间，然后统计最终要加载的耗时。
+		可在谷歌的network那条时间轴上滑动来快速的确认请求的发起顺序和时间。
+		如：
+			阅办单的载是跟这三个请求有关，根据各种手段分辨出 1完-2完（1结束开才始）-3完（2结束开才始），最终3个请求加起来计算出页面耗时。
+
+附：
+		ajax请求：
+		https://zhidao.baidu.com/question/984180091419371739.html?qbl=relate_question_0&word=%C8%E7%BA%CE%B4%D3%BF%D8%D6%C6%CC%A8%D6%D0%BF%B4%B3%F6%C4%C7%D0%A9%CA%C7%CD%AC%B2%BD%C7%EB%C7%F3%BB%B9%CA%C7%D2%EC%B2%BD%C7%EB%C7%F3
+		同步ajax请求不会阻塞页面，只会堵塞Ajax请求本身。
+		Ajax异步和同步的区别是：
+			当Ajax请求开始时，异步请求路径后，不管请求结度果，直接进行运行到下一步，相当于在Ajax时开了一个新线程；
+			而同步请求时，访问请求路径后，等待请求完成，然知后在进行下一步。但是这两个请求道是不会堵塞页面本身的，click事件本身就是异步的。所以多次点击会导致请求多次。

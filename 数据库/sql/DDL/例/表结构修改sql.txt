@@ -1,13 +1,22 @@
 添加字段：
 	ALTER TABLE EGOV_URGER_TASK_FEEDBACK ADD APPRAISE_CONTENT text NULL;
 	text VARCHAR2(2048)
-字段长度修改：
-	alter table EGOV_NOTICE modify column REC_UNIT_TYPE varchar(1024);
-修改主键
-	ALTER TABLE `EGOV_DISPATCH_NUM` DROP PRIMARY KEY ,ADD PRIMARY KEY ( `id` );
+表字段修改：
+	字段长度修改：
+		alter table EGOV_NOTICE modify column REC_UNIT_TYPE varchar(1024);
+	
+	修改为非必填：
+		ALTER TABLE EGOV_MESSAGE_LOG  MODIFY COLUMN `SUBJECT` varchar(128) DEFAULT NULL COMMENT '标题';
+	MySQL只修改字段名
+		MySQL修改字段名
+			ALTER TABLE 表名 CHANGE 旧字段名 新字段名 新数据类型;
+			ALTER TABLE EGOV_URGER CHANGE DOC_MARK_MAX_N0_ID DOC_MARK_MAX_NO_ID VARCHAR(16);
+		注：MODIFY和CHANGE都可以改变字段的数据类型。不同的是，CHANGE可以在改变字段数据类型的同时，改变字段名。
 
-修改为非必填：
-	ALTER TABLE EGOV_MESSAGE_LOG  MODIFY COLUMN `SUBJECT` varchar(128) DEFAULT NULL COMMENT '标题';
+
+修改主键
+		ALTER TABLE `EGOV_DISPATCH_NUM` DROP PRIMARY KEY ,ADD PRIMARY KEY ( `id` );
+	
 表重命名：
 	mysql表重命名：
 		rename table  EGOV_URGER to EGOV_URGER_OLD;

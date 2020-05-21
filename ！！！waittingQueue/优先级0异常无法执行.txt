@@ -1,5 +1,0 @@
-循环中try 
-try 最外
-spring 数据库回滚
-
-Spring的事务模块?
