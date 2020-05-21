@@ -2,8 +2,12 @@ nginx:
 	官网：http://nginx.org/en/download.html
 	Nginx：
 		Nginx("engine x")是一款是由俄罗斯的程序设计师Igor Sysoev，
-		开发的高性能 Web 和 反向代理 服务器，也是一个 IMAP/POP3/SMTP 代理服务器。
-		在高连接并发的情况下，Nginx是Apache服务器不错的替代品。
+		开发的高性能 Web（Http） 和 反向代理 服务器，也是一个 IMAP/POP3/SMTP 代理服务器。	
+		ng特点：
+			能够支持高达 50,000 个并发连接数的响应。
+			使用ng能够让你达到不间断服务的情况下进行软件版本的升级。
+			消耗小，Nginx采用C进行编写，不论是系统资源开销还是CPU使用效率都比 Perlbal 要好很多。
+			稳定几乎可以做到7*24不间断运行，即使运行数个月也不需要重新启动。
 	nginx的安装：
 		./Linux安装常见开发环境/linux安装nginx.txt
 	
@@ -23,6 +27,12 @@ nginx:
 						server_name  58xuejia.cn;
 						location / {
 							proxy_pass https://www.baidu.com;   #代理地址，代理百度
+							#proxy_redirect off; #禁止跳转
+							#proxy_set_header Host $host;
+							#proxy_set_header  X-Real-IP        $remote_addr;
+							#proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+							#proxy_set_header X-NginX-Proxy true;
+
 						}
 					}
 					附：
@@ -41,7 +51,7 @@ nginx:
 						附：
 							可以配置防火墙路由器，使其只允许特定端口上的特定服务器有权通过防火墙进行访问，而不允许其他任何机器进出。
 			2.作为内容服务器集群的负载均衡器：
-				
+				./负载均衡.txt
 	ng支持https：
 		https://www.cnblogs.com/jingxiaoniu/p/6745254.html
 		注：
