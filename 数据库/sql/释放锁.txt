@@ -1,0 +1,9 @@
+https://blog.csdn.net/dujianxiong/article/details/90770301
+https://blog.csdn.net/David_jiahuan/article/details/91558816?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase
+
+
+
+当前出现的锁
+mysql>  SELECT * FROM information_schema.innodb_trx;
+
+mysql命令杀掉线程：kill 线程id  (trx_mysql_thread_id)

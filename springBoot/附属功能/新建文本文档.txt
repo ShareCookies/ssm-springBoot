@@ -1,4 +1,39 @@
+官网文档：
+	https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html
 spring事件监听（eventListener)
 	https://www.jianshu.com/p/e2d257ce410d?from=timeline&isappinstalled=0
 spring异步调用：
 	https://www.cnblogs.com/jpfss/p/10273129.html
+springboot 日志：
+	https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-logging
+	https://www.cnblogs.com/nuccch/p/6221255.html
+	
+	
+	
+	logging.level
+	logging.level设置日志级别。我们可以使用TARCE , DEBUG , INFO , WARN , ERROR , FATAL , OFF 。可以使用root级别和package级别来控制日志的输入级别。创建一个具有以下依赖关系的应用程序。
+	
+	根日志？
+	The root logger can be configured by using logging.level.root.
+	
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-security</artifactId>
+	</dependency> 
+	使用src\main\resources\application.properties配置日志级别
+
+
+	logging.level.root= WARN
+	logging.level.org.springframework.security= DEBUG
+	logging.level.org.springframework.web= ERROR
+	logging.level.org.hibernate= DEBUG
+	logging.level.org.apache.commons.dbcp2= DEBUG 
+
+	作者：在下喵星人
+	链接：https://www.jianshu.com/p/1fa12b92d5c4
+	来源：简书
+	著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。

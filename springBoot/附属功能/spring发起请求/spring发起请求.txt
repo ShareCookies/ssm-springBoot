@@ -28,3 +28,5 @@ HttpClient 关于 https：
 	https://blog.csdn.net/xiaoxian8023/article/details/49866397
 	https://blog.csdn.net/xiaoxian8023/article/details/49865335
 	
+附：
+	URLEncoder.encode("测试.xls", "UTF-8")

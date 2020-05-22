@@ -28,6 +28,7 @@ nginx:
 						location / {
 							proxy_pass https://www.baidu.com;   #代理地址，代理百度
 							#proxy_redirect off; #禁止跳转
+							# 便于获取用户真实ip https://blog.csdn.net/qq_28796345/article/details/88685245
 							#proxy_set_header Host $host;
 							#proxy_set_header  X-Real-IP        $remote_addr;
 							#proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
