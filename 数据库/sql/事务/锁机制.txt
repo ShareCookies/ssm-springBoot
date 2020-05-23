@@ -1,0 +1,42 @@
+锁机制：
+	https://blog.csdn.net/qq_34337272/article/details/80611486
+	https://blog.csdn.net/weixin_41050155/article/details/88088419
+	https://blog.csdn.net/caohao0591/article/details/79887028
+	介绍：
+		锁机制主要用来实现隔离性。（*也能用来实现数据一致性吧）
+		MySQL存在多种数据存储引擎，每种存储引擎支持的锁又不一样。
+			InnoDB存储引擎支持行级锁(row-level locking)和表级锁,默认为行级锁.
+			MyISAM存储引擎采用表级锁(table-level locking)。
+			符：
+				MySQL数据库由于其自身架构的特点，存在多种数据存储引擎，每种存储引擎所针对的应用场景特点都不太一样，为了满足各自特定应用场景的需求，每种存储引擎的锁定机制都是为各自所面对的特定场景而优化设计，所以各存储引擎的锁定机制也有较大区别。
+		
+		表级锁和行级锁：
+			表级锁：
+				MySQL中锁定 粒度最大 的一种锁。
+				对当前操作的整张表加锁，实现简单，资源消耗也比较少，加锁快，不会出现死锁。
+				其锁定粒度最大，触发锁冲突的概率最高，并发度最低，MyISAM和 InnoDB引擎都支持表级锁。
+			行级锁： 
+				MySQL中锁定 粒度最小 的一种锁，只针对当前操作的行进行加锁。 
+				行级锁能大大减少数据库操作的冲突。
+				其加锁粒度最小，并发度高，但加锁的开销也最大，加锁慢，会出现死锁。
+			页级锁定（page-level）：
+	InnoDB存储引擎的锁的算法有三种：
+		Record lock：单个行记录上的锁
+		Gap lock：间隙锁，锁定一个范围，不包括记录本身
+			Gap锁设计的目的是为了阻止多个事务将记录插入到同一范围内，而这会导致幻读问题的产生
+			有两种方式显式关闭gap锁：（除了外键约束和唯一性检查外，其余情况仅使用record lock）
+			A. 将事务隔离级别设置为RC
+			B. 将参数innodb_locks_unsafe_for_binlog设置为1
+		Next-key lock：record+gap 锁定一个范围，包含记录本身。
+			innodb对于行的查询使用next-key lock，解决了幻读问题。
+			当查询的索引含有唯一属性时，将next-key lock降级为record key
+	加锁：
+		...
+mysql为啥会锁死表？
+	是触发了表锁吗？
+	什么情况才会触发了？
+		https://blog.csdn.net/yangfengjueqi/article/details/81062123
+		MySQL如果频繁的修改一个表的数据，那么这么表会被锁死。造成假死现象。
+		https://www.cnblogs.com/ShaunChen/p/7492056.html
+	释放锁：
+		./释放锁.txt

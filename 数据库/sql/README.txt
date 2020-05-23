@@ -1,6 +1,8 @@
 mysql官网：
 	https://www.mysql.com/
-	https://github.com/Snailclimb/JavaGuide/blob/master/docs/database/MySQL.md
+	https://dev.mysql.com/doc/refman/8.0/en/
+	https://www.mysqlzh.com/ 5.1中文文档
+https://github.com/Snailclimb/JavaGuide/blob/master/docs/database/MySQL.md	
 
 SQL可分为两个部分：
 	数据操作语言 (DML DataManipulateLanguage) 和 数据定义语言 (DDL)。
@@ -11,7 +13,7 @@ SQL可分为两个部分：
 		https://segmentfault.com/a/1190000012650596
 
 事务：
-	./事务.txt
+	./事务/事务.txt
 	
 优化：
 	./数据库优化.txt
