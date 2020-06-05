@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+    <bean id="user" class="com.mybank.fundtrans.domain.User">
+	</bean>
+	<bean id="userDaoSpringImpl" class="com.mybank.fundtrans.test.UserDaoSpringImpl">
+	 	<!-- 往备案中注入属性 -->
+	 	<property name="dataSource">
+	 		<!-- 该属性的值引用自另一bean声明 -->
+	 		<ref local="dataSource"/>
+	 	</property>
+	 </bean>
+	 <!-- 声明bean，该bean主要用来声明数据库信息-->
+	 <bean id="dataSource"
+	 	class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	 	<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+	 	<property name="url" value="jdbc:mysql://localhost:3306/fundtransdb" />
+	 	<property name="username" value="root" />
+	 	<property name="password" value="" />
+	 </bean>
+</beans>

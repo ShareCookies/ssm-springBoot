@@ -1,0 +1,17 @@
+仅使用spring数据源（DataSource实现对数据操作）
+简易实现步骤：
+	1.实体类，这里暂定为User，即该类为有关于客户的属性和行为。
+	2.UserDAO接口，即该接口中规定了insert，update等方法，等待具体实现。
+	3.UserDaoImpl类，该类要求实现UserDAO接口。
+	注:该类要求注入DataSource属性（即定义一DataSource属性和其对应的getset方法）。
+	操作数据库具体步骤:
+		1.通过DataSource获取连接对象
+		2.调用连接对象的createStatement()获取声明对象
+		3.通过声明对象的.excute("sql语句")
+	4.通过工厂获取User和UserDaoImpl对象，调用UserDaoImpl的方法即可操作数据库。
+	定义DataSource:
+		1.在applicationContext.xml中定义一个JavaBean名为DataSource的数据源，它是DriverManagerDataSource类(class的值)的实例。
+		&2.为DataSource注入数据库地址，数据库账户，数据库密码。
+		注:
+			1.要把DataSource注入到UserDaoImpl中。
+注：*Test结尾为测试入口

@@ -72,3 +72,7 @@ MongoDB安装：
 					socketTimeoutMS=ms	发送和接受sockets的时间。
 
 
+使用mongodb存文件合适吗：
+	https://www.zhihu.com/question/19691415
+	https://www.v2ex.com/amp/t/169029
+	https://www.v2ex.com/t/200610?tdsourcetag=s_pctim_aiomsg

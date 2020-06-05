@@ -1,0 +1,18 @@
+https://www.cnblogs.com/erbing/p/5805727.html
+什么是JDBC：
+	Java 数据库连接，（Java Database Connectivity，简称JDBC）是Java语言中用来规范客户端程序如何来访问数据库的应用程序接口，
+	是一种用于执行SQL语句的Java API，可以为多种关系数据库提供统一访问，它由一组用Java语言编写的类和接口组成。
+	JDBC提供了一种基准，据此可以构建更高级的工具和接口，使数据库开发人员能够编写数据库应用程序。
+数据库驱动：
+		我们安装好数据库之后，我们的应用程序也是不能直接使用数据库的，必须要通过相应的数据库驱动程序，通过驱动程序去和数据库打交道。
+		驱动程序其实就是数据库厂商的JDBC接口实现，即对Connection等接口的实现类的jar文件。
+		mysql驱动：
+			一般使用mysql-connector这个jar包。
+		mysql-connector-java与mysql版本的对应：
+			https://www.cnblogs.com/junzi/p/6893122.html
+二、常用接口
+	1.Driver接口
+		Driver接口由数据库厂家提供，作为java开发人员，只需要使用Driver接口就可以了。
+		在编程中要连接数据库，必须先装载特定厂商的数据库驱动程序，不同的数据库有不同的装载方法。如：
+	　　装载MySql驱动：Class.forName("com.mysql.jdbc.Driver");
+	　　装载Oracle驱动：Class.forName("oracle.jdbc.driver.OracleDriver");

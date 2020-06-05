@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+    
+	<!-- 声明bean,可让ioc容器获取该bean -->
+	 <bean id="userDaoForSpringAndHibernate" class="com.mybank.fundtrans.test.UserDaoForSpringAndHibernate">
+	 	<!-- 往备案中注入属性 -->
+	 	<property name="sessionFactory">
+	 		<!-- 该属性的值引用自另一bean声明 -->
+	 		<ref local="sessionFactory"/>
+	 	</property>
+	 </bean>
+	 <!-- 声明bean，当上个bean需要该bean时容器就会自动把sessionFactorybean注入到上个bean -->
+	 <bean id="sessionFactory" 
+	 	class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+	 	
+	 	<property name="dataSource">
+	 		<!-- 该属性的值引用自另一bean声明 -->
+	 		<ref bean="dataSource" />
+	 	</property>
+	 	<property name="hibernateProperties">
+	 		<props>
+	 			<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+	 			<prop key="hibernate.format_sql">true</prop>
+	 		</props>
+	 	</property>
+	 	
+	 	 	<!-- hibernate映射文件。即持久化类的映射文件 -->
+	 	<property name="mappingResources">
+	 		<list>
+	 			<value>com/mybank/fundtrans/dao/User.hbm.xml</value>
+	 		</list>
+	 	</property>
+	 <!--罗列所有使用了注释法的持久化类的类名 --> 
+<!-- 	 <property name="annotatedClasses">  
+        <list>  
+            <value>Spitter.spitterOne.Spitter</value>  
+        </list>  
+    </property>   -->
+	 </bean>
+	 <!-- 声明bean，该bean主要用来声明数据库信息-->
+	 <bean id="dataSource"
+	 	class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	 	<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+	 	<property name="url" value="jdbc:mysql://localhost:3306/fundtransdb" />
+	 	<property name="username" value="root" />
+	 	<property name="password" value="" />
+	 </bean>
+</beans>

@@ -1,0 +1,62 @@
+文件上传：
+	总结：
+		1.通过apache的ServletFileUpload获取文件列表
+		2.遍历文件列表把其中文件流保存为文件
+
+
+
+	关键代码:
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+		//Configure the factory here, if desired.你可以在下面配置工厂
+		// 创建sfu,绑定factory
+		ServletFileUpload sfu = new ServletFileUpload(factory);
+		// Configure the uploader here, if desired.你可以在下面配置加载器
+
+
+		List<FileItem> fileItems = null;
+		Adv advInfo=new Adv();
+		if (sfu.isMultipartContent(request)){ // 判断request是否是多段提交
+		    try {
+			  fileItems = sfu.parseRequest(request); //执行对request的解析操作，获得磁盘文件项列表
+			  System.out.println("多段提交");
+			} catch (FileUploadException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else	System.out.println("非多段提交");
+		//遍历磁盘文件项列表
+		for (FileItem item : fileItems) {
+			//获取多段提交的普通表单属性
+			if (item.isFormField() && item.getFieldName().equals("advNote")) {
+				String advNote = item.getString("utf-8");
+				advInfo.setAdvNote(advNote);
+			} 
+			//获取多段提交的普通文件属性
+			else if (!item.isFormField() && item.getFieldName().equals("advImg")) {
+				byte[] imgData = new byte[(int) item.getSize()];//根据item大小设置字节数组大小
+				item.getInputStream().read(imgData, 0, (int) item.getSize());//获取输入流，并把输入流内容存到字节数组
+
+				String path = "upload/" + new Date().getTime() + ".png";
+
+				//获取物理磁盘的位置，这里获取到的是tomcat临时文件夹位置。若想存到服务器指定的位置可使用tomcat的虚目录。
+				
+				// 网页路径和物理磁盘真实路径的区别。
+				//网页路径是localhost:xx/项目/path
+				//真实路径就是D:\he_space\eclipseForJavaEEWorkSpace\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\Test\ u p load\1530956076842.png (系统找不到指定的路径。)
+				//注：temp目录用户存放tomcat在运行过程中产生的临时文件。
+				//System.out.println("什么路径"+request.getServletContext().getRealPath("/"));//同效果
+				//注：rootPath也可设置为指定路径，这里获取的是项目在tomcat临时文件夹中位置。
+				String rootPath = request.getRealPath("/");
+				String filePath = rootPath + path;
+				
+
+				File file = new File(filePath);//创建文件
+				FileOutputStream fos = new FileOutputStream(file);//创建文件输出流
+				fos.write(imgData);//流输出，即保存文件到磁盘中
+				fos.flush();
+				fos.close();
+
+				advInfo.setAdvImg(path);
+
+			}
+		}

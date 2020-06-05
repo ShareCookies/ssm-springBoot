@@ -1,0 +1,5 @@
+Intellij IDEA基于Springboot的远程调试
+	https://blog.csdn.net/wo541075754/article/details/75008617
+在springboot项目中，设置debug=true，在控制台查看springboot自动配置的服务
+	https://blog.csdn.net/weixin_39810017/article/details/87346334
+	https://blog.csdn.net/madonghyu/article/details/89323744?tdsourcetag=s_pctim_aiomsg

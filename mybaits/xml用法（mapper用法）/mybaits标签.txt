@@ -116,6 +116,9 @@ mybaits动态SQL标签:
 			if标签中还可以嵌套别的标签
 	if..else:
 		https://www.cnblogs.com/a8457013/p/8033263.html
+	<when> <otherwise> :
+		https://www.cnblogs.com/caoyc/p/5574948.html
+		类似 switch case default 或 if elseif else
 	<foreach>:
 		介绍:
 			遍历集合，动态构造指定sql。

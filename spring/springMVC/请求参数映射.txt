@@ -23,6 +23,10 @@
 						https://www.cnblogs.com/yutianA/p/10677677.html
 						import Qs from 'qs'//引入qs。axios中已经包含有qs，所以无需重新安装，直接引入就好
 						data:Qs.stringify(chedata),//在传参之前先用qs.stringify转化一下格式
+					2.SpringMvc参数接收boolean类型参数问题
+						https://www.cnblogs.com/JavaZaizai/p/9076581.html
+						对象中的boolean类型的字段isWater始终无法被接收
+						通过查询资料发现，boolean类型的参数应当避免使用is开头进行命名，因为该类型的参数的set方法会自动命名为is+字段名，如果字段名中是is开头，会产生问题。
 		修饰对象:
 			(PagingRequest paging)
 			注：

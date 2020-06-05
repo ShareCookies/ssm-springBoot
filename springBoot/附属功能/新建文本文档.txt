@@ -8,7 +8,10 @@ springboot 日志：
 	https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-logging
 	https://www.cnblogs.com/nuccch/p/6221255.html
 	
-	
+	logging:
+	  level:
+		root: debug #作用是打印除依赖项目的日志吗？
+		com.rongji.egov.doc.business: debug	#作用是打印除当前项目的日志
 	
 	logging.level
 	logging.level设置日志级别。我们可以使用TARCE , DEBUG , INFO , WARN , ERROR , FATAL , OFF 。可以使用root级别和package级别来控制日志的输入级别。创建一个具有以下依赖关系的应用程序。
