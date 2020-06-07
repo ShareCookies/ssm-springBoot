@@ -1,6 +1,7 @@
-http://www.ityouknow.com/springcloud/2017/05/10/springcloud-eureka.html
-
 springCloud eureka 服务端的使用：
+	http://www.ityouknow.com/springcloud/2017/05/10/springcloud-eureka.html
+
+	Eureka Server 服务中心，提供服务注册和发现
 	1、pom中添加依赖
 		<dependencies>
 			<dependency>
@@ -16,27 +17,25 @@ springCloud eureka 服务端的使用：
 	3、配置文件
 
 	添加以下配置：
+		#应用名。注册根据应用名判断是否为同一个应用，多个同一个应用就是集群。
 		spring.application.name=spring-cloud-eureka
+		#应用端口。
 		server.port=8000
+		#是否将自己注册到Eureka Server，默认为true。
 		eureka.client.register-with-eureka=false
+		#是否从Eureka Server获取注册信息，默认为true。
 		eureka.client.fetch-registry=false
+		#Eureka Server地址，与Eureka Server交互的地址。查询服务和注册服务都需要依赖这个地址。默认是http://localhost:8761/eureka ；
+		#集群多个地址可使用,分隔。
 		eureka.client.serviceUrl.defaultZone=http://localhost:${server.port}/eureka/
 
 		附：
-			
-			eureka.client.register-with-eureka ：
-				表示是否将自己注册到Eureka Server，默认为true。
-			eureka.client.fetch-registry ：
-				表示是否从Eureka Server获取注册信息，默认为true。
-			eureka.client.serviceUrl.defaultZone ：
-				设置与Eureka Server交互的地址，查询服务和注册服务都需要依赖这个地址。
-				默认是http://localhost:8761/eureka ；
-				多个地址可使用 , 分隔。
 			？：
 				在默认设置下，Eureka Server在启动时默认会注册自己，成为一个服务。
 				Eureka Server也成为一个客户端，所以我们需要禁用它的客户端注册行为。
 				
-				为啥要关闭了？，是只有一个服务端是才关闭吗？
+				为啥要关闭了，是只有一个服务端是才关闭吗？
+				https://cloud.tencent.com/developer/article/1494956
 	启动工程后，访问：http://localhost:8000/，服务注册中心的页面
 
 	
@@ -50,9 +49,13 @@ springCloud eureka 服务端的使用：
 			eureka.client.serviceUrl.defaultZone=http://peer1:8000/eureka/
 
 		注：
+			1.多节点：
 			生产中需要大于三台的注册中心来保证服务的稳定性，配置的原理和双节点一样，
 			只是每台注册中心分别指向其它两个节点即可。
+			2.激活不同的配置来启用不同的节点：
+				java -jar spring-cloud-eureka-0.0.1-SNAPSHOT.jar --spring.profiles.active=peer1
 springCloud eureka 客户端的使用：
+	http://www.ityouknow.com/springcloud/2017/05/12/eureka-provider-constomer.html
 	服务提供：
 		1.引入client依赖：
 			<dependencies>
@@ -69,16 +72,13 @@ springCloud eureka 客户端的使用：
 			spring.application.name=spring-cloud-producer
 			server.port=9000
 			eureka.client.serviceUrl.defaultZone=http://localhost:8000/eureka/
-			附：
-				把所有服务端配上，虽然就算只向一个服务端注册它也会共享到所有服务端，但我们不能保证这个服务端没有蹦。
 			
 		3.启动类中添加@EnableDiscoveryClient注解
 			附：
 			@EnableDiscoveryClient：
 				启用服务注册与发现。
-				添加@EnableDiscoveryClient注解后，项目就具有了服务注册的功能。
+				添加@EnableDiscoveryClient注解后，此时这个项目就会被注册到eureka服务中心，客户端就可以访问到改项目中所有的controller了。
 				！：
-				此时这个项目就会被注册到eureka服务中心，调用客户端就可以访问到改项目中所有的controller了。
 				那如果我有controller不想被别人调用了。通过security吧。
 			
 	服务调用：
@@ -88,13 +88,12 @@ springCloud eureka 客户端的使用：
 		附：
 			@EnableFeignClients：
 				启用feign。
-				：
-					Feign是一个声明式Web Service客户端。
-					Spring Cloud对Feign进行了封装，使其支持了Spring MVC标准注解和HttpMessageConverters。
-					它的使用方法是定义一个接口，然后在上面添加注解。同时也支持JAX-RS标准的注解。Feign也支持可拔插式的编码器和解码器。
-					Feign可以与Eureka和Ribbon组合使用以支持负载均衡。
+				Feign是一个声明式Web Service客户端。				
+				Spring Cloud对Feign进行了封装，使其支持了Spring MVC标准注解和HttpMessageConverters。
+				
+				Feign可以与Eureka和Ribbon组合使用以支持负载均衡。
 
-		4、使用feign：
+		4、使用feign代理远程对象：
 		hcg:使用feign实现一个本地远程代理对象。属于设计模式中的远程代理。
 		@FeignClient(name= "spring-cloud-producer")
 		public interface HelloRemote {
@@ -103,10 +102,13 @@ springCloud eureka 客户端的使用：
 		}
 		注：
 			feign的用法：
-			@FeignClient:
-				name:远程服务名。就是远程服务提供者配置中的spring.application.name名称
-			接口中的方法和远程服务contoller中的方法名和参数需保持一致。
-		5、代码中调用远程服务：
+				它的使用方法是定义一个接口，然后在方法上添加注解来代理远程对象。
+					同时也支持JAX-RS标准的注解。Feign也支持可拔插式的编码器和解码器。
+				接口中的方法和远程服务contoller中的方法名和参数,注解等保持一致。
+				@FeignClient:
+					name:远程服务名。就是远程服务提供者配置中的spring.application.name名称
+				
+		5、代码中调用代理对象：
 		例：
 		将HelloRemote注入到controller层，像平常一样去调用即可。
 			@Autowired
