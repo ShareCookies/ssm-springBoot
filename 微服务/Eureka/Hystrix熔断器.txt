@@ -1,3 +1,4 @@
+http://www.ityouknow.com/springcloud/2017/05/16/springcloud-hystrix.html
 熔断器介绍（Hystrix）：
 	熔断器是保护服务高可用的最后一道防线，能够实现快速失败。
 	其原理类似电力过载保护器。
@@ -34,8 +35,8 @@ Hystrix的使用：
 		Feign已经依赖了Hystrix所以在maven配置上不用做任何改动
 	配置：
 		feign.hystrix.enabled=true
-	添加Fallback：
-		2、创建Fallback回调类
+	添加Fallback功能：（可选功能）
+		创建Fallback回调类
 			继承与HelloRemote实现回调的方法
 			@Component
 			public class HelloRemoteHystrix implements HelloRemote{
@@ -44,21 +45,95 @@ Hystrix的使用：
 					return "hello" +name+", this messge send failed ";
 				}
 			}
-		3.添加fallback属性，指向fallback回调类
+		feign代理类添加fallback属性，指向fallback回调类
 		@FeignClient(name= "spring-cloud-producer",fallback = HelloRemoteHystrix.class)
 		public interface HelloRemote {
 			@RequestMapping(value = "/hello")
 			public String hello(@RequestParam(value = "name") String name);
 		}
 	测试
-		1.正常访问。2.关掉服务提供者访问。
-Hystrix-dashboard熔断监控：
-	Hystrix-dashboard是一款针对Hystrix进行实时监控的工具。
-	通过Hystrix Dashboard我们可以在直观地看到各Hystrix Command的请求响应时间, 请求成功率等数据。
-	
-	Turbine：
-		Turbine工具能让我们汇总系统内多个服务的数据并显示到Hystrix Dashboard上
+		1.正常访问。
+		2.关掉服务提供者访问，返回fallback预先设置的内容。
+		（如果不启用Hystrix，关闭服务提供者后，每次返回都会等待较长信息然后返回错误信息）
+	附：
+		1.熔断只是作用在服务调用这一端
+		2.添加熔断监控(Hystrix-dashboard)：
+			http://www.ityouknow.com/springcloud/2017/05/18/hystrix-dashboard-turbine.html
+			1.Hystrix-dashboard
+				一款针对Hystrix进行实时监控的工具。
+				通过Hystrix Dashboard我们可以在直观地看到各Hystrix Command的请求响应时间, 请求成功率等数据。
+				例：
+					http://www.ityouknow.com/springcloud/2017/05/18/hystrix-dashboard-turbine.html
+					为当前应用添加Hystrix-dashboard：
+						注：
+							当前应用要具备histrix功能。
+							Hystrix-dashboard仅能监控当前应用的histrix请求。
+					1.添加依赖：
+						<dependency>
+							<groupId>org.springframework.cloud</groupId>
+							<artifactId>spring-cloud-starter-hystrix</artifactId>
+						</dependency>
+						<dependency>
+							<groupId>org.springframework.cloud</groupId>
+							<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+						</dependency>
+						<dependency>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-starter-actuator</artifactId>
+						</dependency>
+					2.
+						//启用熔断请求监控
+						@EnableHystrixDashboard
+						//启用熔断功能
+						@EnableCircuitBreaker
+					3.测试
+						进行图形化监控查看访问 http://localhost:9001/hystrix
+						输入第三个提示url： http://localhost:9001/hystrix.stream 
+						点击 monitor 看到出现了当前应用histrix监控列表
+			2.Turbine：
+				只使用Hystrix Dashboard的话, 你只能看到单个应用内的服务信息, 这明显不够.
+				Turbine工具能让我们汇总多个hystrix.stream的内容聚合为一个数据源供Dashboard展示。
+				把相同服务的节点状态以一个整体集群的形式展现出来，这样可以更好的把握整个系统的状态。
+				例：
+					./例/http://www.ityouknow.com/springcloud/2017/05/18/hystrix-dashboard-turbine.html
+					1.添加依赖：
+					<dependencies>
+						<dependency>
+							<groupId>org.springframework.cloud</groupId>
+							<artifactId>spring-cloud-netflix-turbine</artifactId>
+						</dependency>
+						<dependency>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-starter-actuator</artifactId>
+						</dependency>
+						<dependency>
+							<groupId>org.springframework.cloud</groupId>
+							<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+						</dependency>
+					</dependencies>
+				2、配置文件
+					spring.application.name=hystrix-dashboard-turbine
+					server.port=8001
+					#配置Eureka中的serviceId列表，表明监控哪些服务
+					turbine.appConfig=node01,node02
+					#指定聚合哪些集群，多个使用”,”分割，默认为default。可使用http://.../turbine.stream?cluster={clusterConfig之一}访问
+					turbine.aggregator.clusterConfig= default
+					#？
+					1. clusterNameExpression指定集群名称，默认表达式appName；
+					此时：turbine.aggregator.clusterConfig需要配置想要监控的应用名称；
+					2. 当clusterNameExpression: default时，turbine.aggregator.clusterConfig可以不写，因为默认就是default；
+					3. 当clusterNameExpression: metadata[‘cluster’]时，假设想要监控的应用配置了eureka.instance.metadata-map.cluster: ABC，则需要配置，同时turbine.aggregator.clusterConfig: ABC
 
-
-
-3.熔断只是作用在服务调用这一端？所以eureka本身是没有熔断功能的？		
+					turbine.clusterNameExpression= new String("default")
+				3、启动类
+					启动类添加@EnableTurbine，激活对Turbine的支持
+				4、测试
+					进行图形化监控查看访问 http://localhost:8001/hystrix
+					输入第一个提示url： http://localhost:8001/turbine.stream
+					点击 monitor 看到出现了俩个监控列表
+			附：
+				1.hystrix监测相关的请求。所以一直在loading的同学，被监听的项目你得先发请求。
+				2.小刺猬图提示大概意思：
+					如果查看默认集群使用第一个url
+					查看指定集群使用第二个url
+					单个应用的监控使用最后一个
