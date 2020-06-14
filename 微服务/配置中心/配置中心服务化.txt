@@ -4,13 +4,13 @@
 
 
 server端
-	将server端当做一个服务注册到eureka中，client端去eureka中去获取配置中心server端的服务既可。
+	springcloud提供的解决方案是,将server端当做一个服务注册到eureka中，client端去eureka中去获取配置中心server端的服务既可。
 	1、添加依赖
-		引入spring-cloud-starter-eureka包，添加对eureka的支持。
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-config-server</artifactId>
 		</dependency>
+		<!-- 引入spring-cloud-starter-eureka包，来添加对eureka的支持。 -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-eureka</artifactId>
@@ -81,3 +81,5 @@ server端
 		public class ConfigClientApplication {
 			...
 		}
+高可用：
+	就是配置中心服务化，然后多注册几台即可。

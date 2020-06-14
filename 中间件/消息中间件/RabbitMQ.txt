@@ -2,3 +2,9 @@
 	https://www.rabbitmq.com/
 	https://github.com/mr-ping/RabbitMQ_into_Chinese
 https://blog.csdn.net/hellozpc/article/details/81436980
+
+
+
+spring安装和使用rabbitmq：
+	http://blog.didispace.com/spring-boot-rabbitmq/
+	https://blog.csdn.net/hellozpc/article/details/81436980

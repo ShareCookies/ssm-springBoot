@@ -1,16 +1,73 @@
 spring发起http请求：
 	https://www.cnblogs.com/javazhiyin/p/9851775.html
-	RestTemplate
-		是Spring用于同步client端的核心类，简化了与http服务的通信，并满足RestFul原则，程序代码可以给它提供URL，并提取结果。
-		默认情况下，RestTemplate默认依赖jdk的HTTP连接工具。
-		当然你也可以 通过setRequestFactory属性切换到不同的HTTP源，比如Apache HttpComponents、Netty和OkHttp。
-
+	RestTemplate介绍：
+		RestTemplate是Spring提供的用于访问Rest服务的客户端.
+		RestTemplate提供了多种便捷访问远程Http服务的方法,能够大大提高客户端的编写效率。
+	RestTemplate使用：
+		RestTemplate具有的方法主要是根据HTTP的六个方法制定的。
 		get：
 			getForObject()：
+				自动将响应封装成对象。
+			getForEntity()方法：
+				将响应存入ResponseEntity对象，并返回。
+				ResponseEntity对象：
+					ResponseEntity中包含了HttpStatus和BodyBuilder的信息，这更方便我们处理response原生的东西。
+			附：
 				getForObject()其实比getForEntity()多包含了将HTTP转成POJO的功能，但是getForObject没有处理response的能力。
 				因为它拿到手的就是成型的pojo。省略了很多response的信息。
-			getForEntity()方法：
-				与getForObject()方法不同的是返回的是ResponseEntity对象，如果需要转换成pojo，还需要json工具类的引入。
+
+		post：
+			postForObject()：
+				
+			postForEntity()：
+				例子
+					private JSONObject  postForObj (String postUrl , JSONObject postObj){
+						RestTemplate restTemplate = new RestTemplate();
+						String remoteHost = ExCommon.getRequestUrl(this.rmsParamDao, "remoteHost");
+						String url = remoteHost+postUrl;
+						HttpHeaders headers = new HttpHeaders();
+						headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+						HttpEntity request = new HttpEntity<>(postObj, headers);
+						ResponseEntity<String> response = restTemplate.postForEntity( url, request , String.class );
+						System.out.println(response.getBody());
+						JSONObject jsonResult = JSON.parseObject(response.getBody());
+						return jsonResult;
+					}
+					请求参数格式：
+						post headers{Content-Type：application/json}
+					参数为对象：
+						{
+							"fileUrl":"http://192.168.210.171:6051/egovAtt/downloadEgovAttFile?id=Xp1CAeD_o7WsO1N9",
+							"fileName":"417督办类型数据修改",
+							"ext":"doc",
+							"docId":"XpaEO4SuklmVoZFO"
+						}
+			附：
+				请求参数：
+					post请求参数用HttpEntity<MultiValueMap<String, String>> request 封装。
+						MultiValueMap是Map的一个子类，它的一个key可以存储多个value。
+					@Nullable Object request类型，request是用HttpEntity来解析，而HttpEntity接受的request类型是MultiValueMap。
+		exchange:
+				String resultJsonStr = "";
+				HttpHeaders requestHeaders = new HttpHeaders();
+				requestHeaders.add("Content-Type", "application/json;charset=UTF-8");
+				HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(null, requestHeaders);
+
+				ResponseEntity<String> responseEntity=restTemplate.exchange(url, HttpMethod.GET,requestEntity, String.class);
+				resultJsonStr=responseEntity.getBody();
+		注：
+			1.连接创建
+				RestTemplate默认使用SimpleClientHttpRequestFactory(默认依赖jdk的HTTP连接工具),来处理HTTP的创建.
+				当然你也可以 通过setRequestFactory属性切换到不同的HTTP源，比如Apache HttpComponents、Netty和OkHttp。
+			2.响应转换
+				RestTemplate默认使用HttpMessageConverter实例将HTTP消息转换成POJO或者从POJO转换成HTTP消息。
+				默认情况下会注册主mime类型的转换器，但也可以通过setMessageConverters注册其他的转换器。
+				附：
+					responseType
+						很多方法有一个responseType 参数，它让你传入一个响应体所映射成的对象，然后底层用HttpMessageConverter将其做映射			
+					响应错误处理：
+						RestTemplate默认使用DefaultResponseErrorHandler来响应错误，可以setErrorHandler来覆盖。
+				
 	附：
 		postForEntity方法发送带有xml类型的数据：
 			https://ask.csdn.net/questions/771239

@@ -1,0 +1,29 @@
+server:
+  port: 8200
+spring:
+  application:
+    name: spring-cloud-config-server
+#  cloud:
+#    config:
+#      server:
+#        git:
+#          uri: https://github.com/ityouknow/spring-cloud-starter/     # 配置git仓库的地址
+#          search-paths: config-repo                             # git仓库地址下的相对地址，可以配置多个，用,分割。
+#          username:                                              # git仓库的账号
+#          password:                                              # git仓库的密码
+  profiles:
+    active: native #从本地加载配置文件，/main/resource目录下检索配置文件。默认从应用的src
+  #增加RebbitMq的相关配置(spring cloud bus刷新时使用)
+#  rabbitmq:
+#    host: 192.168.0.6
+#    port: 5672
+#    username: admin
+#    password: 123456
+eureka:
+  client:
+    serviceUrl:
+      #注册中心eurka地址
+      defaultZone: http://localhost:8000/eureka/
+#management:
+#  security:
+#    enabled: false
