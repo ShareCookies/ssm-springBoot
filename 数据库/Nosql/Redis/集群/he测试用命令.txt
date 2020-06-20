@@ -1,0 +1,9 @@
+ ./src/redis-server redis-he-master.conf 
+  ./src/redis-server redis-he-slave1.conf 
+  ./src/redis-server redis-he-sentinel.conf --sentinel
+  
+./src/redis-cli -p 6379 -a qazEAS56482135_ 
+./src/redis-cli -p 6378 -a qazEAS56482135_ 
+
+
+info replication

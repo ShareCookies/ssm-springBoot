@@ -1,0 +1,31 @@
+下载地址：http://redis.io/download
+	安装：
+		$ wget http://download.redis.io/releases/redis-5.0.5.tar.gz
+		$ tar xzf redis-5.0.5.tar.gz
+		$ cd redis-5.0.5
+		$ make  //make是用来编译的，它从Makefile中读取指令，然后编译。
+		
+		make后 会出现编译后的redis服务程序redis-server,还有用于测试的客户端程序redis-cli,
+		两个程序位于安装目录 src 目录下。	
+	启动redis服务：
+		$ ./redis-server ../redis.conf //通过启动参数告诉redis使用指定配置文件启动服务。
+		停止
+			对应服务启动
+				service redis_server stop
+			直接kill 进程号 （kill -15 PID）
+			使用redis-cli客户端
+				shutdown
+	使用测试客户端程序redis-cli和redis服务交互：
+		$ ./redis-cli
+		redis> set foo bar
+		OK
+		redis> get foo
+		"bar"
+		注：
+			redis-cli -h 地址 -p 端口号 -a 密码
+
+	源码安装重启：
+		./redis-cli -h 127.0.0.1 -p 6379 shutdown
+		./redis-server ../redis.conf 
+
+
