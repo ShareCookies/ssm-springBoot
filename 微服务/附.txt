@@ -1,0 +1,4 @@
+spring-cloud-starter-eureka-server 和 spring-cloud-starter-netflix-eureka-server的区别：
+	https://www.cnblogs.com/zhoading/p/12174565.html
+	springcloud更新换代比较快，spring-cloud-starter-eureka-server已经废弃。
+	1.5版本使用spring-cloud-starter-eureka-server还是没问题的，2.0以上建议使用 spring-cloud-starter-netflix-eureka-server。

@@ -1,8 +1,7 @@
-spring cloud中文官网：https://www.springcloud.cc/
-
 学习资料：
 	http://www.ityouknow.com/spring-cloud.html
 	学习资料汇总：http://www.ityouknow.com/springcloud/2016/12/30/springcloud-collect.html
+	spring cloud中文官网：https://www.springcloud.cc/
 
 
 Spring Cloud介绍：
@@ -16,7 +15,7 @@ Spring Cloud介绍：
 微服务框架的搭建：
 	搭建微服务框架至少需要一下几个模块：
 		Eureka 用于服务的注册于发现，
-		Feign 支持服务的调用，以及配合Eureka实现均衡负载，
+		Feign 支持服务的调用以及均衡负载，
 		Hystrix 处理服务的熔断防止故障扩散，
 		Spring Cloud Config 服务集群配置中心，
 		Spring Cloud Bus 集群中传播状态的变化（通常配置变化事件）
