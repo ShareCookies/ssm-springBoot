@@ -11,7 +11,7 @@
 		Redis的Master-Slave支持链式结构，Slave可以连接Slave，成为Slave的Slave。
 	Mongodb搭建过程：
 		https://www.jianshu.com/p/2825a66d6aed
-副本集架构（Replica Set）：
+*副本集架构（Replica Set）：
 	介绍：
 		Replication介绍：
 				在主从数据库结构中，从数据库的内容基本上可以说是主数据库的一份全拷贝，这样的技术称之为Replication。

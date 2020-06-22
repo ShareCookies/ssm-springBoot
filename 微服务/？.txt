@@ -1,4 +1,5 @@
-
+Dubbo：
+	Dubbo(读音[ˈdʌbəʊ])是阿里巴巴公司开源的一个高性能优秀的服务框架
 2.spring security整合
 	3.Spring Security和OAuth2，token
 		https://www.jdon.com/dl/best/securing-rest-services-with-spring.html.html

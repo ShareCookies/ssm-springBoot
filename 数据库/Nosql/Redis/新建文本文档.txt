@@ -1,3 +1,7 @@
+*redis集群：
+	https://blog.csdn.net/miss1181248983/article/details/90056960
+
+
 1.Redis分片机制
 https://my.oschina.net/u/4115134/blog/3207715
 Redis高可用哨兵机制及SpringBoot整合哨兵  
