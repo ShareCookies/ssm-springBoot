@@ -8,9 +8,9 @@ redis基础上新增
 	spring:
 	  redis:
 		sentinel:
-		  master: mymaster #哨兵监听的redis server的名字
-		  nodes: 106.54.209.129:6375
-		password: qazEAS56482135_
+		  master: mymaster #哨兵监听的redis server的名字,对应sentinel monitor 中设置的名字
+		  nodes: 哨兵ip:哨兵端口,哨兵ip:哨兵端口
+		password: 密码
 		database: 0
 		jedis:
 		  pool:
