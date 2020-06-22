@@ -1,4 +1,6 @@
-官网：https://redis.io/
+官网：
+	https://redis.io/
+	http://www.redis.cn
 教程：
 	https://www.runoob.com/redis/redis-commands.html
 	https://blog.csdn.net/hellozpc/article/details/81267030

@@ -1,6 +1,6 @@
 ？redis sentinel高可用自动切换了
-	可客户端获取的是sentinel monitor mymaster 的信息，所以无法写入了怎么办？
+	可springboot jedis客户端获取的是sentinel monitor mymaster 的信息，所以客户端是无法写入了怎么办？
 ？
-	a down  自动切到b ，b在down（不重启sentinel）会自动切到a吗？
+	a 宕机  自动切到b ，b在宕机（不重启sentinel）会自动切到a吗？
 	
-	我把sentinel重启了旧无法自动切了。
+	我把sentinel重启了确认是无法自动切了。
