@@ -1,0 +1,82 @@
+注：页码指的是《Spring实战》（第4版）
+IOC:(Inversion of Control) 控制反转
+	https://blog.csdn.net/qq_22654611/article/details/52606960/
+	IOC不是什么技术，而是一种设计思想。
+	IOC意味着将你设计好的对象交给容器控制，而不是传统的程序员在对象内部直接控制。
+	即
+		对类的实例化和对象属性的注入由控制器来进行。（spring来负责控制对象的生命周期和对象间的关系）
+	spring使用DI来实现IOC。
+	spring中通过容器来实现DI功能，即由容器负责组件的装配。
+	附：
+	DI(dependency injection 依赖注入):
+		介绍：
+			IoC的一个重点是在系统运行中，需要动态的向某个对象提供它所需要的其他对象。
+			这一点是通过DI（Dependency Injection，依赖注入）来实现的。
+		依赖注入三种实现方式：
+			1.接口注入
+			2.Setter注入
+				介绍:
+				该类型基于JavaBean的
+				setter方法为属性赋值。
+			3.构造器注入
+				介绍:
+				该类型基于构造方法为属性
+				赋值。
+				注:容器通过调用类的构造方法将
+			所需的依赖关系注入其中。
+			注：spring支持后两种。		
+	IOC容器：
+		https://www.cnblogs.com/xiaoxi/p/5846416.html
+		介绍：
+			Spring使用容器来管理所有的Bean对象。
+				即程序用容器来加载bean，并为bean注入相关的bean。
+			在Srping Ioc容器中，有BeanFactory和ApplicationContext两个系列：
+				1.实现BeanFactory接口的简单容器，具备最基本功能。
+				2.实现ApplicationContext接口的复杂容器，具备高级功能。
+		BeanFactory接口：
+			介绍:
+				BeanFactory接口仅实现了IOC功能。
+				通常只提供注册（put），获取（get）这两个功能，可称为IOC容器（低级容器）。
+			实现类:
+				XmlBeanFactory:
+				所需参数:
+					new XmlPathResource("applicationContext.xml")
+
+		ApplicationContext接口:
+			介绍:
+				该接口继承了BeanFactory接口，实现了更多功能。
+				可称为企业级IOC容器（高级容器）。
+			实现类:
+				ClassthPathXmlApplicationContext:
+					介绍：从当前类路径中检索配置文件并加载配置文件来创建容器！
+					所需参数:字符串:"配置文件名称"
+				FileSystemXmlApplicationContext:
+					介绍：通过参数指定配置文件位置。即可获得类路径之外的资源。！！！
+				WebApplicationContext:
+					介绍：spring的Web应用容器？！！！
+			使用方法：
+				1.配置要使用的容器：
+					1.在servlet的web.xml配置spring的ContextLoaderListener监听器
+					或2.修改web.xml在其中添加一个servlet，定义使用spring的ContextLoaderServlet类。
+				2.bean的装配：
+					goto：bean的三种主要装配机制
+				3.通过容器手动获取bean:
+					例:获取user对象(User)factory.getBean("user");
+					注:获取bean前还得进行bean配置。
+bean的三种主要装配机制：
+	定义那些类要注册为spring容器的bean。
+	在XML中进行显式配置。p76
+	Spring自动发现和装配bean。（推荐）
+		./bean自动加载/springBean的自动加载.txt
+	在Java中进行显式配置。
+		./JavaConfig显式配置.txt
+	注：
+		混合配置：
+			介绍：
+				Spring的bean配置风格是可以互相搭配的。
+				所以你可以选择使用XML装配一些bean，
+				使用Spring基于Java的配置（JavaConfig）来装配另一些bean，
+				而将剩余的bean让Spring去自动发现。
+
+		通过容器手动获取bean：
+			./bean的手动获取.txt
