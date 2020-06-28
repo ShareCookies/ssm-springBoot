@@ -7,8 +7,7 @@ spring RESTFUL 风格：https://blog.csdn.net/w605283073/article/details/5133876
 	@ResponseBody : 如果方法加上了@ResponseBody注解，Spring返回值到响应体。如果这样做的话，Spring将根据请求中的 Content-Type header（私下）使用 HTTP Message converters 来将domain对象转换为响应体。
 
  
-Spring是如何支持REST的:
-	P500
+Spring是如何支持REST的:P500
 	hcg：
 		json数据接收：
 			用@RequestBody注解方法参数，来接收json类型数据。

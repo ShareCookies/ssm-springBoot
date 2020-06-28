@@ -109,8 +109,5 @@ spirngMVC的相关注解：
 		!:
 			服务器端通过request.getReader() 打出浏览器提交的数据
 
-springMvc输入数据的校验：
-	springMvc.txt 第73行
-
 ServletAPI：？
 	springMvc中如何访问到servlet的api了。
