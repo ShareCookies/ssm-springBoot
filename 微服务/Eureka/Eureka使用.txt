@@ -120,4 +120,6 @@ springCloud eureka 客户端的使用：
 附：
 	依次启动spring-cloud-eureka、spring-cloud-producer、spring-cloud-consumer三个项目，即可进行一个微服务框架应用的测试。
 
-
+	Eureka概念原理：
+		https://www.jianshu.com/p/2fa691d4a00a
+		./eureka如何管理服务调用.png

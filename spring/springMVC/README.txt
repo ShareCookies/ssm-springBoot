@@ -11,7 +11,7 @@ springMVC处理请求过程：P175
 		最终再返回到客户端的。
 		例：
 			./图片/springMVC处理请求的过程.png
-		
+		https://www.cnblogs.com/tengyunhao/p/7518481.html
 	控制器的选择：
 		DispatcherServlet的任务是将请求发送给Spring MVC控制器。
 		I.请求旅程的第一站是Spring的DispatcherServlet。	
@@ -64,6 +64,7 @@ Spring MVC框架的使用：
 		编写基本的控制器：
 			通过@Controller，和@RequestMapping（springMvc请求映射注解）等来编写控制器。
 			./控制层注解.txt
+			./请求参数的映射.txt
 		传递模型数据到视图中：
 			例：
 				./图片/传递模型数据到视图中.png
@@ -108,6 +109,17 @@ Spring MVC框架的使用：
 						
 				附：
 					springboot文件上传： https://blog.csdn.net/qq_36595528/article/details/88806885
+	注：
+		sprnigBoot中应用springMvc：？
+			...
+			SpringBoot为我们自动配置好了SpringMVC框架，所以 ，Spring MVC框架的使用的4个步骤只需最后一个步骤即可。
+			
+			
+			https://www.jianshu.com/p/f7e55a5ed0fa
+			https://www.cnblogs.com/wujunstart/p/12170038.html
+			https://blog.csdn.net/hejian_0534/article/details/100692557
+		springMvc支持rest风格编程：!(待整理)
+			./REST/
 	附:
 		springMvc小技巧：
 			1.Spring MVC获取所有注册的url
