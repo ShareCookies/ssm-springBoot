@@ -1,94 +1,119 @@
-������https://spring.io/projects/spring-boot/
-spring�ĵ���
-	�����ĵ���ַ��https://docs.spring.io/spring-boot/docs
-	�����ĵ���ַ��https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-kotlin
-����:
-	��ȻSpring������������������ģ�����������ȴ���������ġ�
-	Spring Boot ��Spring����һ�����µ���Ŀ��ּ�ڰ��������߸����״������� Spring ��Ӧ�ó���ͷ���
-	Spring Boot�ṩ���ĸ���Ҫ�����ԣ���Щ�����ܹ���SpringӦ�õĿ�����
+官网：
+	https://spring.io/projects/spring-boot/
+	spring官方文档：
+		所有文档地址：https://docs.spring.io/spring-boot/docs
+		最新文档地址：https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-kotlin
+介绍:
+	虽然Spring的组件代码是轻量级的，但它的配置却是重量级的。
+	Spring Boot 是由 Pivotal 团队提供用来简化 Spring 的搭建和开发过程的全新框架。
+	Spring Boot 去除了大量的 xml 配置文件，简化了复杂的依赖管理，配合各种 starter 使用，基本上可以做到自动化配置。
+		Spring Boot 靠 Starter依赖来做到依赖管理和自动化配置的。
+	hcg：
+		使用Spring boot+ssm，比只用ssm（Spring+SpringMVC+Mybatis）简单许多了。
+		只用ssm你还需要springmvc调度器等的配置，但用Spring Boot你只要引入start依赖和用少量的注解即可搭建一个springWeb等应用。
+		附：
+			1.其实只用Spring boot也可以进行web开发，但是对于多表多条件分页查询，Spring boot就有点麻烦了，所以整合了Mybatis。
+			2.Spring boot内置了类似tomcat这样的中间件，所以，只要运行DemoApplication中的main方法就可以启动项目了。
 
-	hcg��
-		ʹ��Spring boot+Mybatis����Spring+SpringMVC+Mybatis�����ࡣ
-		Spring Boot���Ǽ��˻��� Spring ��Ӧ�ó�������úʹ��
-		ע��
-			1.��ʵֻ��Spring bootҲ���Խ���web������
-			���Ƕ��ڶ����������ҳ��ѯ��Spring boot���е����������ˣ�����������Mybatis��
-			2.Spring boot����������tomcat�������м�������ԣ�ֻҪ����DemoApplication�е�main�����Ϳ���������Ŀ�ˡ�
-
-Spring Boot�ĸ�����:
-	Starter����������������
-		SpringBootStarter�����õ�����������������ϣ�����ϲ���һ�������У������Ϳ���һ�������ӵ���Ŀ��Maven��Gradle�����С�
-		������
-			��������������Maven��Gradle�Ĵ��������������ѳ��ÿ�ۺ���һ������˼���Ϊ�ض����ܶ����Ƶ�������
-		SpringBoot����Starter������
+Spring Boot四个特性:
+	Spring Boot提供的四个特性来简化Spring应用的开发。
+	Starter依赖：（起步依赖）
+		SpringBootStarter将常用的依赖分组进行了整合，将其合并到一个依赖中，这样就可以一次性添加到项目的Maven或Gradle构建中。
+		解析：
+			起步依赖就是利用Maven和Gradle的传递依赖解析，把常用库聚合在一起，组成了几个为特定功能而定制的依赖。
+		SpringBoot所有Starter依赖：
 			p640
-		ע��
-			1.�������������������������������һЩ΢��ı仯��
-			����Ŀ��������Web��������ʵ����ָ����Ӧ�ó��������һ�๦�ܡ�
-			�����Ҫ��ȫ���ܣ��Ǿͼ���security��������
-			�����֮���㲻����Ҫ����֧��ĳ�ֹ���Ҫ��ʲô���ˣ�����������������С�
-			2.���⣬Spring Boot��������������ӡ���Ҫ��Щ�����Щ�汾��������������˳�����
-			����������Ŀ�İ汾���Ǿ������Եģ�����������ȫ���ģ�����֮�䲻����ֲ����ݵ������
-		��¼��
-			�������ݣ�
-				������ϵΪ��C��>B��>A��
-				��ô����ִ����ĿCʱ�����Զ���B��A�����ص��뵽C��Ŀ��jar���ļ����С�
-	�Զ����ã�p643��Լ�����������ã�
-		Spring Boot���Զ����ù���������Spring���õ�������
-		����ʵ��ʱ���ῼ��Ӧ���е��������ز��ƶ�������Ҫ��Spring���ã�Ȼ������Զ����á�
-		���Զ�����������Spring 4�����������õ�֧�֣��������Ʋ�Ӧ�������bean���Զ����������ǣ�
-		����
-			���Spring Boot��Web�Զ�����̽�⵽ Spring MVCλ����·���£�
-			�������Զ�����֧��Spring MVC�Ķ�� bean��������ͼ����������Դ�������Լ���Ϣת�����ȡ�
-	Actuator��p665
-		�����ܹ����������е�Spring BootӦ�ó���һ̽������
-		ֻ�轫Actuator Starter�������ӵ���Ŀ�У���������Actuator��
-		����
-			����Actuator�������鿴SpringӦ�������������е�bean����ô���Է���http://localhost:8080/beans��
-	�����н��棺
-		Spring Boot CLI��command-line interface�������н��棩��Spring Boot�ķǱ�Ҫ��ɲ��֡�
-		��Ȼ��ΪSpring�����˾��˵������������˿�������Ҳ������һ�ײ�̫����Ŀ���ģ�͡�
-	�ܽ᣺
-		�ӱ�������˵��Spring Boot��������spring���������ã���˵��Spring Boot��Ŀ���õ������������Զ����ö��ѡ�
-*ʹ��SpringBoot����Ӧ�ã�p647
-	
-	ʹ�� Maven �һ��Spring Boot ��Ŀ:
-		1.��һ���յ� Maven ��Ŀ��Ȼ��༭ pom.xml����Maven_SpringBoot_pom.xml
-		2.���д���һ��springBoot������
-		������SpringBoot �Ѿ����ɣ�����ֱ�ӷ��ʾͻ���ʾ���������
-		ע��
-			���ϲ������Spring Initializr����ɡ�
-		3.controller ������һ��������springMVC�������࣬
-		�� Java Ӧ�õķ�ʽ���� Application��
-		������web��վ�ѽ���
-		ע��
-			Ĭ�������tomcat�Ķ˿�Ϊ 8080 ����http: //localhost:8080����
-		4.����mybaits��
-		5.������Ŀ��
-			������$mvn package
-			����Maven�����������target�ļ������ҵ������γɵĽ����
-			����war����
+		注：
+			1.比起减少依赖数量，起步依赖还引入了一些微妙的变化。
+			向项目中添加了Web起步依赖，实际上指定了应用程序所需的一类功能。
+			如果需要安全功能，那就加入security起步依赖。
+			简而言之，你不再需要考虑支持某种功能要用什么库了，引入相关起步依赖就行。
+			2.此外，Spring Boot的起步依赖还把你从“需要这些库的哪些版本”这个问题里解放了出来。
+			起步依赖引入的库的版本都是经过测试的，因此你可以完全放心，它们之间不会出现不兼容的情况。
+		附录：
+			依赖传递：
+				依赖关系为：C—>B—>A。
+				那么我们执行项目C时，会自动把B、A都下载导入到C项目的jar包文件夹中。
+	自动配置：p643（约定优先于配置）
+		Spring Boot的自动配置功能削减了Spring配置的数量。
+		它在实现时，会考虑应用中的其他因素并推断你所需要的Spring配置，然后帮你自动配置。
+		即自动配置利用了Spring 4对条件化配置的支持，合理地推测应用所需的bean并自动化配置它们；
+		例：
+			如果Spring Boot的Web自动配置探测到 Spring MVC位于类路径下，
+			它将会自动配置支持Spring MVC的多个 bean，包括视图解析器、资源处理器以及消息转换器等。
+	附：
+		starter原理：
+			如果我要使用redis，我直接引入redis驱动jar包就行了，何必要引入starter包。
+			starter和普通jar包的区别在于，它能够实现自动配置，和Spring Boot无缝衔接。
+			https://www.jianshu.com/p/30ce49fc2f25
+			...
+	Actuator：p665
+		让你能够深入运行中的Spring Boot应用程序，一探究竟。
+		只需将Actuator Starter依赖添加到项目中，即可启用Actuator。
+		例：
+			启用Actuator后，如果想查看Spring应用上下文中所有的bean，那么可以访问http://localhost:8080/beans。
+	命令行界面：
+		Spring Boot CLI（command-line interface，命令行界面）是Spring Boot的非必要组成部分。
+		虽然它为Spring带来了惊人的力量，大大简化了开发，但也引入了一套不太常规的开发模型。
+	附：
+		从本质上来说，Spring Boot就是做了spring的样板配置，常说的Spring Boot项目就用到了起步依赖和自动配置而已。
+*使用SpringBoot构建应用：p647
+	使用 Maven 搭建一个Spring Boot 项目:
+		1.新建一个 基本 Maven 项目结构：
+			src\main\java (项目java源码文件)
+			src\main\resources (项目资源文件)
+			pom.xml (maven项目构建说明文件)
+			maven规定项目要为以上这种结构。
+		然后编辑 pom.xml 来引入 基于springBoot 的web项目所需依赖：
+			<!-- springBoot web依赖 -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-web</artifactId>
+			</dependency>
+			<!-- springBoot mybatis依赖 -->
+			<dependency>
+				<groupId>org.mybatis.spring.boot</groupId>
+				<artifactId>mybatis-spring-boot-starter</artifactId>
+				<version>1.3.1</version>
+			</dependency>
+			<!-- mysql数据库配置 begin -->
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+			</dependency>
+		2.包中创建一个springBoot启动类
+		到这里SpringBoot 已经搭建完成，但是直接访问就会提示请求出错。
+		附：
+			以上步骤可用Spring Initializr来完成。
+		3.controller 包创建一个基本的springMVC控制器类，
+		以 Java 应用的方式启动 Application。
+		到这里web网站已建好
+		注：
+			默认情况下tomcat的端口为 8080 ，以http: //localhost:8080访问
+		4.集成mybaits：
+		5.构建项目：
+			命令行$mvn package
+			运行Maven构建后，你会在target文件夹下找到构建形成的结果。
+			构建war包：
 				p658
-		6.������Ŀ��
-			���մ�ͳ�ķ�ʽ������ζ��Ҫ��Ӧ�õ�WAR�ļ�����Servlet�����У���Tomcat��WebSphere��
-			�����������������û��WAR�ļ���ֻ�й����γɵ���һ��JAR�ļ���
-			���ǿ��԰������µķ�ʽ����������������
+		6.运行项目：
+			按照传统的方式，这意味着要将应用的WAR文件部署到Servlet容器中，如Tomcat或WebSphere。
+			但是在这里，我们甚至没有WAR文件，只有构建形成的是一个JAR文件。
+			我们可以按照如下的方式从命令行运行它：
 				java -jar ...jar
-			Ӧ���Ѿ�������ɡ�
-	�ܽ᣺
-		Spring BootӦ�������κ����ã�����Ҫ���������������Spring BootӦ�á�
-	 
-
-Spring Initializr��
-	Spring Initializr�ӱ�������˵����һ��WebӦ�ó�������Ϊ������Spring Boot��Ŀ�ṹ��
-	��Ȼ��������Ӧ�ó�����룬������Ϊ���ṩһ����������Ŀ�ṹ��
-	�Լ�һ�����ڹ��������Maven��Gradle����˵���ļ�����ֻ��ҪдӦ�ó���Ĵ���ͺ��ˡ�
-	Spring Initializr�м����÷���
-		ͨ��Web����ʹ�á�
-			https://start.spring.io/
-  		ͨ��Spring Tool Suiteʹ�á�
-  		ͨ��IntelliJ IDEAʹ�á�
-			https://blog.csdn.net/wya1993/article/details/79578677
-  		ʹ��Spring Boot CLIʹ�á�
+			应用已经启动完成。
+	总结：
+		Spring Boot应用无需任何配置，但需要个特殊的类来启动Spring Boot应用。
+	附：
+		Spring Initializr：
+			Spring Initializr 但它能为你提供一个基本的Spring Boot项目结构，以及一个用于构建代码的Maven或Gradle构建说明文件。
+				Spring Initializr从本质上来说就是一个Web应用程序，
+			Spring Initializr有几种用法。
+				通过Web界面使用。
+					https://start.spring.io/
+				通过Spring Tool Suite使用。
+				通过IntelliJ IDEA使用。
+					https://blog.csdn.net/wya1993/article/details/79578677
+				使用Spring Boot CLI使用。
 
 

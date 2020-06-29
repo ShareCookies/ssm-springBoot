@@ -1,29 +1,24 @@
-springBoot启动类：？
+springBoot启动类：
 	例：
 		./Application.java
 	@Configuration：
 		https://www.jianshu.com/p/8268b58daa57
 		*https://www.jianshu.com/p/721c76c1529c
-		1.@Configuration也会被自动扫描到。
-		@Import：
-			导入组件到容器中。
-			导入组件的会被容器自动注册，id默认是全类名。
-			注：
-				这里为啥要导入配置类了，
-				@Configuration也会被自动扫描到啊，
-				因为@ComponentScan 只会扫描当前项目（当前jar包）的类，不会扫描引入的jar包，
-				所以这里要导入第三方jar包配置类。
-				例：
-					将aop的功能写到了公共模块后，然后将公共模块封装成jar包，被其他项目所依赖。
-					但是出现aop功能无法实现，是因为当前项目未扫描到该包下的类，需要在引用模块的启动类中加入扫描的代码或引入配置类。		
-	@ComponentScan注解：
-		启用组件扫描
-	@EnableAutoConfiguration：
-		启用Spring Boot的自动配置特性。
-	main()方法：
+	@Import：
+		导入组件到容器中。
+		导入组件的会被容器自动注册，id默认是全类名。
+		注：
+			这里为啥要导入配置类了。
+			因为@ComponentScan 只会扫描当前项目（当前jar包）的类，不扫描引入的jar包，所以这里要导入第三方jar包配置类。
+			例：
+				将aop的功能写到了公共模块后，然后将公共模块封装成jar包，被其他项目所依赖。
+				但是出现aop功能无法实现，是因为当前项目未扫描到该包下的类，需要在引用模块的启动类中加入扫描的代码或引入配置类。		
+
+	main方法介绍：
 		例:
-		SpringApplication.run(Application.class, args);
-		这行代码会告诉Spring Boot（通过SpringApplication类）根据Application中的配置以及命令行中的参数来运行。
+			SpringApplication.run(Application.class, args);
+			这行代码会告诉Spring Boot（通过SpringApplication类）根据Application中的配置以及命令行中的参数来运行。
+
 配置文件：
 	https://blog.csdn.net/qq_33524158/article/details/79600434
 	SpringBoot使用一个全局的配置文件，
