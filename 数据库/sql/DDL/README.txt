@@ -38,7 +38,7 @@ DDL之库表操作常识：
 索引:
 	./索引/mysql索引.txt
 存储过程:
-	mysql存储过程.txt
+	./mysql存储过程.txt
 附：
 	阿里mysql规范:
 		https://zhuanlan.zhihu.com/p/88425702

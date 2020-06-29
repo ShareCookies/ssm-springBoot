@@ -5,7 +5,11 @@ mysql官网：
 https://github.com/Snailclimb/JavaGuide/blob/master/docs/database/MySQL.md	
 
 SQL可分为两个部分：
-	数据操作语言 (DML DataManipulateLanguage) 和 数据定义语言 (DDL)。
+	结构化查询语言(Structured Query Language)简称SQL，是一种数据库查询和程序设计语言.
+	SQL可分为两个部分：
+		数据操作语言 (DML DataManipulateLanguage) 和 数据定义语言 (DDL Data Definition Language)。
+		./DML/
+		./DDL/
 存储引擎：
 	hcg：什么是引擎，汽车通过引擎来使汽车前进，数据库管理系统则通过存储引擎来从数据库中读取和存入数据。
 	5.7后MySQL默认的存储引擎是InnoDB,且只有 InnoDB 是事务性存储引擎。即只有 InnoDB 支持事务

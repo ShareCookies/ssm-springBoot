@@ -7,3 +7,8 @@
 - [springIOC](https://github.com/yuyumyself/ssm-springBoot/tree/master/spring/IOC)
 - [springMvc框架](https://github.com/yuyumyself/ssm-springBoot/tree/master/spring/springMVC)
 - [springSecurity框架](https://github.com/yuyumyself/ssm-springBoot/tree/master/spring/SpringSecurity)
+## [数据库](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93)
+### [关系型数据库](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql)
+- [MySql](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql)
+    - [DDL](https://github.com/yuyumyself/ssm-springBoot/blob/master/数据库/sql/DDL)
+    - [DML](https://github.com/yuyumyself/ssm-springBoot/blob/master/数据库/sql/DML)

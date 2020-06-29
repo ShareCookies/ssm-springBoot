@@ -28,7 +28,7 @@ DML:数据库操作语言
 		比较符运算符，逻辑运算符，CASE WHEN :(条件语句，类似if else)，LIKE 模糊查询
 		ORDER BY 排序，limit 返回数限制，group by:分组
 		解释：
-			./sql关键字
+			./sql关键字.txt
 
 
 			
