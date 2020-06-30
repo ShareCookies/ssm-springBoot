@@ -7,7 +7,12 @@
 - [springBoot框架](https://github.com/yuyumyself/ssm-springBoot/tree/master/springBoot)
 ### [微服务](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1)
 - [SpringCloud](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1)
-    - []()
+    - [Eureka+Feign注册中心+spring集成的http客户端](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/Eureka)
+    - [Hystrix熔断器](https://github.com/yuyumyself/ssm-springBoot/blob/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/Eureka/Hystrix%E7%86%94%E6%96%AD%E5%99%A8.txt)
+    - [Spring Cloud Config配置中心](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83)
+    - [Spring Cloud Bus消息总线](https://github.com/yuyumyself/ssm-springBoot/blob/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/SpringCloudBus.txt)
+    - [网关](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E7%BD%91%E5%85%B3)
+    
 ## [mybatis](https://github.com/yuyumyself/ssm-springBoot/tree/master/mybaits)
 - [mybatis使用教程](https://github.com/yuyumyself/ssm-springBoot/tree/master/mybaits)
 

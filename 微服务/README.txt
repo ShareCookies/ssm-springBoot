@@ -15,14 +15,19 @@ Spring Cloud微服务框架的搭建：
 	搭建微服务框架至少需要一下几个模块：
 		Eureka 用于服务的注册于发现，Feign 支持服务对服务的调用以及均衡负载。
 			./Eureka/README.txt
+			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/Eureka
 		Hystrix 处理服务的熔断防止故障扩散。
 			./Eureka/Hystrix熔断器.txt
+			https://github.com/yuyumyself/ssm-springBoot/blob/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/Eureka/Hystrix%E7%86%94%E6%96%AD%E5%99%A8.txt
 		Spring Cloud Config 服务集群配置中心。
 			./配置中心/README.txt
+			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83
 		Spring Cloud Bus 集群中传播状态的变化（通常配置变化事件）。
 			./配置中心/SpringCloudBus.txt
+			https://github.com/yuyumyself/ssm-springBoot/blob/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/SpringCloudBus.txt
 		Spring Cloud Zuul（或Spring Cloud Gateway）  api网关负责与第三方（或前端）的调用端通信。
 			./网关/README.txt
+			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E7%BD%91%E5%85%B3
 		结合以上模块就可搭建一个微服务框架。
 		
 		
