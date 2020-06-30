@@ -13,6 +13,8 @@
 - [MySql](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql)
     - [DDL](https://github.com/yuyumyself/ssm-springBoot/blob/master/数据库/sql/DDL)
     - [DML](https://github.com/yuyumyself/ssm-springBoot/blob/master/数据库/sql/DML)
+    - [事务](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql/%E4%BA%8B%E5%8A%A1)
+    - [优化（more）](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql/%E4%BC%98%E5%8C%96)
 ### [非关系型数据库](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/Nosql)
 - [Redis](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/Nosql/Redis)
     - [Redis集群](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/Nosql/Redis/%E9%9B%86%E7%BE%A4)

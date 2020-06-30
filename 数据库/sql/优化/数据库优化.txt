@@ -1,17 +1,3 @@
-？
-	百万条数据1秒内
-	冗余字段的建立，减少表之间的关联即减少数据的查询量。
-		mysql数据以字符串为主的数据库，表数据量极限500万
-		mysql数据以整形为主的数据库，表数据量极限1000万
-	solr，mongo，redis
-	Solr与MySQL查询性能对比：
-		https://www.cnblogs.com/luxiaoxun/archive/2015/08/02/4696477.html
-		
-	加上索引比不加索引还慢：
-		https://segmentfault.com/q/1010000014484036/a-1020000014484759	
-		对于重复数据很多的列不合适简建立索引，因为过滤后数据量仍然很大，先走索引在走表，所以很慢
-
-
 sql查询优化：
 	1. 限定数据的范围.(最基础的)
 			务必禁止不带任何限制数据范围条件的查询语句。
@@ -66,3 +52,15 @@ sql查询优化：
 		https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485185&idx=1&sn=66ef08b4ab6af5757792223a83fc0d45&chksm=cea248caf9d5c1dc72ec8a281ec16aa3ec3e8066dbb252e27362438a26c33fbe842b0e0adf47&token=79317275&lang=zh_CN#rd
 	一条SQL语句在MySQL中如何执行的：
 		https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485097&idx=1&sn=84c89da477b1338bdf3e9fcd65514ac1&chksm=cea24962f9d5c074d8d3ff1ab04ee8f0d6486e3d015cfd783503685986485c11738ccb542ba7&token=79317275&lang=zh_CN#rd
+？
+	百万条数据1秒内
+	冗余字段的建立，减少表之间的关联即减少数据的查询量。
+		mysql数据以字符串为主的数据库，表数据量极限500万
+		mysql数据以整形为主的数据库，表数据量极限1000万
+	solr，mongo，redis
+	Solr与MySQL查询性能对比：
+		https://www.cnblogs.com/luxiaoxun/archive/2015/08/02/4696477.html
+		
+	加上索引比不加索引还慢：
+		https://segmentfault.com/q/1010000014484036/a-1020000014484759	
+		对于重复数据很多的列不合适简建立索引，因为过滤后数据量仍然很大，先走索引在走表，所以很慢
