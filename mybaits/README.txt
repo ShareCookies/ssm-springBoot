@@ -26,12 +26,11 @@ mybaits教程：
 			MyBatis底层使用 JDBC执行 SQL ，获得查询结果集。
 			MyBatis 通过一个映射引擎，声明式地将结果集与对象树映射起来。
 			
-
-
-
-
 mybaits的简易使用:
 	/springBoot/附属功能/springBoot集成Mybaits/
+	https://github.com/yuyumyself/ssm-springBoot/tree/master/springBoot/%E9%99%84%E5%B1%9E%E5%8A%9F%E8%83%BD/springBoot%E9%9B%86%E6%88%90Mybaits
 	附：
-		Mybaits的多种使用方式.txt
-	
+		./Mybaits的多种使用方式.txt
+附：
+	mapper代码自动生成：
+		https://github.com/yuyumyself/UtilsProject/tree/master/autoGenerateMapper
