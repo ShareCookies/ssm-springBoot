@@ -1,8 +1,7 @@
-学习资料：
-	http://www.ityouknow.com/spring-cloud.html
+Spring Cloud学习资料：
+	大部分内容是对该博客的学习笔记：http://www.ityouknow.com/spring-cloud.html
 	学习资料汇总：http://www.ityouknow.com/springcloud/2016/12/30/springcloud-collect.html
 	spring cloud中文官网：https://www.springcloud.cc/
-
 
 Spring Cloud介绍：
 	Spring Cloud是一系列框架的有序集合。
@@ -12,19 +11,25 @@ Spring Cloud介绍：
 	使用springCloud可以便利的搭建出一个微服务框架，来管理一系列的微服务项目。
 		微服务:
 			微服务是可以独立部署、水平扩展、独立访问（或者有独立的数据库）的服务单元。
-微服务框架的搭建：
+Spring Cloud微服务框架的搭建：
 	搭建微服务框架至少需要一下几个模块：
-		Eureka 用于服务的注册于发现，
-		Feign 支持服务的调用以及均衡负载，
-		Hystrix 处理服务的熔断防止故障扩散，
-		Spring Cloud Config 服务集群配置中心，
-		Spring Cloud Bus 集群中传播状态的变化（通常配置变化事件）
-		Spring Cloud Zuul（或Spring Cloud Gateway）  api网关负责与第三方调用端通信
+		Eureka 用于服务的注册于发现，Feign 支持服务对服务的调用以及均衡负载。
+			./Eureka/README.txt
+		Hystrix 处理服务的熔断防止故障扩散。
+			./Eureka/Hystrix熔断器.txt
+		Spring Cloud Config 服务集群配置中心。
+			./配置中心/README.txt
+		Spring Cloud Bus 集群中传播状态的变化（通常配置变化事件）。
+			./配置中心/SpringCloudBus.txt
+		Spring Cloud Zuul（或Spring Cloud Gateway）  api网关负责与第三方（或前端）的调用端通信。
+			./网关/README.txt
 		结合以上模块就可搭建一个微服务框架。
-附：
+		
+		
+Spring Cloud附：
 	Spring Cloud 各依赖模块简要介绍：
 		Spring Cloud和Spring Boot 是什么关系
-			Spring Boot 是 Spring 的一套快速配置脚手架，可以基于Spring Boot 快速开发单个微服务.
+			Spring Boot 是 Spring 的一套快速配置脚手架，可以基于Spring Boot 快速开发单个微服务（单个spring应用）.
 			Spring Cloud是一个基于Spring Boot实现的云应用开发工具；
 			Spring Boot专注于快速、方便集成的单个个体，Spring Cloud是关注全局的服务治理框架；
 
@@ -72,6 +77,6 @@ Spring Cloud介绍：
 			使用Spring Cloud Sleuth和Zipkin进行分布式链路跟踪.
 			随着业务发展，系统拆分导致系统调用链路愈发复杂一个前端请求可能最终需要调用很多次后端服务才能完成.
 			当整个请求变慢或不可用时，我们是无法得知该请求是由那些后端服务引起的，这时就需要快读定位服务故障点，以对症下药。
-附：
+
 	高并发架构的演进思路：
 		https://www.jianshu.com/p/9f985bbc9c70

@@ -73,7 +73,7 @@ Spring Cloud Bus 改造 配置中心服务端：
 				spring.rabbitmq.password=123456
 		测试
 		附：
-			1.MQ我们使用RabbitMQ了？
+			1.MQ我们使用RabbitMQ了
 
 			2.
 			在启动spring-cloud-config-client项目的时候我们会发现启动日志会输出这样的一条记录。
