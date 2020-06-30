@@ -1,10 +1,11 @@
 https://blog.csdn.net/miss1181248983/article/details/90056960
 https://blog.csdn.net/u013058742/article/details/80004893
-Redis有三种集群模式，分别是：主从模式，Sentinel模式，Cluster模式
 Redis不同集群方案优缺点分析：
 	https://www.cnblogs.com/johnvwan/p/12083024.html
-springBoot哨兵主从：
-	https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#redis:sentinel
+springBoot连接Sentinel主从：
+	./springBoot连接Sentinel主从.txt
+Redis有三种集群模式，分别是：主从模式，Sentinel模式，Cluster模式
+
 主从模式：
 	在主从主从模式中，数据库分为两类：主数据库(master)和从数据库(slave)。
 	主从复制特点：
@@ -136,6 +137,7 @@ Sentinel模式
 		SENTINEL常用命令：
 			https://www.jianshu.com/p/a29050278b71
 			SENTINEL masters ：列出所有被监视的主服务器，以及这些主服务器的当前状态。
+		springBoot连接Sentinel主从.txt
 Cluster模式介绍
 	介绍：
 		cluster模式的出现就是为了解决单机Redis容量有限的问题，对存储的数据进行分片，将Redis的数据根据一定的规则分配到多台机器（多个Redis实例中）。
