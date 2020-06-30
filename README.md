@@ -17,6 +17,5 @@
 - [Redis](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/Nosql/Redis)
     - [Redis集群](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/Nosql/Redis/%E9%9B%86%E7%BE%A4)
 - [MongoDB](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/Nosql/MongoDB)
-    - [MongoDB高可用和水平扩展]()
-
+    - [MongoDB高可用和水平扩展](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/Nosql/MongoDB/MongoDb%E6%8A%80%E6%9C%AF%E7%89%B9%E8%89%B2)
 ### 搜索引擎
