@@ -1,6 +1,3 @@
-## [mybatis](https://github.com/yuyumyself/ssm-springBoot/tree/master/mybaits)
-- [mybatis使用教程](https://github.com/yuyumyself/ssm-springBoot/tree/master/mybaits)
-
 ## [spring](https://github.com/yuyumyself/ssm-springBoot/tree/master/spring)
 - [springAOP](https://github.com/yuyumyself/ssm-springBoot/tree/master/spring/AOP)
     - [spring事务管理](https://github.com/yuyumyself/ssm-springBoot/tree/master/spring/AOP/spring%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86)
@@ -8,6 +5,10 @@
 - [springMvc框架](https://github.com/yuyumyself/ssm-springBoot/tree/master/spring/springMVC)
 - [springSecurity框架](https://github.com/yuyumyself/ssm-springBoot/tree/master/spring/SpringSecurity)
 - [springBoot框架](https://github.com/yuyumyself/ssm-springBoot/tree/master/springBoot)
+
+## [mybatis](https://github.com/yuyumyself/ssm-springBoot/tree/master/mybaits)
+- [mybatis使用教程](https://github.com/yuyumyself/ssm-springBoot/tree/master/mybaits)
+
 ## [数据库](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93)
 ### [关系型数据库](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql)
 - [MySql](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql)
