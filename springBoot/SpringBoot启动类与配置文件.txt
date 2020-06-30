@@ -18,53 +18,51 @@ springBoot启动类：
 		例:
 			SpringApplication.run(Application.class, args);
 			这行代码会告诉Spring Boot（通过SpringApplication类）根据Application中的配置以及命令行中的参数来运行。
-
+	附：
+		多个@Configuration：
+		一个项目下有多个@Configuration，均会被spring加载。
+		定义加载顺序
+		https://www.cnblogs.com/mrray1105/p/11122883.html
 配置文件：
 	https://blog.csdn.net/qq_33524158/article/details/79600434
-	SpringBoot使用一个全局的配置文件，
+	SpringBoot提供了一个全局的配置文件，可用来修改SpringBoot自动配置的默认值；
+		因为SpringBoot在底层都给我们自动配置好大部分信息；
 	配置文件名是固定的：application.properties或application.yml
-	配置文件用来修改SpringBoot自动配置的默认值；
-	因为SpringBoot在底层都给我们自动配置好大部分信息；
-	注：	
-		配置文件一定要放src/resource下吗！
+		配置文件要放src/resource/下
+	
+	附：
+	启动类如何加载application.yml配置文件：
+		https://blog.csdn.net/u014044812/article/details/84256764
+		配置文件加载位置
+			springboot 启动会扫描以下位置的application.properties或者application.yml文件作为Spring boot的默认配置文
+			件
+			–file:./config/
+			–file:./
+			–classpath:/config/
+			–classpath:/
+			优先级由高到底，高优先级的配置会覆盖低优先级的配置。
+			注：
+				SpringBoot默认加载的是application.yml文件，所以想要引入其他配置的yml文件，就要在application.yml中激活该文件。
 
+		读取yml值：
+			方式1.创建一个bean来接收配置信息：
+				使用以下两个主键能达到目的。
+				1. 类上：
+					@ConfigurationProperties(prefix = "user")
+				2.属性上：
+					@Value("${user.filepath}")
+			方式2.读取所有配置信息：
+				@Autowired
+				private Environment env;    //作用是把当前项目中所有的yml配置文件信息存到env中，以键值对（key-value）形式。
+				String accessKeyId =env.getProperty("aliyun.sms.accessKeyId"); //获取env中读取到的配置文件信息   
 
-启动类如何加载application.yml配置文件：
-	https://blog.csdn.net/u014044812/article/details/84256764
-	配置文件加载位置
-		springboot 启动会扫描以下位置的application.properties或者application.yml文件作为Spring boot的默认配置文
-		件
-		–file:./config/
-		–file:./
-		–classpath:/config/
-		–classpath:/
-		优先级由高到底，高优先级的配置会覆盖低优先级的配置。
-		注：
-			SpringBoot默认加载的是application.yml文件，所以想要引入其他配置的yml文件，就要在application.yml中激活该文件。
-
-	读取yml值：
-		方式1.创建一个bean来接收配置信息：
-			使用以下两个主键能达到目的。
-			1. 类上：
-				@ConfigurationProperties(prefix = "user")
-			2.属性上：
-				@Value("${user.filepath}")
-		方式2.读取所有配置信息：
-			@Autowired
-			private Environment env;    //作用是把当前项目中所有的yml配置文件信息存到env中，以键值对（key-value）形式。
-			String accessKeyId =env.getProperty("aliyun.sms.accessKeyId"); //获取env中读取到的配置文件信息   
-
-	yml书写规则：
-		https://www.cnblogs.com/gangle/p/9375865.html
+		yml书写规则：
+			https://www.cnblogs.com/gangle/p/9375865.html
 附：
 	spring Boot 项目命令启动时传参
 		nohup java -jar xxx.jar --spring.profiles.active=test > /dev/null 2>&1 &
 		根据不同的部署环境修改 --spring.profiles.active 值即可
 		
 	SpringBoot属性加载顺序：https://blog.csdn.net/weixin_37490221/article/details/82967526
-	？：
-		跟项目同一个文件夹下有yml，也会读取吗？
-	多个@Configuration：
-		一个项目下有多个@Configuration，均会被spring加载。
-		定义加载顺序
-		https://www.cnblogs.com/mrray1105/p/11122883.html
+
+

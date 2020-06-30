@@ -14,7 +14,82 @@
 		附：
 			1.其实只用Spring boot也可以进行web开发，但是对于多表多条件分页查询，Spring boot就有点麻烦了，所以整合了Mybatis。
 			2.Spring boot内置了类似tomcat这样的中间件，所以，只要运行DemoApplication中的main方法就可以启动项目了。
-
+使用SpringBoot构建应用：p647
+	使用 Maven 搭建一个Spring Boot 项目:
+		1.新建一个 基本 Maven 项目结构：
+			src\main\java (项目java源码文件)
+			src\main\resources (项目资源文件)
+			pom.xml (maven项目构建说明文件)
+			maven规定项目要为以上这种结构。
+		然后编辑 pom.xml 来引入 基于springBoot 的web项目所需依赖：
+			<!-- springBoot web依赖 -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-web</artifactId>
+			</dependency>
+			<!-- springBoot mybatis依赖 -->
+			<dependency>
+				<groupId>org.mybatis.spring.boot</groupId>
+				<artifactId>mybatis-spring-boot-starter</artifactId>
+				<version>1.3.1</version>
+			</dependency>
+			<!-- mysql数据库配置 begin -->
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+			</dependency>
+		2.包中创建一个springBoot启动类
+			详：
+				./SpringBoot启动类与配置文件.txt
+			附：
+				1.Spring Boot应用无需任何配置，但需要个特殊的类来启动（运行main方法）Spring Boot应用。
+				2.到这里SpringBoot 已经搭建完成，但是没有控制权可供访问。
+		3.controller 包创建一个基本的springMVC控制器类，
+			./spring/springMVC/README.txt goto: 4.编写控制器
+			附：
+				到这里web网站已建好
+				默认情况下springBoot内嵌tomcat的端口为 8080（可在springboot配置文件中更改端口） ，以http: //localhost:8080访问
+		4.集成mybaits：
+			1.引入springBoot mybatis依赖 2.编写mapper文件 3.springBoot启动类使用注解扫描到mapper即可。
+		附：
+			到这一步本地跑完全没问题了。
+		5.构建项目：（打包）
+			1.构建成jar包：
+				clean package spring-boot:repackage -Dmaven.test.skip=true --update-snapshots
+				pom.xml新增插件：
+				<plugin>
+					<!--https://blog.csdn.net/lwj_199011/article/details/54881277-->
+					<!--1.使用了该插件springboot的jar包中 MANIFEST.MF文件里面才会有springboot启动类的信息。-->
+					<!--2.打的jar包里面才会有maven依赖的jar包和spring boot的启动类。-->
+					<!--注：-->
+					<!--1.不加该插件 jar运行报错:no main manifest attribute，就不能独立启动-->
+					<!--spring boot jar包形式加上这个插件，才可以使用Java -jar命令来启动jar包-->
+					<!--2.如果用了spring boot但是不需要独立启动，就不要加这个插件，否则spring boot会因为找不到启动类而导致报错。-->
+					<!--3. 在用idea调试的时候加不加插件都可以启动，看不出来不同，所以必须要独立启动jar包才可以看出来。-->
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+				</plugin>
+			2.构建成war包：
+				p658
+		6.运行项目：
+			运行jar包：
+				按照传统的方式，这意味着要将应用的WAR文件部署到Servlet容器中，如Tomcat或WebSphere。
+				但是在这里，我们甚至没有WAR文件，只有构建形成的是一个JAR文件。
+				我们可以按照如下的方式从命令行运行它：
+					nohup java -jar ...jar
+				应用已经启动完成。
+	附：
+		Spring Initializr：
+			Spring Initializr 但它能为你提供一个基本的Spring Boot项目结构，以及一个用于构建代码的Maven或Gradle构建说明文件。
+				Spring Initializr从本质上来说就是一个Web应用程序，
+			Spring Initializr有几种用法。
+				通过Web界面使用。
+					https://start.spring.io/
+				通过Spring Tool Suite使用。
+				通过IntelliJ IDEA使用。
+					https://blog.csdn.net/wya1993/article/details/79578677
+				使用Spring Boot CLI使用。
+附：
 Spring Boot四个特性:
 	Spring Boot提供的四个特性来简化Spring应用的开发。
 	Starter依赖：（起步依赖）
@@ -57,63 +132,6 @@ Spring Boot四个特性:
 		虽然它为Spring带来了惊人的力量，大大简化了开发，但也引入了一套不太常规的开发模型。
 	附：
 		从本质上来说，Spring Boot就是做了spring的样板配置，常说的Spring Boot项目就用到了起步依赖和自动配置而已。
-*使用SpringBoot构建应用：p647
-	使用 Maven 搭建一个Spring Boot 项目:
-		1.新建一个 基本 Maven 项目结构：
-			src\main\java (项目java源码文件)
-			src\main\resources (项目资源文件)
-			pom.xml (maven项目构建说明文件)
-			maven规定项目要为以上这种结构。
-		然后编辑 pom.xml 来引入 基于springBoot 的web项目所需依赖：
-			<!-- springBoot web依赖 -->
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-web</artifactId>
-			</dependency>
-			<!-- springBoot mybatis依赖 -->
-			<dependency>
-				<groupId>org.mybatis.spring.boot</groupId>
-				<artifactId>mybatis-spring-boot-starter</artifactId>
-				<version>1.3.1</version>
-			</dependency>
-			<!-- mysql数据库配置 begin -->
-			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
-			</dependency>
-		2.包中创建一个springBoot启动类
-		到这里SpringBoot 已经搭建完成，但是直接访问就会提示请求出错。
-		附：
-			以上步骤可用Spring Initializr来完成。
-		3.controller 包创建一个基本的springMVC控制器类，
-		以 Java 应用的方式启动 Application。
-		到这里web网站已建好
-		注：
-			默认情况下tomcat的端口为 8080 ，以http: //localhost:8080访问
-		4.集成mybaits：
-		5.构建项目：
-			命令行$mvn package
-			运行Maven构建后，你会在target文件夹下找到构建形成的结果。
-			构建war包：
-				p658
-		6.运行项目：
-			按照传统的方式，这意味着要将应用的WAR文件部署到Servlet容器中，如Tomcat或WebSphere。
-			但是在这里，我们甚至没有WAR文件，只有构建形成的是一个JAR文件。
-			我们可以按照如下的方式从命令行运行它：
-				java -jar ...jar
-			应用已经启动完成。
-	总结：
-		Spring Boot应用无需任何配置，但需要个特殊的类来启动Spring Boot应用。
-	附：
-		Spring Initializr：
-			Spring Initializr 但它能为你提供一个基本的Spring Boot项目结构，以及一个用于构建代码的Maven或Gradle构建说明文件。
-				Spring Initializr从本质上来说就是一个Web应用程序，
-			Spring Initializr有几种用法。
-				通过Web界面使用。
-					https://start.spring.io/
-				通过Spring Tool Suite使用。
-				通过IntelliJ IDEA使用。
-					https://blog.csdn.net/wya1993/article/details/79578677
-				使用Spring Boot CLI使用。
+
 
 
