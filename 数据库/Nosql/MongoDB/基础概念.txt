@@ -105,6 +105,3 @@ MongoDB 数据类型：
 	Symbol	符号。该数据类型基本上等同于字符串类型，但不同的是，它一般用于采用特殊符号类型的语言。
 	Code	代码类型。用于在文档中存储 JavaScript 代码。
 	Regular expression	正则表达式类型。用于存储正则表达式。		
-Spring Boot 中使用 MongoDB ：
-	./springBoot/附属功能/mongoDb/spring中mongoDb的使用.txt
-	

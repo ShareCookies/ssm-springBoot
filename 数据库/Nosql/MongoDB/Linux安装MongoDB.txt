@@ -15,8 +15,22 @@ https://www.runoob.com/mongodb/mongodb-linux-install.html
 		你可以再命令行中执行mongo安装目录中的bin目录执行mongod命令来启动mongdb服务。
 		
 		注：
-			如果你的数据库目录不是/data/db，可以通过 --dbpath 来指定。
+			1.如果你的数据库目录不是/data/db，可以通过 --dbpath 来指定。
 			2.加上nohup不挂起运行
+			以守护进程的方式 启动 MongoDB 服务(MongoDB数据库服务)：
+				https://www.jianshu.com/p/fb8edf5a1a04
+				如果想在后台运行，启动时只需添加 --fork函数即可。
+				$ ./mongod --fork --logpath=/data/db/log.log
+
+				附：
+					1.mongod命令在 mongo安装目录/bin/mongod下
+					2.启动时，如果你的数据库目录不是/data/db，可以通过 --dbpath 来指定。
+					3.执行启动操作后，mongodb 在输出一些必要信息后不会输出任何信息。
+					之后就会等待连接的建立，当连接被建立后，会打印日志信息。
+					4.MongoDB的启动与停止（一）
+						https://www.cnblogs.com/lemon-le/p/7132038.html
+					5.mongod有很多可配置的启动选项，可以使用mongod --help查看所有选项
+
 	附：
 		MongoDB 提供了 linux 各发行版本 64 位的安装包 https://www.mongodb.com/download-center#community
 
@@ -30,6 +44,14 @@ https://www.runoob.com/mongodb/mongodb-linux-install.html
 			connecting to: test
 			Welcome to the MongoDB shell.
 			……
-
+		附：
+			常用命令：
+			show dbs 命令可以显示所有数据的列表：
+				> show dbs
+			db  命令可以显示当前数据库对象或集合：
+				> db
+			use命令，可以连接到一个指定的数据库：
+				> use local
+	
 
 		
