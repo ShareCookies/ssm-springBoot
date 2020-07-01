@@ -33,7 +33,7 @@ spring bean的加载顺序：
 		}
 	}
 	
-spring在向IOC容器中注入Bean的时候，有三种注入方式：
+spring在向bean中注入Bean的时候，有三种注入方式：
 	https://www.cnblogs.com/panchangde/p/11684133.html
 	属性注入
 	构造器注入
