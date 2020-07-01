@@ -29,3 +29,6 @@
 - [MongoDB](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/Nosql/MongoDB)
     - [MongoDB高可用和水平扩展](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/Nosql/MongoDB/MongoDb%E6%8A%80%E6%9C%AF%E7%89%B9%E8%89%B2)
 ### 搜索引擎
+
+## [中间件](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E4%B8%AD%E9%97%B4%E4%BB%B6)
+- [Nginx](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/nginx)

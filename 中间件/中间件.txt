@@ -11,4 +11,4 @@ Web 中间件：
 	tomcat:
 		./Tomcat/
 		tomcat安装：
-			SHARE_CONTENT\Linux\Linux安装常见开发环境\linux安装tomcat.txt
+			./Tomcat/linux安装tomcat.txt
