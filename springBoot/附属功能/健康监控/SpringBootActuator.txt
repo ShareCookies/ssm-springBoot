@@ -1,0 +1,26 @@
+https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-endpoints
+https://blog.csdn.net/Winter_chen001/article/details/81014004
+介绍：
+	
+SpringBootActuator快速使用：
+	1.引入依赖
+		<dependency>
+		  <groupId>org.springframework.boot</groupId>
+		  <artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+	2.使用测试，访问http://localhost:6051/actuator/端点
+	注：
+		1.Springboot2.0之后，监控中心接口地址发生了变化，在2.0之前接口没有/actuator/作为前缀。
+		例：
+			/actuator/beans在2.0之前就是/beans
+附：
+	SpringBootActuator自带的Endpoints:（端点）
+		
+	spring-boot-actuator的/health端点返回值是down问题
+		https://blog.csdn.net/white_ice/article/details/80511588?utm_source=blogxgwz5
+		1.关闭actutor的security验证
+		2.
+			只要节点下其中一个监控内容为DOWN,则该节点的总体状态就为DOWN
+			
+			忽略某一个节点的健康检查：
+				https://blog.csdn.net/l848168/article/details/98082679

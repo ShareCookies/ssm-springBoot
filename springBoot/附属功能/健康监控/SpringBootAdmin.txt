@@ -1,0 +1,77 @@
+链接：
+	官网https://github.com/codecentric/spring-boot-admin
+	官网http://codecentric.github.io/spring-boot-admin/current/
+	https://blog.csdn.net/qq_34829447/article/details/88082852
+	https://www.cnblogs.com/okong/p/springboot-twenty-eight.html
+介绍：
+	
+Spring Boot Admin快速使用：
+	方式一：应用程序作为Spring Boot Admin Client向Spring Boot Admin Server注册（通过HTTP） 
+	方式二：使用springCloud注册中心进行服务发现。
+	
+	方式1：
+		1.#创建Spring Boot Admin Server
+			1.引入依赖
+			<dependency>
+				<groupId>de.codecentric</groupId>
+				<artifactId>spring-boot-admin-starter-server</artifactId>
+				<version>...</version>
+			</dependency>
+			注：
+				admin常见三个版本1.5.7，2.0.6，2.1.6，用那个版本根据你的springboot的版本定，和boot版本对不上启动会报错。
+			2.在工程的启动类AdminServerApplication加上@EnableAdminServer注解，开启AdminServer的功能
+			3.在yml文件中配置应用名称及端口
+				spring:
+				  application:
+					name: admin-server
+				server:
+				  port: 8769
+			4.测试，访问web地址http://localhost:port可以看到主页面，这个时候是没有数据的,要有客户端后才有。
+			或http://localhost:port/admin
+		2.#创建Spring Boot Admin Client
+			1.引入依赖
+			<dependency>
+				<groupId>de.codecentric</groupId>
+				<artifactId>spring-boot-admin-starter-client</artifactId>
+				<version>...</version>1.5.7
+			</dependency>
+			2.
+			application.yml中配置应用名和端口信息，
+			以及配置admin-server注册地址，最后暴露自己的actuator的所有端口信息：
+			spring:
+			  application:
+				name: admin-client
+			  #spring.boot.admin.url= 
+			  boot:
+				admin:
+				  client:
+					url: http://localhost:8769
+			server:
+			  port: 8768
+
+			management:
+			  security:
+				enabled: false
+			  endpoints:
+				web:
+				  exposure:
+					include: '*'
+			  endpoint:
+				health:
+				  show-details: ALWAYS
+		
+附：
+	401异常：
+		security的权限验证。
+		方式1：
+			项目未主动集成security的化，直接关掉admin客户端的security即可。
+			management:
+			  security:
+				enabled: false
+		方式2：
+			项目有集成security，那就要把要用到的链接开放出来
+				"/health","/health/","/trace","/metrics","/metrics/*","/env","/auditevents","/heapdump"
+				等。
+					"/","/api/applications","/api/journal","/api/journal/*","/trace","/scheduledtasks","/mappings","/metrics","/metrics/*","/liquibase","/info","/health","/health/","/env","/configprops","/conditions","/caches","/beans","/auditevents","/heapdump"
+
+		

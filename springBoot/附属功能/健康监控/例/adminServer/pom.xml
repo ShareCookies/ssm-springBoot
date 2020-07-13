@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hcg</groupId>
+    <artifactId>adminServer</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <parent>
+        <!-- 提供依赖版本管理和项目属性配置 -->
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.7.RELEASE</version>
+        <!--
+            spring-boot-starter-parent 与 spring-boot-dependencies
+            https://www.cnblogs.com/sjshare/p/10669001.html
+        -->
+    </parent>
+    <dependencies>
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>spring-boot-admin-starter-server</artifactId>
+            <version>1.5.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>spring-boot-admin-starter-client</artifactId>
+            <version>1.5.7</version>
+        </dependency>
+    </dependencies>
+    <build>
+    <plugins>
+        <plugin>
+            <!--https://blog.csdn.net/lwj_199011/article/details/54881277-->
+            <!--1.使用了该插件springboot的jar包中 MANIFEST.MF文件里面才会有springboot启动类的信息。-->
+            <!--2.打的jar包里面才会有maven依赖的jar包和spring boot的启动类。-->
+            <!--注：-->
+            <!--1.不加该插件 jar运行报错:no main manifest attribute，就不能独立启动-->
+            <!--spring boot jar包形式加上这个插件，才可以使用Java -jar命令来启动jar包-->
+            <!--2.如果用了spring boot但是不需要独立启动，就不要加这个插件，否则spring boot会因为找不到启动类而导致报错。-->
+            <!--3. 在用idea调试的时候加不加插件都可以启动，看不出来不同，所以必须要独立启动jar包才可以看出来。-->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+
+    </plugins>
+    </build>
+</project>

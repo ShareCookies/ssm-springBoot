@@ -1,0 +1,12 @@
+spring:
+  profiles:
+  application:
+    name: c2
+  boot:
+    admin:
+      url: http://localhost:6061
+server:
+  port: 6061
+management:
+  security:
+    enabled: false
