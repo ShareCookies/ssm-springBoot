@@ -13,6 +13,7 @@ https://www.jianshu.com/p/5687e2a38fbc
 		其本质是对方法前后进行拦截，然后在目标方法开始之前创建或者加入一个事务，在执行完目标方法之后根据执行情况提交或者回滚事务。
 	
 	声明式事务之配置文件：
+		...
 	声明式事务之@Transactional注解：
 		*介绍：
 			使用@Transactional的相比传统的我们需要手动开启事务，然后提交事务来说。
@@ -77,11 +78,14 @@ https://www.jianshu.com/p/5687e2a38fbc
 				1.为解决这两个问题，使用 AspectJ 取代 Spring AOP 代理。
 				2.使用自注入来解决！
 注：
-	Transaction rolled back because it has been marked as rollback-only：
-		https://www.cnblogs.com/wangzhongqiu/p/7241058.html
-		事务的传播机制propagation：
-			可以控制调用另一个配置了事务的方法时如何参与当前事务。
+	事务的传播机制propagation：!!!
+		可以控制调用另一个配置了事务的方法时如何参与当前事务。
+		https://blog.csdn.net/qq_30336433/article/details/83111675
+		附：
 			https://segmentfault.com/q/1010000004263937?_ea=549435
+		
+
+			
 
 
 

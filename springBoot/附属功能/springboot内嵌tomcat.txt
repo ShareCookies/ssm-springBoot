@@ -1,0 +1,5 @@
+Spring Boot之如何升级内嵌tomcat版本
+	https://blog.csdn.net/qq_35033270/article/details/104734756
+RFC 3986编码规范
+	https://www.cnblogs.com/panchanggui/p/9436348.html
+	https://www.ietf.org/rfc/rfc3986

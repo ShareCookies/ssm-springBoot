@@ -2,8 +2,55 @@ https://blog.csdn.net/dujianxiong/article/details/90770301
 https://blog.csdn.net/David_jiahuan/article/details/91558816?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase
 
 
+mysql死锁日志：
+	通过show engine innodb status 查看最新一次记录死锁的日志。
+		https://blog.csdn.net/cojm55771/article/details/100261120
+	附：
+		https://blog.csdn.net/DaBingShui/article/details/88953734?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase
+		模拟死锁场景：
+			session 1:                                session 2:
+			begin;                                    begin;
+			delete from t_bitfly  where num = 5 ;
+													  delete from t_bitfly where num = 7 ;
+			insert into t_bitfly values(7,7) ;
+													  insert into t_bitfly values(5,5) ;
+	分析案例：
+		https://www.cnblogs.com/yulibostu/articles/9838075.html
+		https://my.oschina.net/u/4295888/blog/3340031/print
+		https://www.cnblogs.com/lfs2640666960/p/10881390.html
+		
+		要特别注意下InnoDB的行级锁特性：
+			InnoDB的行级锁是基于索引实现的：（InnoDB的行级锁是通过给索引上的索引项加锁来实现的）
+				1.如果查询语句未命中任何索引，那么InnoDB会使用表级锁.
+				（只有通过索引条件检索数据，InnoDB才使用行级锁，否则，InnoDB将使用表锁）
+				?
+					未命中任何索引,查询条件中有一个索引就行吗
+				2.此外，InnoDB的行级锁是针对索引加的锁，不针对数据记录。
+				因此即使访问不同行的记录，如果使用了相同的索引键仍然会出现锁冲突。
+				?
+					指的是索引健值相同吗
+				附：
+					1.在实际应用中，要特别注意InnoDB行锁的这一特性，不然的话，可能导致大量的锁冲突，从而影响并发性能。
+					2.即便在条件中使用了索引字段，但是否使用索引来检索数据是由MySQL通过判断不同执行计划的代价来决定的，如果MySQL认为全表扫描效率更高，比如对一些很小的表，它就不会使用索引，这种情况下InnoDB将使用表锁，而不是行锁。
+					因此，在分析锁冲突时，别忘了检查SQL的执行计划，以确认是否真正使用了索引。		
+					MySql中使用EXPLAIN查看sql的执行计划：
+						https://blog.csdn.net/liufuchun111/article/details/85166481
 
-当前出现的锁
-mysql>  SELECT * FROM information_schema.innodb_trx;
 
-mysql命令杀掉线程：kill 线程id  (trx_mysql_thread_id)
+
+查询正在执行的事务：
+	SELECT * FROM information_schema.innodb_trx;
+	
+	https://blog.csdn.net/zhaoyangjian724/article/details/52858519
+	trx_mysql_thread_id:
+		事务对应的线程ID
+	TRX_STATE: 
+		事务执行的状态, 允许的值为 RUNNING, LOCK WAIT, ROLLING BACK, and COMMITTING.
+	TRX_STARTED：
+		事务开始时间
+
+	TRX_WAIT_STARTED:
+		时间 当事务开始等待锁的时间（TRX_STATE is LOCK WAIT时才有，否则为空）
+	
+mysql命令杀掉线程：
+	kill 线程id  (trx_mysql_thread_id)

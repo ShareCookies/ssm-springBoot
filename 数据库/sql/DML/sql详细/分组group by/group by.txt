@@ -27,6 +27,14 @@ group by：
 		注：
 			直接查询的表默认是以 ID 进行顺序排序的。
 		3.mysql中group by 后order by 排序的是已经从分组中取出的数据。
+having：
+	分组筛选
+	https://www.cnblogs.com/fanguangdexiaoyuer/p/6268211.html
+附：
+
 MySQL-this is incompatible with sql_mode=only_full_group_by：
 	https://blog.csdn.net/Peacock__/article/details/90608246
 	https://blog.csdn.net/qq_42175986/article/details/82384160
+	尝试用一下any_value()函数
+SQL多字段的查询重复记录
+	select * from table1 t where (select count(*) from table1 where column1=t.column1 AND column2=t.column2 and column3=t.column3)>1
