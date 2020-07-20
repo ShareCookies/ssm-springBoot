@@ -34,9 +34,10 @@
 							...
 							
 			行级锁： 
-				MySQL中锁定 粒度最小 的一种锁，只针对当前操作的行进行加锁。
-					缺点：加锁的开销也最大，加锁慢，会出现死锁。
-					优点：其加锁粒度最小，并发度高。行级锁能大大减少数据库操作的冲突。
+				介绍：
+					MySQL中锁定 粒度最小 的一种锁，只针对当前操作的行进行加锁。
+						缺点：加锁的开销也最大，加锁慢，会出现死锁。
+						优点：其加锁粒度最小，并发度高。行级锁能大大减少数据库操作的冲突。
 				InnoDB行级锁的实现算法有三种：（InnoDB支持的3种类型的行级锁）
 					Record Lock: 记录锁
 						对索引项加锁，锁定符合条件的行。其他事务不能修改和删除加锁项；
@@ -51,14 +52,13 @@
 							innodb对于行的查询默认使用next-key lock。
 							当查询的索引含有唯一属性时，将next-key lock降级为record key
 					注：
+						# InnoDB的行级锁特性:
 						InnoDB的行级锁是基于索引实现的：（InnoDB的行级锁是通过给索引上的索引项加锁来实现的）
 							1.如果查询语句未命中任何索引，那么InnoDB会使用表级锁.
-							（只有通过索引条件检索数据，InnoDB才使用行级锁，否则，InnoDB将使用表锁）
-							?
-								未命中任何索引,查询条件中有一个索引就行吗
+							（即只有通过索引条件检索数据，InnoDB才使用行级锁，否则，InnoDB将使用表锁）
 							2.此外，InnoDB的行级锁是针对索引加的锁，不针对数据记录。
 							因此即使访问不同行的记录，如果使用了相同的索引键仍然会出现锁冲突。
-							?
+							!
 								指的是索引健值相同吗
 							附：
 								1.在实际应用中，要特别注意InnoDB行锁的这一特性，不然的话，可能导致大量的锁冲突，从而影响并发性能。
@@ -139,11 +139,10 @@
 					排他锁（X)：SELECT * FROM table_name WHERE ... FOR UPDATE
 
 mysql为啥会锁死表？
-	是触发了表锁吗？
-	什么情况才会触发了？
-		https://blog.csdn.net/yangfengjueqi/article/details/81062123
+	https://blog.csdn.net/yangfengjueqi/article/details/81062123
+	https://www.cnblogs.com/ShaunChen/p/7492056.html	
 		MySQL如果频繁的修改一个表的数据，那么这么表会被锁死。造成假死现象。
-		https://www.cnblogs.com/ShaunChen/p/7492056.html
+		
 	释放锁：
 		./释放锁.txt
 		
