@@ -1,112 +1,112 @@
+---
+title: hsf微服务改造教程
+date: 2020-07-14
+author: 何财贵
+categories:
+ - hsf
+tags:
+ - 浙江高院
+---
+
 > 此文档仅为了快速开发，阿里官网原文，已经很简洁清晰了。
 
-## [使用PandoraBoot开发HSF应用](https://help.aliyun.com/document_detail/91226.html?spm=a2c4g.11186623.6.619.2f4f3af2mUOyry)
+# [使用PandoraBoot开发HSF应用](https://help.aliyun.com/document_detail/91226.html?spm=a2c4g.11186623.6.619.2f4f3af2mUOyry)
 
-1. [启动轻量级配置及注册中心](https://help.aliyun.com/document_detail/44163.html?spm=a2c4g.11186623.2.13.1a4042e48dt0za#task-2310117)  
-    附：
-    ```
-        或不管这一步，直接用阿里提供的公网配置及注册中心地址：
-            121.43.108.125  jmenv.tbsite.net
-            步骤：
-                在需要使用轻量级配置及注册中心开发、测试应用的机器上配置轻量级配置及注册中心的 hosts，
-                即在 DNS（hosts 文件）中将 jmenv.tbsite.net 域名指向启动了轻量级配置及注册中心的机器 IP。
-                1.打开 hosts 文件。
-                    Windows 操作系统：
-                        C:\Windows\System32\drivers\etc\hosts
-                    Unix 操作系统：
-                        /etc/hosts
-                2.添加轻量级配置及注册中心配置。
-                    121.43.108.125  jmenv.tbsite.net
-        测试配置与注册中心时候能用：
-            直接访问轻量级配置及注册中心   域名 + 端口 jmenv.tbsite.net:8080。
-     ```
+## 准备工作：
 
-2. [Maven 中配置 EDAS 的私服地址](https://help.aliyun.com/knowledge_detail/66643.html?spm=a2c4g.11186623.6.620.db793af2sr4Ghr)   
-    * Maven配置文件 中新增 EDAS 的私服地址,便于获取hsf框架的相关包.
-    ```
-        <profiles>
-            <profile>
-                <id>nexus</id>
-                <repositories>
-                    <repository>
-                        <id>central</id>
-                        <url>http://repo1.maven.org/maven2</url>
-                        <releases>
-                            <enabled>true</enabled>
-                        </releases>
-                        <snapshots>
-                            <enabled>true</enabled>
-                        </snapshots>
-                    </repository>
-                </repositories>
-                <pluginRepositories>
-                    <pluginRepository>
-                        <id>central</id>
-                        <url>http://repo1.maven.org/maven2</url>
-                        <releases>
-                            <enabled>true</enabled>
-                        </releases>
-                        <snapshots>
-                            <enabled>true</enabled>
-                        </snapshots>
-                    </pluginRepository>
-                </pluginRepositories>
-            </profile>
-            <profile>
-                <id>edas.oss.repo</id>
-                <repositories>
-                    <repository>
-                        <id>edas-oss-central</id>
-                        <name>taobao mirror central</name>
-                        <url>http://edas-public.oss-cn-hangzhou.aliyuncs.com/repository</url>
-                        <snapshots>
-                            <enabled>true</enabled>
-                        </snapshots>
-                        <releases>
-                            <enabled>true</enabled>
-                        </releases>
-                    </repository>
-                    </repositories>
-                <pluginRepositories>
-                    <pluginRepository>
-                        <id>edas-oss-plugin-central</id>
-                        <url>http://edas-public.oss-cn-hangzhou.aliyuncs.com/repository</url>
-                        <snapshots>
-                            <enabled>true</enabled>
-                        </snapshots>
-                        <releases>
-                            <enabled>true</enabled>
-                        </releases>
-                    </pluginRepository>
-                </pluginRepositories>
-            </profile>
-        </profiles>
-        <activeProfiles>
-            <activeProfile>nexus</activeProfile>
-            <activeProfile>edas.oss.repo</activeProfile>
-        </activeProfiles>
-    ```
-    * 在命令行执行命令 mvn help:effective-settings，验证配置是否成功。
-    无报错，表明 setting.xml 文件格式没问题。
-    ```
-        附：
-        profiles 中包含 edas.oss.repo 这个 profile，表明私服已经配置到 profiles 中。
-        activeProfiles 中包含 edas.oss.repo 属性，表明 edas.oss.repo 私服已激活。
-        说明 如果在命令行执行 Maven 打包命令无问题，IDE 仍无法下载依赖，请关闭 IDE 重新打开再尝试，或自行查找 IDE 配置 Maven 的相关资料。
-    ```
-3. [使用Pandora Boot开发HSF应用](https://help.aliyun.com/document_detail/99943.html?spm=a2c4g.11186623.6.621.751a42e4isQbPT)
-    ```
-        maven依赖：
-            看原文
-        书写服务提供者：
-            看原文
-        书写服务调用者：
-            看原文
-        打包运行：
-            mvn clean install -U
-            java -Djmenv.tbsite.net=127.0.0.1 -Dpandora.location=D:/programming/versionControl/apache-maven-3.6.1-bin/repository/com/taobao/pandora/taobao-hsf.sar/2019-06-stable/taobao-hsf.sar-2019-06-stable.jar -jar zjrsdemo-0.0.1-SNAPSHOT.jar >> nohup.log 2>&1 &
-    ```
-    
+### [启动轻量级配置及注册中心](https://help.aliyun.com/document_detail/44163.html?spm=a2c4g.11186623.2.13.1a4042e48dt0za#task-2310117)  
+
+> 介绍：
+>
+> ​	配置及注册中心最基本的作用：1.接受微服务接口的注册 2.提供对微服务接口的调用支持
+>
+> 注:
+>
+> ​	1.此处无需我们安装并启动启动轻量级配置及注册中心，仅需我们编辑文件host文件使jmenv.tbsite.net 域名指向注册中心机器ip：
+>
+> ​	Windows 系统host文件位置：C:\Windows\System32\drivers\etc\hosts
+>
+> ​	高院用户中心提供的地址：121.43.108.125  jmenv.tbsite.net
+> ​	或rj公司内网提供的地址： 192.168.210.171  jmenv.tbsite.net
+>
+> ​	2. 测试是否配置成功：访问 jmenv.tbsite.net:8080
+>
+> ​	注：如果确认host配置了，那么可能是host没生效，百度host修改了无法生效。
+
+
+### [Maven 中配置 EDAS 的私服地址](https://help.aliyun.com/knowledge_detail/66643.html?spm=a2c4g.11186623.6.620.db793af2sr4Ghr)   
+
+> 这一步为了：Maven配置文件 中新增 EDAS 的私服地址,便于获取hsf框架的相关包.
+>
+> 但：公司内网中应该是已经上传好包了，如果还是提示缺失包看下阿里原文进行maven配置来获取hsf相关包。
+
+
+
+## [使用Pandora Boot开发HSF应用](https://help.aliyun.com/document_detail/99943.html?spm=a2c4g.11186623.6.621.751a42e4isQbPT)
+
+demo工程：
+	[hsfDemo工程](http://192.168.0.40/hsf/zjgyhsfdemo)
+
+1.Pandora 需要的maven依赖：
+		需要那些依赖建议直接看demo工程。
+	注： 消费者和提供者的Maven依赖相同 
+
+代码开发：
+
+	前言：
+		HSF服务框架基于接口进行服务通信。
+		当接口定义好之后，生产者将通过该接口实现具体的服务并发布。
+		消费者也是基于此接口去订阅和消费服务。
+	
+	定义服务接口：
+		public interface HelloService {
+			String echo(String string);
+		}
+	
+	2.书写服务提供者：
+		介绍：把服务注册到注册中心，便于他人调用。
+		//添加服务提供者的具体实现类，并通过注解方式发布服务。
+		@HSFProvider(serviceInterface = HelloService.class)
+		public class HelloServiceImpl implements HelloService {
+		  @Override
+		  public String echo(String string) {
+			  return string;
+		  }
+		}
+		注：
+			在HSF应用中，接口名和服务版本才能唯一确定一个服务。
+			建议将服务版本（spring.hsf.version）和服务超时（spring.hsf.timeout）都统一配置在application.properties中。注解中的配置拥有高优先级。
+	
+	3.书写服务调用者：
+		将服务提供者所发布的API服务接口（包括包名）拷贝到本地，如com.alibaba.edas.HelloService。
+		public interface HelloService {
+	    	String echo(String string);
+		}
+		通过注解的方式将服务消费者的实例注入到Spring的Context中。
+		@Configuration
+		public class HsfConfig {
+			@HSFConsumer(clientTimeout = 3000, serviceVersion = "1.0.0")
+			private HelloService helloService;
+		}
+		
+	4. 测试 
+	   //为了便于测试，使用SimpleController来暴露一个/hsf-echo/*的HTTP接口，/hsf-echo/*接口内部实现调用了HSF服务提供者。
+	   @RestController
+	     public class SimpleController {
+	   
+	         @Autowired
+	         private HelloService helloService;
+	   
+	         @RequestMapping(value = "/hsf-echo/{str}", method = RequestMethod.GET)
+	         public String echo(@PathVariable String str) {
+	             return helloService.echo(str);
+	         }
+	     }
+
+
+​	
+
+
 附:  
 * RPC:
     ```
@@ -138,3 +138,22 @@
         Ali-Tomcat： 依赖Ali-Tomcat和Pandora，提供了完整的HSF功能，包括服务注册与发现、隐式传参、异步调用、泛化调用和调用链路Filter扩展。应用程序须以WAR包方式部署。  
         Pandora Boot：依赖Pandora，提供了比较完整的HSF功能，包括服务注册与发现、异步调用。应用程序编译为可运行的JAR包并部署即可。
     ```
+
+* 本地jar包启动，微服务接口发布报空指针异常：
+
+  ```
+  1. 原因：
+  	获取服务机器地址失败
+  2. 解决方案：
+  	启动命令加上 -Dhsf.server.ip=本机ip -Dhsf.server.port=12200
+  3. 分析过程：
+  	开发hsf应用时，碰到框架方面等问题要从各个类型的日志中进行观察。
+	在hsf.log日志中发现：
+  		01 2020-07-25 01:10:46.888 WARN [metrics-bin-reporter-1-thread-1:t.hsf] 、[unknow_project_name] [] [] Can not get the server IP address ERR-CODE: [HSF-0051], Type: [BIZ], More: [http://console.taobao.net/help/HSF-0051]
+  	经过资料查询和测试：
+  		https://helpcdn.aliyun.com/knowledge_detail/44546.html
+  		服务发布空指针异常与获取服务机器地址失败有关。
+  	注：
+  		[使用日志排查问题](https://helpcdn.aliyun.com/document_detail/44193.html?spm=a2c4g.11186623.6.1045.c21517e3slXaAC)
+  ```
+  

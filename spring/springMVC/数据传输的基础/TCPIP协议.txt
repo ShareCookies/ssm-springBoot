@@ -1,5 +1,0 @@
-三次握手，四次挥手:
-	https://blog.csdn.net/Tomwildboar/article/details/104008537
-	https://blog.csdn.net/maoxin604/article/details/81431805
-Http协议的长度限制:
-	https://www.cnblogs.com/ztiandan/archive/2013/04/16/3023758.html
