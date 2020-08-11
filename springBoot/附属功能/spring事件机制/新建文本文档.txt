@@ -1,0 +1,76 @@
+		https://www.cnblogs.com/itplay/p/10982072.html
+		https://www.jianshu.com/p/786509ddb853
+spring 事件机制
+	原理：观察者模式
+	spring的事件机制包括：
+		事件源（ApplicationEvent)，对应具体的事件。
+		事件监听器(ApplicationListener)，负责接收具体的事件源。
+		事件广播器， 负责发布事件源。
+
+	相应的处理逻辑为：
+		事件监听器会注册具体的事件源，当事件广播器广播具体的事件源后，事件监听器能接到该事件的发布消息，然后处理相关事件。
+		（发布一个事件，对应的事件监听器听到了，就执行一个方法）
+	例：
+
+		事件
+			事件类继承ApplicationEvent即可。
+			这个类有一个构造方法需要super。
+			例：
+				public class HelloEvent extends ApplicationEvent {
+	 
+					private String name;
+				 
+					public HelloEvent(Object source, String name) {
+						super(source);
+						this.name = name;
+					}
+				 
+					public String getName() {
+						return name;
+					}
+				}
+		事件监听器：
+			事件监听器需要实现ApplicationListener泛型接口：
+				泛型类类型就是事件类型。
+				实现onApplicationEvent。
+
+			//spring容器托管bean
+			@Component
+			public class HelloEventListener implements ApplicationListener<HelloEvent> {
+			 
+				private static final Logger logger = LoggerFactory.getLogger(HelloEventListener.class);
+			 
+				@Override
+				public void onApplicationEvent(HelloEvent event) {
+					// 获取事件的参数
+					logger.info("receive {} say hello!",event.getName());
+				}
+			}
+			附：
+				1.同样的事件能有多个监听器
+				2.@EventListener注解
+					事件监听器一定要写一个类去实现吗。
+					其实是可以不需要的，spring有个注解@EventListener，修饰在方法上就可是下辖事件监听器。
+					例:	
+						@EventListener
+						public void listenHello(HelloEvent event) {
+							logger.info("listen {} say hello from listenHello method!!!",event.getName());
+						}
+						EventListener这个注解其实可以接受参数来表示事件源的，有两个参数classes和condition，
+						顾明思议前者是表示哪一个事件类，后者是当满足什么条件是会调用该方法，
+						但其实都可以不用用到，直接在方法上写参数HelloEvent就行
+				
+					
+		事件发布操作：
+			进行一次事件发布操作，事件监听器就会被调用一次。
+			例：
+				applicationContext.publishEvent(new HelloEvent(this,"lgb"));
+		　
+		？
+			事件监听操作和发布事件的操作是同步的吗？ -- 是的，所以如果有事务，监听操作也在事务内
+	
+
+	　　
+
+
+
