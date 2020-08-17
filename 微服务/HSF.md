@@ -156,4 +156,9 @@ demo工程：
   	注：
   		[使用日志排查问题](https://helpcdn.aliyun.com/document_detail/44193.html?spm=a2c4g.11186623.6.1045.c21517e3slXaAC)
   ```
-  
+
+* 如何发布快照包：
+
+  ```
+	mvn deploy:deploy-file -DgroupId=com.zjpth -DartifactId=stzx-common-api -Dversion=1.0-SNAPSHOT -Dpackaging=jar -Dfile=C:\Users\Administrator\Desktop\stzx-common-api-1.0-SNAPSHOT.jar -Durl=http://admin:admin123@192.168.0.40:8081/repository/snapshots/ -DrepositoryId=snapshots
+  ```

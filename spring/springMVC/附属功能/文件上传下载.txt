@@ -165,3 +165,8 @@ public class EgovAttController {
 
     }
 }
+tomcat文件上传为什么要创建临时文件夹：
+	应该是tomcat的文件上传api就是这么实现的，如果自己从写个文件上传api不调用tomcat的文件上传api，那么应该就不会产生临时文件夹了。
+	https://ask.csdn.net/questions/191012?locationNum=10
+	https://www.zhihu.com/question/388798903
+	https://tieba.baidu.com/p/5116764090?red_tag=3276246636
