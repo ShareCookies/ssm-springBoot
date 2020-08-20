@@ -1,10 +1,146 @@
 官网：
 	https://www.rabbitmq.com/
 	https://github.com/mr-ping/RabbitMQ_into_Chinese
-https://blog.csdn.net/hellozpc/article/details/81436980
+RabbitMQ：
+	https://www.cnblogs.com/sgh1023/p/11217017.html
+	
+	RabbitMQ是基于AMQP协议实现的，其结构AMQP协议简直就是一模一样。。
+	RabbitMQ的工作原理:
+		
+		RabbitMQ组成：
+			生产者、消费者和RabbitMQ服务端。
+		RabbitMQ基本结构:
+			./RabbitMQ基本结构.png
+			组成部分说明：
+				Broker：
+					消息队列服务进程，此进程包括两个部分：Exchange和Queue
+					Exchange：
+						消息队列交换机，按一定的规则将消息路由转发到某个队列，对消息进行过虑。
+						交换器类型:
+							RabbitMQ常用的交换器类型有direct、topic、fanout、headers四种。
+							Direct Exchange
+								该类型的交换器将所有发送到该交换器的消息被转发到RoutingKey指定的队列中，也就是说路由到BindingKey和RoutingKey完全匹配的队列中。
+							Topic Exchange
+								该类型的交换器将所有发送到该交换器的消息被转发到所有RoutingKey中指定的Topic的队列上面。
+								Exchange将RoutingKey和某Topic进行模糊匹配，其中“”用来匹配一个词，“#”用于匹配一个或者多个词。
+									例如“com.#”能匹配到“com.rabbitmq.oa”和“com.rabbitmq”；而"login."只能匹配到“com.rabbitmq”。
+								
+							Fanout Exchange
+								该类型的交换器不处理路由键，会把所有发送到交换器的消息路由到所有绑定的队列中。
+								优点是转发消息最快，性能最好。
+							Headers Exchange
+								该类型的交换器不依赖路由规则来路由消息，而是根据消息内容中的headers属性进行匹配。
+								headers类型交换器性能差，在实际中并不常用。
+					Queue：
+						消息队列，存储消息的队列，消息到达队列并转发给指定的
+				Producer：
+					消息生产者，即生产方客户端，生产方客户端将消息发送.
+					
+				Consumer：消息消费者，即消费方客户端，接收MQ转发的消息。
+				附：
+					生产者发送消息流程：
+						1、生产者和Broker建立TCP连接。
+						2、生产者和Broker建立通道。
+						3、生产者通过通道消息发送给Broker，由Exchange将消息进行转发。
+						4、Exchange将消息转发到指定的Queue（队列）
+					消费者接收消息流程：
+						1、消费者和Broker建立TCP连接
+						2、消费者和Broker建立通道
+						3、消费者监听指定的Queue（队列）
+						4、当有消息到达Queue时Broker默认将消息推送给消费者。
+						5、消费者接收到消息。
+						6、ack回复
 
-
-
-spring安装和使用rabbitmq：
+	六种消息模型
+		* https://blog.csdn.net/kavito/article/details/91403659?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
+		
+		基本消息模型：
+			P：生产者，C：消费者，queue。
+		work消息模型：
+			工作队列或竞争消费者模式。
+			work queues与入门程序相比，多了一个消费端，两个消费端共同消费同一个队列中的消息，但是一个消息只能被一个消费者获取。
+		Publish/subscribe（发布订阅模式）
+			交换机类型 Fanout， 也称为广播
+			...
+		Routing 路由模型
+			交换机类型：direct
+			...
+		Topics 通配符模式
+			交换机类型：topics
+		RPC:
+			
+安装rabbitmq：
 	http://blog.didispace.com/spring-boot-rabbitmq/
-	https://blog.csdn.net/hellozpc/article/details/81436980
+	RabbitMq管理：
+		我们可以直接通过配置文件的访问进行管理，也可以通过Web的访问进行管理。
+		默认用户及密码：guest guest
+		...
+spring使用rabbitmq：
+	http://blog.didispace.com/spring-boot-rabbitmq/
+	依赖：
+		<!--用于支持RabbitMQ。 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+	配置文件：
+		application.properties：
+			#配置关于RabbitMQ的连接和用户信息
+			spring.rabbitmq.host=localhost
+			spring.rabbitmq.port=5672
+			spring.rabbitmq.username=spring
+			spring.rabbitmq.password=123456
+	例：
+	简易使用只生产者与消费者：
+		创建消息生产者Sender
+			通过注入AmqpTemplate接口的实例来实现消息的发送，
+				AmqpTemplate接口定义了一套针对AMQP协议的基础操作。
+			在Spring Boot中会根据配置来注入其具体实现。
+			
+			@Component
+			public class Sender {
+				@Autowired
+				private AmqpTemplate rabbitTemplate;
+				
+				//在该生产者，我们会产生一个字符串，并发送到名为hello的队列中。
+				public void send() {
+					String context = "hello " + new Date();
+					System.out.println("Sender : " + context);
+					this.rabbitTemplate.convertAndSend("hello", context);
+				}
+			}
+		创建消息消费者Receiver
+			@Component
+			//通过@RabbitListener注解定义该类对hello队列的监听
+			@RabbitListener(queues = "hello")
+			public class Receiver {
+				
+				//用@RabbitHandler注解来指定对消息的处理方法。
+				@RabbitHandler
+				public void process(String hello) {
+					System.out.println("Receiver : " + hello);
+				}
+			}
+		创建RabbitMQ的配置类RabbitConfig
+			用来配置队列、交换器、路由等高级信息。
+			这里我们以入门为主，先以最小化的配置来定义，以完成一个基本的生产和消费过程。
+			@Configuration
+			public class RabbitConfig {
+				//配置队列
+				@Bean
+				public Queue helloQueue() {
+					return new Queue("hello");
+				}
+			}
+		单元测试：
+			创建单元测试类，用来调用消息生产：
+			@RunWith(SpringJUnit4ClassRunner.class)
+			@SpringApplicationConfiguration(classes = HelloApplication.class)
+			public class HelloApplicationTests {
+				@Autowired
+				private Sender sender;
+				@Test
+				public void hello() throws Exception {
+					sender.send();
+				}
+			}
