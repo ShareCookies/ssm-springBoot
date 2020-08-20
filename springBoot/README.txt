@@ -126,12 +126,18 @@ Spring Boot四个特性:
 		让你能够深入运行中的Spring Boot应用程序，一探究竟。
 		只需将Actuator Starter依赖添加到项目中，即可启用Actuator。
 		例：
+			./附属功能/健康监控/
 			启用Actuator后，如果想查看Spring应用上下文中所有的bean，那么可以访问http://localhost:8080/beans。
+			
 	命令行界面：
 		Spring Boot CLI（command-line interface，命令行界面）是Spring Boot的非必要组成部分。
 		虽然它为Spring带来了惊人的力量，大大简化了开发，但也引入了一套不太常规的开发模型。
 	附：
 		从本质上来说，Spring Boot就是做了spring的样板配置，常说的Spring Boot项目就用到了起步依赖和自动配置而已。
+附:
+	学习时第三方框架或应用时推荐原生，使用时推荐结合springboot：
+		只有原生使用才能理解其大概使用机制。
+		使用springboot那么类似是黑盒操作，由于你对改知识并不是很熟悉中间有问题，跟踪起来就较麻烦。
 
 
 

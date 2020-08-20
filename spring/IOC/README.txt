@@ -7,6 +7,8 @@ IOC:(Inversion of Control) 控制反转
 		对类的实例化和对象属性的注入由控制器来进行。（spring来负责控制对象的生命周期和对象间的关系）
 	spring使用DI来实现IOC。
 	spring中通过容器来实现DI功能，即由容器负责组件的装配。
+	hcg：
+		即spring中通过容器来实现IOC，这个过程又依赖了DI.
 	附：
 	DI(dependency injection 依赖注入):
 		介绍：
@@ -30,7 +32,7 @@ IOC:(Inversion of Control) 控制反转
 		介绍：
 			Spring使用容器来管理所有的Bean对象。
 				即程序用容器来加载bean，并为bean注入相关的bean。
-			在Srping Ioc容器中，有BeanFactory和ApplicationContext两个系列：
+			在Srping Ioc容器中，有BeanFactory和ApplicationContext两个系列。
 				1.实现BeanFactory接口的简单容器，具备最基本功能。
 				2.实现ApplicationContext接口的复杂容器，具备高级功能。
 		BeanFactory接口：
@@ -48,27 +50,33 @@ IOC:(Inversion of Control) 控制反转
 				可称为企业级IOC容器（高级容器）。
 			实现类:
 				ClassthPathXmlApplicationContext:
-					介绍：从当前类路径中检索配置文件并加载配置文件来创建容器！
+					介绍：从当前类路径中检索配置文件并加载配置文件来创建容器
 					所需参数:字符串:"配置文件名称"
+					...
 				FileSystemXmlApplicationContext:
-					介绍：通过参数指定配置文件位置。即可获得类路径之外的资源。！！！
+					介绍：通过参数指定配置文件位置。即可获得类路径之外的资源。
+					...
 				WebApplicationContext:
-					介绍：spring的Web应用容器？！！！
-			使用方法：
-				1.配置要使用的容器：
+					介绍：spring的Web应用容器
+					...
+		容器使用：
+			1.创建容器：
+				方式1：web应用无需手动创建，而是配置要使用的容器：
 					1.在servlet的web.xml配置spring的ContextLoaderListener监听器
 					或2.修改web.xml在其中添加一个servlet，定义使用spring的ContextLoaderServlet类。
-				2.bean的装配：
-					goto：bean的三种主要装配机制
-				3.通过容器手动获取bean:
-					例:获取user对象(User)factory.getBean("user");
-					注:获取bean前还得进行bean配置。
+				方式2：手动创建创建容器
+			2.bean的装配：
+				goto：bean的三种主要装配机制
+			3.通过容器手动获取bean:
+				例:获取user对象(User)factory.getBean("user");
+				注:获取bean前还得进行bean配置。
 bean的三种主要装配机制：
-	定义那些类要注册为spring容器的bean。
-	在XML中进行显式配置。p76
-	Spring自动发现和装配bean。（推荐）
+	介绍：
+		定义那些类要注册为spring容器的bean。
+	方式1：在XML中进行显式配置。p76
+	方式2：Spring自动发现和装配bean。（推荐）
 		./bean自动加载/springBean的自动加载.txt
-	在Java中进行显式配置。
+	方式3：在Java中进行显式配置。
 		./JavaConfig显式配置.txt
 	注：
 		混合配置：
@@ -77,6 +85,5 @@ bean的三种主要装配机制：
 				所以你可以选择使用XML装配一些bean，
 				使用Spring基于Java的配置（JavaConfig）来装配另一些bean，
 				而将剩余的bean让Spring去自动发现。
-
 		通过容器手动获取bean：
 			./bean的手动获取.txt
