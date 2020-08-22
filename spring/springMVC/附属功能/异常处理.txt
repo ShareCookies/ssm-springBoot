@@ -53,6 +53,11 @@ REST风格下异常的处理：
 				想在响应中设置头部信息时使用。
 			例：
 				p524
+				public ResponseEntity<Map<String,Object>> save(HttpServletRequest request) {
+					Map<String,Object> map = new HashMap<String, Object>();
+					map.put("message","success");
+					return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+				}
 		II.使用异常处理器：
 			1.定义能够处理指定错误的异常处理器：
 				@ExceptionHandler：
