@@ -23,3 +23,12 @@ junit：
 	Mock
 	？那security了：
 		https://blog.csdn.net/sinat_27933301/article/details/102987545
+JUnit使用
+	1、添加JUnit依赖。
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	2.测试代码
+		./例/
