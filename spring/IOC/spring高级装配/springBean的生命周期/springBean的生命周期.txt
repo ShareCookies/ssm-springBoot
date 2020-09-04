@@ -1,0 +1,80 @@
+bean工厂（容器）执行以下若干步骤来创建bean：
+	1. Spring对bean进行实例化;（实例化bean）
+		BeanFactory容器：
+			对于BeanFactory容器，当客户向容器请求一个尚未初始化的bean时，或初始化bean的时候需要注入另一个尚未初始化的依赖时，容器就会调用createBean进行实例化。
+		ApplicationContext容器:
+			对于ApplicationContext容器，当容器启动结束后，通过获取BeanDefinition对象中的信息，实例化所有的bean。
+
+	2. Spring将值和bean的引用注入到bean对应的属性中;（设置对象属性）
+		设置对象属性：实例化后的对象被封装在BeanWrapper对象中，紧接着，Spring根据BeanDefinition中的信息 以及 通过BeanWrapper提供的设置属性的接口完成依赖注入。
+		附：goto：spring bean的加载顺序。
+	3-8:（处理一些接口方法-》bean被成功创建放入容器）
+		处理Aware接口：
+			3.如果bean实现 了BeanNameAware接口，会调用它实现的setBeanName(String beanId)方法，此处传递的就是Spring配置文件中Bean的id值；
+			4.如果bean实现 了BeanFactoryAware接口，如果这个Bean已经实现了BeanFactoryAware接口，会调用它实现的setBeanFactory()方法，将BeanFactory容器实例传入。
+			5.如果bean实现了ApplicationContextAware接口，Spring将调
+			用setApplicationContext()方法，将bean所在的应用上下文的
+			引用传入进来;
+		6.如果bean实现了BeanPostProcessor接口，Spring将调用它们的调用postProcessBeforeInitialization(Object obj, String s)方法。
+			附：此处通常用于对Bean进行一些自定义的处理
+		7.如果bean实现了 InitializingBean接口，Spring将调用它们的afterPropertiesSet()方法。
+			附：同样效果：如果bean使用init-method（init-method属性）声明了初始化方法，该方法也会被调用;
+		8.如果bean实现了BeanPostProcessor接口，Spring将调用它们的postProcessAfterInitialization(Object obj, String s)方法;
+			附：由于这个方法是在Bean初始化结束时调用的，所以可以被应用于内存或缓存技术；
+		9.
+			此时，Bean就已经被正确创建了，可以被应用程序使用了，它们将一直驻留在应用上下文中，直到该应用上下文被销毁;
+	10. （处理销毁方法）
+		如果bean实现了DisposableBean接口，容器被销毁时Spring将调用bean的destroy()接口方法。
+		附：同样效果：如果bean使用destroy-method（destroy-method）声明了销毁方法，该方法也会被调用。
+	附：
+		./springBean的生命周期.png
+附：
+	spring bean的加载顺序：
+		属性是使用构造方法进行注入时，那么spring bean的创建是有顺序的。
+			但使用其它类型的注入时，不会遇到这个问题。因为其他方式是在需要时才会被注入，而不是上下文加载时就被注入。
+		Spring上下文在加载所有的bean时，他会尝试按照他们关联关系的顺序进行创建。
+		所以当不存在循环依赖时，就可顺利加载bean。
+		例：
+			Bean A → Bean B → Bean C
+			Spring会先创建Bean C，再创建Bean B（并将Bean C注入到Bean B中），最后再创建Bean A(并将Bean B注入到Bean A中)。
+		注：
+			1.如果我们存在循环依赖，Spring上下文不知道应该先创建哪个Bean,因为它们依赖于彼此。
+			Spring会在加载上下文时，就会抛出一个BeanCurrentlyInCreationException。
+			2.使用构造方法进行注入时，会遇到这种情况。
+			但使用其它类型的注入时，不会遇到这个问题。因为其他方式是在需要时才会被注入，而不是上下文加载时就被注入。
+	spring在向bean中注入Bean的时候，有三种注入方式：
+		https://blog.csdn.net/a745233700/article/details/89307518
+		属性注入
+		构造器注入
+		工厂方法注入
+	spring中的循环依赖解决方案：	
+		https://www.jianshu.com/p/b65c57f4d45d
+		解决方法：
+			方式1：重新设计：
+				当你有一个循环依赖，很可能你的各责任没有得到很好的分离。
+				有很多种方法来应对Spring的循环依赖，但首先你应该考虑重新设计你的bean，它们通常意味着是一种可以被提高的设计症状。
+			方式2：使用 @Lazy
+				使用 @Lazy对一个Bean进行延时加载。
+				即这个Bean并没有完全的初始化完，实际上他注入的是一个代理，只有当他首次被使用的时候才会被完全的初始化。
+				例：
+					@Component
+					public class CircularDependencyA {
+						private CircularDependencyB circB;
+						@Autowired
+						public CircularDependencyA(@Lazy CircularDependencyB circB) {
+							this.circB = circB;
+						}
+					}
+			方式3：使用 Setter/Field 注入
+				其中最流行的解决方法，就是Spring文档中建议，使用setter注入。
+				例：
+					private CircularDependencyA circA;
+					@Autowired
+					public void setCircA(CircularDependencyA circA) {
+						this.circA = circA;
+					}
+				注：
+					1.使用该方式创建Bean，实际上它的依赖并没有被注入，只有在你须要的时候他才会被注入进来。
+					2.可无需set，直接在属性上使用@Autowired注解即可。
+			方式4：使用 @PostConstruct
+			方式5：实现ApplicationContextAware and InitializingBean接口

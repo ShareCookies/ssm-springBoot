@@ -1,20 +1,19 @@
 介绍：p117
 	在默认情况下，Spring应用上下文中所有bean都是作为以单例（singleton）的形式创建的。
-	即一个给定的bean被注入到其他bean多少次，每次所注入的都是同一个实例。
-作用域类型：
+		即一个bean不管被注入到其他bean多少次，每次所注入的都是同一个实例。
+	作用域类型：
 		Spring定义了多种作用域，可以基于这些作用域创建bean。
 		单例（Singleton）：（默认）
 			在整个应用中，只创建bean的一个实例。
 		原型（Prototype）：
 			每次注入或者通过Spring应用上下文获取的时候，都会创建一个新的bean实例。
-		会话（Session）：
-			在Web应用中，为每个会话创建一个bean实例。
 		请求（Rquest）：
 			在Web应用中，为每个请求创建一个bean实例。
 			注：
 				请求作用域与会话作用域 面临相同的装配问题，
 				因此请求作用域的bean应该也以作用域代理的方式进行注入。
-
+		会话（Session）：
+			在Web应用中，为每个会话创建一个bean实例。
 			
 规定bean的作用域：p118
 	声明bean时加上@Scope注解，即可指定bean的作用域。
@@ -26,8 +25,10 @@
 		1.Java配置中规定bean的作用域，组合使用@Scope和@Bean来指定所需的作用域。
 		2.XML中规定bean的作用域，使用<bean>元素的scope属性来设置作用域。
 		
-
+附：
 如何将会话型bean注入单例bena中：
+	场景：
+		商店bean用单例，因为就一个商店。每个顾客bean用会话型。
 	解决方案：
 		1.使用@Scope的proxyMode属性：
 			1.声明的bean是接口时，proxyMode设置为，接口名.INTERFACES。（推荐的代理模式）
@@ -36,6 +37,11 @@
 				表明要以生成目标类扩展的方式创建代理。
 				注：
 					bean声明时是具体类的话，Spring就没有办法创建基于接口的代理了，它必须使用CGLib 来生成基于类的代理。
+			例1：
+				@Component
+				//这个属性解决了将会话或请求作用域的bean注入到单例bean中所遇到的问题。
+				@Scope(proxyMode=ScopedProxyMode.INTERFACES)
+				...
 		2.xml中声明会话型bean：
 			p121
 	解析：	

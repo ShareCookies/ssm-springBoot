@@ -1,0 +1,36 @@
+	附1：
+		过滤器的创建时优先于spring容器的。
+		因为spring web应用是通过servlet来注入并启用容器的，过滤器又是优先于servlet的。
+
+	手动获取bean：
+		@WebFilter(urlPatterns = "/*")
+		@Order(Integer.MAX_VALUE-2)
+		public class SSOFilter implements Filter {
+			private static RedisTemplate redisTemplate;
+			@Override
+			public void init(FilterConfig filterConfig) throws ServletException {
+				ServletContext servletContext = filterConfig.getServletContext();
+				ApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+				redisTemplate = ctx.getBean("redisTemplate",RedisTemplate.class);
+			}
+		}	
+	获取ServletContext：
+		https://www.cnblogs.com/yysbolg/p/9018559.html
+		(1)生命周期
+		　　ServletContext中的属性的生命周期从创建开始，到服务器关闭而
+		(2).获取ServletContext
+		　　1、request获取servletContext
+		　　　　ServletContext servletContext = request.getServletContext();
+		　　2、使用ContextLoader
+		　　　　ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
+				？
+					枚举方法中获取失败
+		　　3、使用spring注入自动注入
+		　　　　@Autowired
+		　　　　private ServletContext servletContext;
+		(3).使用ServletContext存取
+		　　1、添加属性：setAttribute(String name,Object ob);
+		　　2、得到值：   getAttribute(String);    //返回Object
+		　　3、删除属性：removeAttribute(String name);
+	枚举中自动注入bean失败：
+		https://blog.stormbirds.cn/articles/2019/07/12/1562916064589.html
