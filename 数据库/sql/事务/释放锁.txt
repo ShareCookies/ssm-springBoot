@@ -34,7 +34,7 @@ mysql死锁日志：
 					1.在实际应用中，要特别注意InnoDB行锁的这一特性，不然的话，可能导致大量的锁冲突，从而影响并发性能。
 					2.即便在条件中使用了索引字段，但是否使用索引来检索数据是由MySQL通过判断不同执行计划的代价来决定的，如果MySQL认为全表扫描效率更高，比如对一些很小的表，它就不会使用索引，这种情况下InnoDB将使用表锁，而不是行锁。因此，在分析锁冲突时，别忘了检查SQL的执行计划，以确认是否真正使用了索引。
 		MySql中使用EXPLAIN查看sql的执行计划：
-			./数据库/sql/优化.txt goto:sql语句分析
+			./数据库/sql/诊断.txt goto:sql语句分析
 
 查询正在执行的事务：
 	SELECT * FROM information_schema.innodb_trx;
@@ -49,6 +49,10 @@ mysql死锁日志：
 
 	TRX_WAIT_STARTED:
 		时间 当事务开始等待锁的时间（TRX_STATE is LOCK WAIT时才有，否则为空）
-	
+	附：
+		查看正在锁的事务
+		SELECT * FROM INFORMATION_SCHEMA.INNODB_LOCKS; 
+		查看等待锁的事务
+		SELECT * FROM INFORMATION_SCHEMA.INNODB_LOCK_WAITS;
 mysql命令杀掉线程：
 	kill 线程id  (trx_mysql_thread_id)
