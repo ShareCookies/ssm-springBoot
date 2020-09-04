@@ -95,7 +95,7 @@
 							附：
 								当等待次数很高，而且每次等待时长也不小的时候，我们就需要分析系统中为什么会有如此多的等待，然后根据分析结果着手指定优化计划。
 								如果发现锁争用比较严重，如InnoDB_row_lock_waits和InnoDB_row_lock_time_avg的值比较高，还可以通过设置InnoDB Monitors 来进一步观察发生锁冲突的表、数据行等，并分析锁争用的原因。
-
+						
 			页级锁定（page-level）：
 				MySQL中锁定粒度介于行级锁和表级锁中间的一种锁。
 				表级锁速度快，但冲突多，行级冲突少，但速度慢。页级进行了折衷，一次锁定相邻的一组记录。
@@ -128,8 +128,18 @@
 			注：
 				锁是自动加的：
 					对于UPDATE、DELETE和INSERT语句，InnoDB会自动给涉及数据集加排他锁（X)；
-					对于普通SELECT语句，InnoDB不会加任何锁；
-				
+					对于普通SELECT语句，InnoDB不会加任何锁：
+						例：
+							1.执行
+								BEGIN;
+								SELECT * FROM test for UPDATE;
+							2.再开启一个控制台执行更新语句，或直接navicat进行更新，会发现未返回结果
+							3. 再1界面执行commit后，发现2返回了，可见1加排他锁成功。
+							4. 1改造下
+							执行
+								BEGIN;
+								SELECT * FROM test;
+							在执行2，发现2返回了，可见对于普通SELECT语句，InnoDB不会加任何锁。
 				手动加锁：
 					事务可以通过以下语句显示给记录集加共享锁或排他锁：
 
@@ -137,7 +147,11 @@
 						1.用SELECT ... IN SHARE MODE获得共享锁，主要用在需要数据依存关系时来确认某行记录是否存在，并确保没有人对这个记录进行UPDATE或者DELETE操作。
 						2.但是如果当前事务也需要对该记录进行更新操作，则很有可能造成死锁，对于锁定行记录后需要进行更新操作的应用，应该使用SELECT... FOR UPDATE方式获得排他锁。
 					排他锁（X)：SELECT * FROM table_name WHERE ... FOR UPDATE
-
+				查看引擎：
+					show ENGINES;
+				 InnoDB行锁模式兼容性列表：
+					....
+					https://www.cnblogs.com/Arlen/articles/1756616.html
 mysql为啥会锁死表？
 	https://blog.csdn.net/yangfengjueqi/article/details/81062123
 	https://www.cnblogs.com/ShaunChen/p/7492056.html	

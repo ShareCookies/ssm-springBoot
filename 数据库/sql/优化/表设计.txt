@@ -8,7 +8,8 @@
 
 mysql长度：
 	utf-8下，varchar、char 长度就是字符数，即一个字母是一个字符，一个汉字也是一个字符数数。
-
+	例：
+		varchar 10 能存10个汉字或字母或数字。
 1.使用外键的优缺点：
 	https://blog.csdn.net/u014590757/article/details/79590348
 	https://blog.csdn.net/Jack_Huang_888/article/details/106313614

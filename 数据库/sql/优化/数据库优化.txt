@@ -6,28 +6,10 @@ sql查询优化：
 				分页等操作。
 	2.索引：
 		附：
-			对查询常用字段建立索引，至少提高10多倍速度。
-	分析，诊断手段：
-		慢查询日志：
-			https://www.cnblogs.com/davidwang456/articles/9497584.html
-			介绍：
-				1.慢查询日志是MySQL提供的一种日志记录，它用来记录在MySQL中响应时间超过阀值的语句。
-					具体指运行时间超过long_query_time值的SQL，则会被记录到慢查询日志中。
-					long_query_time的默认值为10，意思是运行10S以上的语句。
-				2.默认情况下，Mysql数据库并不启动慢查询日志，需要我们手动来设置这个参数。
-				3.慢查询日志支持将日志记录写入文件，也支持将日志记录写入数据库表。
-			注：
-				如果不是调优需要的话，一般不建议启动该参数，因为开启慢查询日志会或多或少带来一定的性能影响。
-		查询计划：
-			EXPLAIN 命令，是 MySQL 查询优化的必备工具，可以查看SELECT语句的执行的计划。
-			https://www.cnblogs.com/tufujie/p/9413852.html
-			explain extended：
-				https://www.cnblogs.com/duanxz/p/3564468.html
-				使用该命令输出多了warning。
-				这个 warning中显示了MySQL对SQL的解释，从这个解释中我们可以看到SQL的执行方式，对于分析SQL还是很有用的。
-				也即explain 的extended 扩展能够在原本explain的基础上额外的提供一些查询优化的信息，这些信息可以通过mysql的show warnings命令得到。
-			例子：
-				https://zhuanlan.zhihu.com/p/89793056
+			1.对查询常用字段建立索引，至少提高10多倍速度。
+			2.分析，诊断手段：
+				./诊断.txt goto:sql问题诊断
+
 	
 大表优化
 	* https://segmentfault.com/a/1190000006158186
