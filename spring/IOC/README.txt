@@ -69,7 +69,6 @@ IOC:(Inversion of Control) 控制反转
 				XmlBeanFactory:
 				所需参数:
 					new XmlPathResource("applicationContext.xml")
-
 		ApplicationContext接口:
 			介绍:
 				该接口继承了BeanFactory接口，实现了更多功能。
@@ -93,6 +92,17 @@ IOC:(Inversion of Control) 控制反转
 					...
 		附：
 			BeanFactory和ApplicationContext的区别：https://blog.csdn.net/pythias_/article/details/82752881
+			装载bean的时机不同：	
+				BeanFactroy采用的是延迟加载形式来注入Bean的，即只有在使用到某个Bean时(调用getBean())，才对该Bean进行加载实例化。
+					这样，我们就不能发现一些存在的Spring的配置问题。如果Bean的某一个属性没有注入，BeanFacotry加载后，直至第一次使用调用getBean方法才会抛出异常。
+				ApplicationContext，它是在容器启动时，一次性创建了所有的SingletonBean。（默认初始化所有的Singleton，也可以通过配置取消预初始化。）
+					这样，在容器启动时，我们就可以发现Spring中存在的配置错误，这样有利于检查所依赖属性是否注入。 ApplicationContext启动后预载入所有的单实例Bean，通过预载入单实例bean,确保当你需要的时候，你就不用等待，因为它们已经创建好了。
+					附：
+						这个与set注入并不冲突，如果bean的属性是用set注入的，那么该属性其实并没有被注入，真实注入时机是在需要该bean的时候。
+			...
+				（3）BeanFactory通常以编程的方式被创建，ApplicationContext还能以声明的方式创建，如使用ContextLoader。
+
+				（4）BeanFactory和ApplicationContext都支持BeanPostProcessor、BeanFactoryPostProcessor的使用，但两者之间的区别是：BeanFactory需要手动注册，而ApplicationContext则是自动注册。?
 		容器使用：
 			1.创建容器：
 				方式1：web应用无需手动创建，而是配置要使用的容器：

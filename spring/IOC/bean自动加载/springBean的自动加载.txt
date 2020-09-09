@@ -11,6 +11,9 @@ SpringBean自动化加载的实现：
 			Spring会自动发现应用上下文中所创建的bean。
 		自动装配（autowiring）：
 			Spring自动满足bean之间的依赖。
+				在springBean无需自己查找或创建与其关联的其他对象，由容器负责把需要相互协作的对象引用赋予各个对象。
+
+
 1.构造性注解定义bean：
 	实现方式：
 		1.接口或类上使用构造型注解，即可定义一个bean。
@@ -106,10 +109,12 @@ SpringBean自动化加载的实现：
 		区别:
 			@Autowired按byType自动注入:
 				不管是构造器、Setter方法还是其他的方法，Spring都会尝试满足方法参数上所声明的依赖。
-				注：
-					如果没有匹配的bean，那么在应用上下文创建的时候，Spring会抛出一个异常。
-					为了避免异常的出现，你可以将@Autowired的required属性设置为false：
-			@Resource默认按 byName自动注入。
+			@Resource默认按byName自动注入。
+				@Resource装配顺序：
+					如果同时指定了name和type，则从Spring上下文中找到唯一匹配的bean进行装配，找不到则抛出异常。
+					如果指定了name，则从上下文中查找名称（id匹配的bean进行装配，找不到则抛出异常。
+					如果指定了type，则从上下文中找到类型匹配的唯一bean进行装配，找不到或者找到多个，都会抛出异常。
+					如果既没有指定name，又没有指定type，则自动按照byName方式进行装配，如果没有匹配，则回退为一个原始类型（UserDao）进行匹配，如果匹配则自动装配。
 		注：
 			@Inject注解来源于Java依赖注入规范，Spring同时支持@Inject和@Autowired。
 	
