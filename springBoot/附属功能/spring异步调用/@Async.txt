@@ -1,0 +1,40 @@
+https://www.cnblogs.com/kxm87/p/9290285.html
+
+@Async介绍
+	介绍：
+		在Spring中，@Async标注的方法，称之为异步方法；这些方法将在执行的时候，将会在独立的线程中被执行，调用者无需等待它的完成，即可继续其他的操作。
+
+	使用方式：
+		分为不带参数的异步调用；
+		带参数的异步调用；
+		调用返回Future的异步线程
+		...
+		注：
+			@Async所修饰的函数不要定义为static类型，这样异步调用不会生效
+	附：
+		常规的异步调用处理方式
+			在Java中，一般在处理类似的场景之时，都是基于创建独立的线程去完成相应的异步调用逻辑，通过主线程和不同的线程之间的执行流程，从而在启动独立的线程之后，主线程继续执行而不会产生停滞等待的情况。
+		@Async调用中的事务处理机制
+			@Async标注的方法，同时也使用了@Transactional进行了标注；在其调用数据库操作之时，将无法产生事务管理的控制，原因就在于其是基于异步处理的操作。 那该如何给这些操作添加事务管理呢？可以将需要事务管理操作的方法放置到异步方法内部，在内部被调用的方法上添加@Transactional. 
+			例： 
+				方法A，使用了@Async/@Transactional来标注，但是无法产生事务控制的目的。 方法B，使用了@Async来标注， B中调用了C、D，C/D分别使用@Transactional做了标注，则可实现事务控制的目的。
+
+启用异步调用：
+	要配合使用@EnableAsync注解，才可以启用异步调用。
+	@EnableAsync注解的意思是可以异步执行，就是开启多线程的意思。可以标注在方法、类上。
+
+	例：
+		在启动类或者Control类加上 @EnableAsync 注解
+		@SpringBootApplication
+		@EnableAsync
+		public class Application{
+			...
+		}
+		或
+		@EnableAsync
+		@RestController
+		public class HelloController {
+			...
+		}
+
+ 
