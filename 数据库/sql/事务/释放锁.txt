@@ -38,7 +38,8 @@ mysql死锁日志：
 
 查询正在执行的事务：
 	SELECT * FROM information_schema.innodb_trx;
-	
+	附：
+		推荐mysql客户端执行：SELECT * FROM INFORMATION_SCHEMA.INNODB_TRX\G（便于复制出来查看）
 	https://blog.csdn.net/zhaoyangjian724/article/details/52858519
 	trx_mysql_thread_id:
 		事务对应的线程ID
@@ -46,7 +47,7 @@ mysql死锁日志：
 		事务执行的状态, 允许的值为 RUNNING, LOCK WAIT, ROLLING BACK, and COMMITTING.
 	TRX_STARTED：
 		事务开始时间
-
+	TRX_QUERY：事务执行的语句
 	TRX_WAIT_STARTED:
 		时间 当事务开始等待锁的时间（TRX_STATE is LOCK WAIT时才有，否则为空）
 	附：

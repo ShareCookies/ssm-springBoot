@@ -53,7 +53,21 @@
 			对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，可以阻止脏读和不可重复读，但幻读仍有可能发生。
 			hcg：是禁止别的事务修改，当前事务读取的数据吗。
 		SERIALIZABLE(可串行化)： 
-			最高的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。	
+			最高的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。
+		例:
+			可重复读事务的证明案例：
+				会话1：
+					BEGIN;
+					SELECT * from EGOV_RECEIVAL  WHERE id='XHzYayMaJdQRhxzh';
+				会话2：
+					UPDATE EGOV_RECEIVAL SET SOURCE_UNIT = '111111' WHERE id='XHzYayMaJdQRhxzh';
+					由于会话1的事务未结束，且是REPEATABLE READ，所以会话2的事务并没有提交成功。
+					仅会话2中是可以看到修改效果的，会话1和其余会话是看不到修改效果的
+						SELECT * from EGOV_RECEIVAL  WHERE id='XHzYayMaJdQRhxzh';
+				注：
+					查看正在执行的事务：SELECT * FROM information_schema.innodb_trx;
+				附：
+					navicat中的会话是指，新建一个查询界面，即一个查询界面就是一个会话。
 	MySQL 隔离级别：
 		InnoDB 存储引擎默认支持的隔离级别是 REPEATABLE-READ。
 			附：

@@ -19,12 +19,18 @@ sql查询优化：
 
 	1. 读/写分离
 		经典的数据库拆分方案，主库负责写，从库负责读；
-		Mysql主从同步（复制）
-			https://www.cnblogs.com/kylinlin/p/5258719.html
-		实现读写分离
-			sharding-JDBC 实现读写分离：
-				https://www.cnblogs.com/boothsun/p/7853526.html
-			mycat实现读写分离：
+		1.数据库实习主从：
+			Mysql主从同步（复制）
+				https://www.cnblogs.com/kylinlin/p/5258719.html
+				https://blog.csdn.net/weixin_30608503/article/details/96199857?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.add_param_isCf&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.add_param_isCf
+		2.程序要实现读写分离
+			1.代码自己实现：
+				https://blog.csdn.net/jackZ01/article/details/81132343?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
+
+			2.插件：
+				sharding-JDBC 实现读写分离：
+					https://www.cnblogs.com/boothsun/p/7853526.html
+				mycat实现读写分离：
 	2.数据库分片：
 		./数据库分片.txt
 附：
