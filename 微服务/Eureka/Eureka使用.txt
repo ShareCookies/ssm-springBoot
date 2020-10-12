@@ -123,3 +123,7 @@ springCloud eureka 客户端的使用：
 	Eureka概念原理：
 		https://www.jianshu.com/p/2fa691d4a00a
 		./eureka如何管理服务调用.png
+	Spring cloud实现FeignClient指定Zone调用
+		https://blog.csdn.net/zhxdick/article/details/91868730?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
+		eureka.instance.metadata-map.zone设置不同实例所属的zone，zone之间不互相调用，只有zone内部调用（其实这里用zone做了集群隔离，实际上集群肯定是跨可用区的，这里的eureka中的zone在我们项目里面并不是可用区的概念）。
+	

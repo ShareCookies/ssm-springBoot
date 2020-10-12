@@ -56,4 +56,6 @@ SQL可分为两个部分：
 				service mysql start　　　
 			linux mysql的关闭服务
 				service mysql stop
-	
+	mysql命令：
+		查看数据库版本：
+			select @@version;

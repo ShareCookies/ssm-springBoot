@@ -2,8 +2,14 @@ Spring MVC框架介绍
 	Spring MVC 是 Spring 提供的 Web 开发框架，用来构建Web应用程序。
 	附：
 		设计思想基于MVC设计模式：
-			MVC设计模式
 			http://c.biancheng.net/view/4391.html
+			MVC框架提供面向Web应用的MVC设计实现。
+			通过Model，View，Controller分离，将web层进行职责解耦。
+				把复杂的web应用分成逻辑清晰的几部分，简化开发，减少出错，方便组内开发人员之间的配合。
+			m:模型由JavaBean来构成，存放实体对象！
+			v:MVC容纳了大量视图技术，其中包括JSP、POI等，而视图是一个接口，负责实现模型，
+			c:控制器则实现逻辑代码。
+		
 springMVC处理请求过程：P175
 	跟踪请求：
 		请求从客户端发起，

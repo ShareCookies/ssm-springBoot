@@ -34,8 +34,19 @@ sql查询优化：
 	2.数据库分片：
 		./数据库分片.txt
 附：
+	连接数：
+		https://www.cnblogs.com/caoshousong/p/10845396.html
+		show variables like '%max_connection%'; 查看最大连接数
+		set global max_connections=1000;        重新设置最大连接数
+		
+		MySQL支持的最大连接数量是取决于给定平台上线程库的质量、可用RAM的数量、每个连接可使用多少RAM.每个连接的工作负载以及所需的响应时间。
+		如果你需要支持更多的连接,你应该增加变量max_ connections 的值。
+		简单查看系统用户线程数和 系统支持的最大线程数。
+			ulimit -a
+
 	Mysql高性能优化规范建议：
 		https://www.cnblogs.com/huchong/p/10219318.html
+	
 	一条SQL语句执行得很慢的原因有哪些：			
 		https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485185&idx=1&sn=66ef08b4ab6af5757792223a83fc0d45&chksm=cea248caf9d5c1dc72ec8a281ec16aa3ec3e8066dbb252e27362438a26c33fbe842b0e0adf47&token=79317275&lang=zh_CN#rd
 	一条SQL语句在MySQL中如何执行的：
@@ -52,3 +63,10 @@ sql查询优化：
 	加上索引比不加索引还慢：
 		https://segmentfault.com/q/1010000014484036/a-1020000014484759	
 		对于重复数据很多的列不合适简建立索引，因为过滤后数据量仍然很大，先走索引在走表，所以很慢
+	数据库查询缓存：
+		mysql8以后就取消了查询缓存这个功能了。
+		https://www.cnblogs.com/yueyun00/p/10898677.html
+		https://segmentfault.com/a/1190000017872095?utm_source=tag-newest
+		mysql缓存配置：
+			https://www.cnblogs.com/wangzhuxing/p/5223881.html
+			如何判断mysql是否命中缓存了。
