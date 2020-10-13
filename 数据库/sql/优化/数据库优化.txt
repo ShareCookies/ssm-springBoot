@@ -51,18 +51,22 @@ sql查询优化：
 		https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485185&idx=1&sn=66ef08b4ab6af5757792223a83fc0d45&chksm=cea248caf9d5c1dc72ec8a281ec16aa3ec3e8066dbb252e27362438a26c33fbe842b0e0adf47&token=79317275&lang=zh_CN#rd
 	一条SQL语句在MySQL中如何执行的：
 		https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247485097&idx=1&sn=84c89da477b1338bdf3e9fcd65514ac1&chksm=cea24962f9d5c074d8d3ff1ab04ee8f0d6486e3d015cfd783503685986485c11738ccb542ba7&token=79317275&lang=zh_CN#rd
-？
-	百万条数据1秒内
+附：
+	百万条数据查询：
+		无索引约1.5s
+		有索引约0.05s
+		有无索引将近20倍左右差距
+	加上索引比不加索引还慢：
+		https://segmentfault.com/q/1010000014484036/a-1020000014484759	
+		对于重复数据很多的列不合适简建立索引，因为过滤后数据量仍然很大，先走索引在走表，所以很慢
 	冗余字段的建立，减少表之间的关联即减少数据的查询量。
 		mysql数据以字符串为主的数据库，表数据量极限500万
 		mysql数据以整形为主的数据库，表数据量极限1000万
 	solr，mongo，redis
-	Solr与MySQL查询性能对比：
-		https://www.cnblogs.com/luxiaoxun/archive/2015/08/02/4696477.html
+		Solr与MySQL查询性能对比：
+			https://www.cnblogs.com/luxiaoxun/archive/2015/08/02/4696477.html
 		
-	加上索引比不加索引还慢：
-		https://segmentfault.com/q/1010000014484036/a-1020000014484759	
-		对于重复数据很多的列不合适简建立索引，因为过滤后数据量仍然很大，先走索引在走表，所以很慢
+	
 	数据库查询缓存：
 		mysql8以后就取消了查询缓存这个功能了。
 		https://www.cnblogs.com/yueyun00/p/10898677.html
@@ -70,3 +74,13 @@ sql查询优化：
 		mysql缓存配置：
 			https://www.cnblogs.com/wangzhuxing/p/5223881.html
 			如何判断mysql是否命中缓存了。
+			
+			是否开启查询缓存：
+				show global variables like '%query_cache%';
+				query_cache_type 为 on 开启
+			让sql语句不使用缓存：
+				不用：select SQL_NO_CACHE  count(*) FROM FLOW_WORK_TOREAD
+				用：select SQL_CACHE  count(*) FROM FLOW_WORK_TOREAD
+	select count 第一次很慢后面很快：
+		1.第一次建库，所以第一次查询要生成索引
+		2.判断是否有无开启缓存查询
