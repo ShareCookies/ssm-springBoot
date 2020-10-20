@@ -16,3 +16,5 @@ https://www.cnblogs.com/erbing/p/5805727.html
 		在编程中要连接数据库，必须先装载特定厂商的数据库驱动程序，不同的数据库有不同的装载方法。如：
 	　　装载MySql驱动：Class.forName("com.mysql.jdbc.Driver");
 	　　装载Oracle驱动：Class.forName("oracle.jdbc.driver.OracleDriver");
+附：
+	druid连接池：https://www.cnblogs.com/chy18883701161/p/12594889.html

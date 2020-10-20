@@ -10,7 +10,8 @@ mapper的复用：
 		./自动生成mapper
 	方式2：
 		通用Mapper：
-		https://www.jianshu.com/p/5f84624e96bc
+		https://github.com/abel533/Mapper/wiki
+		https://blog.csdn.net/qq_35387940/article/details/107978120?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
 分页：
 	分页的思路：
 	　 1.向SQL传入相关参数去数据库查出该页的数据。

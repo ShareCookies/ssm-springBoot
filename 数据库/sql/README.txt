@@ -32,6 +32,11 @@ SQL可分为两个部分：
 		https://www.runoob.com/mysql/mysql-database-export.html
 		navicat导出数据库:
 			要导出的数据库上右击鼠标->点击“转储SQL 文件”->“数据跟结构”。
+		navicat自带备份功能。
+		mysql自带备份功能。
+	mysql回滚数据库：
+		http://www.cppcns.com/shujuku/mysql/173077.html
+		https://www.cnblogs.com/klb561/p/10963527.html
 	mysql常见控制台命令：
 		quit：
 			退出mysql
