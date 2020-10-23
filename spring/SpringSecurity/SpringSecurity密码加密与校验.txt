@@ -20,10 +20,11 @@
 			https://www.cnblogs.com/second-tomorrow/p/9129043.html
 			
 			附：
+				1.
 				spring的DigestUtils.java
 				Digest翻译过来是摘要,不是加密. 既然是摘要,也就不能解密的, 就象你不能用论文摘要还原整个论文一样.
 				摘要的作用不是加密, 而是防篡改. 至于很多摘要算法用于密码变形,则是完全的另一回事,不要看成是加密.
-
+				2.
 BCryptPasswordEncoder的密码加密与密码匹配过程：
 	BCryptPasswordEncoder.java
 	加密过程：

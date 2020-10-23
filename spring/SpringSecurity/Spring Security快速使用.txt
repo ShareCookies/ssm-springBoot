@@ -7,6 +7,9 @@ https://www.cnblogs.com/demingblog/p/10874753.html
 2.新建一个security配置类：
 	介绍：
 		1.在该配置类上启用security。
+		附：
+			@EnableWebSecurity
+				https://blog.csdn.net/andy_zhang2007/article/details/90023901	
 		2.进行web请求资源的访问控制配置：
 			实现特定资源只能由特定角色访问的功能。
 			./使用security保护Web请求.txt goto: 过滤请求
@@ -23,15 +26,55 @@ https://www.cnblogs.com/demingblog/p/10874753.html
 					auth.userDetailsService(userDetailsService)
 						.passwordEncoder(passwordEncoder());// 设置密码编码器
 				}
-			注：登入认证的时候，会调用密码编译器将用户提交的密码进行编译，
-				然后在与数据库获取的用户的密码进行对比，认证通过则登入成功。
-				附：Spring Security  密码校验和密码加密流程：
-					./SpringSecurity密码加密与校验.txt
 	例：
 		./security/SecurityConfiguration.java
 	附：
-		@EnableWebSecurity
-			https://blog.csdn.net/andy_zhang2007/article/details/90023901		
+		security是如何实现用户登录的：
+			https://www.jianshu.com/p/e98cdf23b991
+			UsernamePasswordAuthenticationFilter从http请求中获取用户名和登录密码，封装成Authentication（UsernamePasswordAuthenticationToken）对象，
+			然后调用AuthenticationManager的验证方法，通过则登录成功，信息保存到security上下文中，失败则返回403.
+			附：
+				UsernamePasswordAuthenticationFilter：
+					UsernamePasswordAuthenticationFilter是AbstractAuthenticationProcessingFilter一种实现类，是针对使用用户名和密码进行身份验证而定制化的一个过滤器。
+					AbstractAuthenticationProcessingFilter是个抽象类，实现类有cookie，用户名密码等。抽象类在整个身份验证的流程中主要处理的工作就是所有与Web资源相关的事情，并且将其封装成Authentication对象，最后调用AuthenticationManager的验证方法。
+					所以UsernamePasswordAuthenticationFilter的工作大致也是如此，只不过在这个场景下更加明确了Authentication对象的封装数据的来源——用户名和密码。
+					如何决定用那个filter了？
+				AuthenticationManager如何完成校验工作：
+					AuthenticationManager唯一实现类ProviderMananger，根据各个AuthenticationProvider实现类的support方法询问哪个具体实现类能支持该token工作，找到后调用其authenticate进行认证判断。
+				AuthenticationProvider（验证核心的工作者）：
+					我们曾多次强调过一个设计概念：AuthenticationManager接口设计上并不是用于完成特定的身份验证工作的，而是调用其所配发的AuthenticationProvider接口去实现的。
+					AuthenticationProvider只包含两个方法声明:
+						1.supports 是否支持当前验证协议：
+							AuthenticationManager可以通过调用该方法，辨别当前AuthenticationProvider是否是完成相应验证工作的
+							boolean supports(Class<?> authentication);				
+								ProviderManager（Spring Security中唯一AuthenticationManager的实现类），（像状态模式！或策略）
+								在处理authenticate身份验证入口方法的时，首先第一个解决的问题便是：我手下哪个AuthenticationProvider能验证当前传入的Authentication。
+								为此ProviderManager便会对其所有的AuthenticationProvider做supports方法检测，直到有AuthenticationProvider能在supports方法被调用后返回true。
+							附：
+								不同的AuthenticationProvider开发初衷本就是为了支持指定的某种验证协议，所以在特定的AuthenticationProvider的视角中，他只关心当前Authentication是不是他预先设计处理的类型即可。
+								在使用用户名和密码的验证场景中，验证使用的用户名和密码被封装成了UsernamePasswordAuthenticationToken对象。Spring Security便为了向UsernamePasswordAuthenticationToken对象在核心层提供相关的验证服务便继承AuthenticationProvider开发了使用用户名和密码与UserDetailsService交互并且验证密码的DaoAuthenticationProvider。
+									附：
+										DaoAuthenticationProvider是AbstractUserDetailsAuthenticationProvide实现类。
+										DaoAuthenticationProvider针对UsernamePasswordAuthenticationToken的大部分逻辑都是通过AbstractUserDetailsAuthenticationProvider完成的。
+
+						2.authenticate 核心验证方法：
+							Authentication authenticate(Authentication authentication) throws AuthenticationException;
+							附：
+								完成了是否支持的supports验证后，ProviderMananger便会全权将验证工作交由DaoAuthenticationProvider进行处理了。
+									与ProviderMananger最不同一点是，在DaoAuthenticationProvider的视角里，当前的Authentication最起码一定是UsernamePasswordAuthenticationToken的形式了，不用和ProviderMananger一样因为匮乏信息而不知道干什么。
+								DaoAuthenticationProvider会按照预先设计一样分别从principal和credentials获取用户名和密码进行验证。
+									String username = (authentication.getPrincipal() == null) ? "NONE_PROVIDED" : authentication.getName();
+									String presentedPassword = authentication.getCredentials().toString();
+									接着便是按照我们熟悉的预先设计流程：
+										1.通过UserDetailsService使用username获取对应的UserDetails
+										2.最后通过对比密码是否一致
+											附：
+												调用密码编译器将用户提交的密码进行编译，然后在与数据库获取的用户的密码进行对比，认证通过则登入成功。
+												Spring Security  密码校验和密码加密流程：
+													./SpringSecurity密码加密与校验.txt
+										3.向PrivoderManager返回最终的身份验证结果与身份信息。这样一个特定场景使用用户名和密码的验证流程就完成了。
+
+	
 3.编写登入认证接口：（即如何登入然后进行认证）
     //1,2,3,4步骤都是和spring security交互的，如果完成了则登入成功。
 	// 第5步是我们自己定义的，用来把登入成功后的信息转换成token。
@@ -41,12 +84,12 @@ https://www.cnblogs.com/demingblog/p/10874753.html
 	UserDetailsService userDetailsService;
     @PostMapping("/user/login/account")
     public AuthToken loginByAccountReturnToken(@RequestParam(value = "name") String username, @RequestParam String password) {
-        // 1 创建UsernamePasswordAuthenticationToken
+        // 1 创建UsernamePasswordAuthenticationToken //（从http获取参数，构造一个可以让security进行验证的身份令牌）
         UsernamePasswordAuthenticationToken token
                 = new UsernamePasswordAuthenticationToken(username, password);
-        // 2 认证
+        // 2 认证  //（security通过authenticationManager进行身份验证，验证不通过会返回403拒接访问）
         Authentication authentication = this.authenticationManager.authenticate(token);
-        // 3 保存认证信息
+        // 3 保存认证信息 // （认证通过，把身份信息保存到security上下文中，便于随时获取）
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // 4 加载UserDetails
         UserDetails details = this.userDetailsService.loadUserByUsername(username);
@@ -58,57 +101,69 @@ https://www.cnblogs.com/demingblog/p/10874753.html
         //User user1 = SecurityUtils.getLoginUser();
         return authTokenProvider.createToken(user);
     }
-	附第5步解释：
-		介绍：				
-			客户端可以通过该请求来获得一个token了{"token":"abcd","expires":1234567890}，那么下次请求的时候，带上 token=abcd这个参数（或者也可以是自定义的请求头中），服务端即可从该token中识别出你的信息，无需登入。
-		AuthTokenProvider：
-			自定义的token工具类，该类具有两个方法，一个用来生成token，一个用来验证token（即从token中识别用户）。
-			例：./security/token/AuthTokenProvider.java
-		AuthToken：
-			自定义的token对象，就是保存了token的一些信息。
-			例：./security/token/AuthToken.java
+	附
+		第5步解释：
+			介绍：				
+				客户端可以通过该请求来获得一个token了{"token":"abcd","expires":1234567890}，那么下次请求的时候，带上 token=abcd这个参数（或者也可以是自定义的请求头中），服务端即可从该token中识别出你的信息，无需登入。
+			AuthTokenProvider：
+				自定义的token工具类，该类具有两个方法，一个用来生成token，一个用来验证token（即从token中识别用户）。
+				例：./security/token/AuthTokenProvider.java
+			AuthToken：
+				自定义的token对象，就是保存了token的一些信息。
+				例：./security/token/AuthToken.java
+		UsernamePasswordAuthenticationToken：（封装用户名密码的基石）
+			https://www.jianshu.com/p/e98cdf23b991
+			从HttpRequest中获取对应的参数字段，并将其封装进Authentication中传递给AuthenticationManager进行身份验证。
+			Authentication到底是什么：
+				1.Authentication是一个接口声明，一个特定行为的声明，它并不是一个类，没有办法实例化为对象进行传递。所以我们首先需要对Authentication进行实现，使其可以被实例化。
+				
+				2.在Spring Security中便将使用username和password封装成Authentication的实现声明为了UsernamePasswordAuthenticationToken
+				UsernamePasswordAuthenticationToken继承了抽象类，其主要与AbstractAuthenticationToken的区分就是针对使用用户名和密码验证的请求按照约定进行了一定的封装：将username赋值到了principal ，而将password赋值到了credentials。
+			通过UsernamePasswordAuthenticationToken实例化了Authentication接口，继而按照流程，将其传递给AuthenticationMananger调用身份验证核心完成相关工作。
 注：
 	到这一步其实就security的正常流程已经走完了。
 4.Spring Security 的token实战:
 	介绍：
 		前后端项目分离，并不一定均适合使用session方案保持登录状态（如移动端就无法使用cookie）。
-		服务器先向客户端传递token，客户端访问时在带上该token，然后服务端通过token来识别用户是教好的一个解决方案。
+		服务器先向客户端传递token，客户端访问时在带上该token，然后服务端通过token来识别用户是较好的一个解决方案。
 	spring security整合token:
 		1.怎么生成token（即怎么登录）：
 			goto: 3.编写登入认证接口
 		2.spring security怎么根据token得到授权认证信息。
-			客户端有token后，请求的时候带上token=abcd参数。
-			security中使用一个自定义的filter解析token，复原security无状态下的"session"，
-				附：（即手动设置security的authentication，就是把当前用户信息存入security，否则SecurityContext中没有用户信息，后面的流程会检测出"需要登录"）
-			让当前请求的处理线程具有认证授权数据，后面的业务逻辑才能执行。
-			自定义的filter：
-				在该过滤器中来解析token
-				./security/token/filter/MyAuthTokenFilter.java
-			将自定义的filter整合到spring security中:
-				1.将自定义的过滤器整合到SecurityConfigurerAdapter中。
-				./security/token/configuration/MyAuthTokenFilterConfigurer.java
-				2.将SecurityConfigurerAdapter整合到security配置类中：
-					private MyAuthTokenConfigurer securityConfigurerAdapter() {
-					  return new MyAuthTokenConfigurer(userDetailsService, tokenProvider);
-					}
-					@Override
-					protected void configure(HttpSecurity http) throws Exception {
-						http
-							.and()
-							.apply(securityConfigurerAdapter());// 增加自定义的securityConfigurerAdapter
-					}			
+			介绍：
+				客户端有token后，请求的时候带上token=abcd参数。
+				然后在security中使用一个自定义的filter解析token，复原security无状态下的"session"，让当前请求的处理线程具有认证授权数据，后面的业务逻辑才能执行。
+					附：
+					这一步的思路是，手动把当前用户信息存入security，即手动设置security的authentication。
+					否则SecurityContext中没有用户信息，后面的流程会检测出"需要登录"。
+			实现：
+				自定义的filter：
+					在该过滤器中来解析token
+					./security/token/filter/MyAuthTokenFilter.java
+				将自定义的filter整合到spring security中:
+					1.将自定义的过滤器整合到SecurityConfigurerAdapter中。
+					./security/token/configuration/MyAuthTokenFilterConfigurer.java
+					2.将SecurityConfigurerAdapter整合到security配置类中：
+						private MyAuthTokenConfigurer securityConfigurerAdapter() {
+						  return new MyAuthTokenConfigurer(userDetailsService, tokenProvider);
+						}
+						@Override
+						protected void configure(HttpSecurity http) throws Exception {
+							http
+								.and()
+								.apply(securityConfigurerAdapter());// 增加自定义的securityConfigurerAdapter
+						}
+		3.security使用了token认证方案后要关闭的一些设置：
+			1. goto：禁用spring security 的session
+			2. .and().csrf().disable() //关闭csrf保护 （Cross-site request forgery 跨站请求伪造）
+
 		附：
 			使用token进行用户验证的系统流程：
 				1.客户端（react前端，IOS等）调用“登录接口”获得一个包含token的响应（通常是个JSON，如 {“token”:”abcd”,”expires”:1234567890}）
 				2.客户端发起请求并携带token参数，向服务器获取数据。
 				3.
 					服务端根据token发现token过期/错误，返回”请登录”状态码
-					服务器发现token正常，并解析出来是A，返回A的数据。
-				4.……
-
-	security使用了token认证方案后要关闭的一些设置：
-		1. goto：禁用spring security 的session
-		2. .and().csrf().disable() //关闭csrf保护 （Cross-site request forgery 跨站请求伪造）
+					服务器发现token正常，并解析出来是A，设置到security中，security对请求放行。
 附：
 	禁用spring security 的session:
 		spring security 使用了session：
@@ -131,7 +186,7 @@ https://www.cnblogs.com/demingblog/p/10874753.html
 				http
 					.sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-	Spring Security中如何获取当前登入用户信息：
+	我们在业务中如何获取当前登入用户信息：
 		https://blog.csdn.net/LI_AINY/article/details/88694920
 		//通过SecurityContextHolder来获取当前登入用户信息
 		Object principl = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
