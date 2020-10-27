@@ -36,7 +36,7 @@ SQL可分为两个部分：
 		mysql自带备份功能。
 	mysql回滚数据库：
 		http://www.cppcns.com/shujuku/mysql/173077.html
-		https://www.cnblogs.com/klb561/p/10963527.html
+		https://blog.csdn.net/lvshaorong/article/details/80631133
 	mysql常见控制台命令：
 		quit：
 			退出mysql

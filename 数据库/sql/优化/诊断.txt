@@ -184,6 +184,7 @@ sql问题诊断：
 								索引范围扫描,常见于使用>,<,is null,between ,in ,like等运算符的查询中。
 							J:index_merge:
 								表示查询使用了两个以上的索引,最后取交集或者并集,常见and ,or的条件使用了不同的索引,官方排序这个在ref_or_null之后,但是实际上由于要读取所个索引,性能可能大部分时间都不如range
+								？
 							K:index:
 								索引全表扫描,把索引从头到尾扫一遍,常见于使用索引列就可以处理不需要读取数据文件的查询、可以使用索引排序或者分组的查询。
 							L:all:
@@ -203,7 +204,8 @@ sql问题诊断：
 					 
 					*9. rows
 						这里是执行计划中估算的扫描行数,不是精确值
-					 
+						注：
+							优化目的就是减小这个值。
 					10. extra
 					这个列可以显示的信息非常多,有几十种,常用的有
 					A:distinct:在select部分使用了distinc关键字
@@ -229,18 +231,14 @@ sql问题诊断：
 
 				例：
 					https://zhuanlan.zhihu.com/p/89793056
-					例2：
-						小总结：
-							mysql普通查询是未加锁的。
-							查询时是会用到索引的，索引的命中优化规则小总结：
-								1. 用and那么会优先使用有索引的条件
-								2. 用or 那么只要or条件中有非索引的，那么还是全表检索
-						#主键ID 索引DOC_SEQUENCE
-						EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' #type:const rows:1
-						EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' AND DOC_SEQUENCE = '20190124'  #type:const rows:1
-						EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' OR DOC_SEQUENCE = '20190124' #type:index_merge rows:2
-						EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' OR SUBJECT = '索引性能测试' #type:ALL rows:613
-						
+
+				附：
+					为什么有索引但explain时缺没用到索引了：
+						你的sql是要经过优化器优化而生成执行计划的，也有可能，优化器判断加不加索引不影响其查询的速度，结果就没有走索引。
+					Impossible WHERE noticed after reading const tables：
+						MySQL这个Impossible WHERE noticed after reading const tables的结论并不是通过统计信息做出的，而是真的去实际访问了一遍数据后，发现确实没有“a = 2”的行才得出的。
+						https://blog.csdn.net/weixin_33698823/article/details/92127833
+						https://www.cnblogs.com/huahua035/p/10573930.html
 附：
 	ajax请求：
 		https://zhidao.baidu.com/question/984180091419371739.html?qbl=relate_question_0&word=%C8%E7%BA%CE%B4%D3%BF%D8%D6%C6%CC%A8%D6%D0%BF%B4%B3%F6%C4%C7%D0%A9%CA%C7%CD%AC%B2%BD%C7%EB%C7%F3%BB%B9%CA%C7%D2%EC%B2%BD%C7%EB%C7%F3

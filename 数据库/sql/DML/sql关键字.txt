@@ -93,6 +93,7 @@ mysql sql注意事项：
 				select * from EGOV_URGER where true 返回全部
 				select * from EGOV_URGER where FALSE 一条都不返回
 		SQL中in 、or、和exist 区别：
+			https://blog.csdn.net/liuxilil/article/details/6718409?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.add_param_isCf&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.add_param_isCf
 			https://blog.csdn.net/qq_32800367/article/details/82467804
 		
 	IN：（NOT IN）列查询
