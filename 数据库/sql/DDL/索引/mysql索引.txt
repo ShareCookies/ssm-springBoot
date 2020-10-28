@@ -1,3 +1,4 @@
+https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 数据查找过程：
 	数据库管理系统，执行一个在Student表上根据指定的Sno，查找该学生信息的语句。
 	没有索引：
@@ -51,7 +52,6 @@
 				对串列进行索引，如果可能应该指定一个前缀长度。例如，如果有一个CHAR(255)的列，如果在前10个或20个字符内，多数值是惟一的，那么就不要对整个列进行索引。短索引不仅可以提高查询速度而且可以节省磁盘空间和I/O操作。
 
 			索引列排序
-
 				MySQL查询只使用一个索引。
 				因此如果 where子句中已经使用了索引的话，那么order by中的列是不会使用索引的。
 				因此数据库默认排序可以符合要求的情况下不要使用排序操作;
@@ -67,8 +67,6 @@
 					https://blog.csdn.net/fly910905/article/details/78288685
 				<>:
 					https://www.v2ex.com/t/425142
-
-				
 	附：
 		索引的简易简易理解：
 			索引可以简单的理解为一张表，该表保存索引字段，并指向实体表的记录。
@@ -89,7 +87,7 @@
 					例：
 						对一个有A,B,C三个列组成的索引，可以在A以及A,B和A,B,C上对其进行高效搜索。?
 				MySQL的BTree索引使用的是B树中的B+Tree，但mysql两种主流存储引擎的BTree索引实现方式是不同的。
-				InnoDB: ?
+				InnoDB: ！
 					其数据文件本身就是索引文件。
 					表数据文件本身就是按B+Tree组织的一个索引结构，树的叶节点data域保存了完整的数据记录。
 					(MyISAM索引文件和数据文件是分离的)
@@ -139,6 +137,7 @@
 		单列索引:
 			即一个索引只包含单个列，一个表可以有多个单列索引，但这不是组合索引。
 		组合索引:
+			https://dev.mysql.com/doc/refman/5.7/en/multiple-column-indexes.html
 			一个索引包含多个列。
 			例：
 				https://www.jianshu.com/p/40edfbb50046
@@ -147,27 +146,16 @@
 			
 				建立组合索引
 					ALTER TABLE mytable ADD INDEX name_city_age (name(10),city,age);
-					最左前缀：
-						其实是相当于分别建立了下面三组组合索引：
-	 　　 					name,city,age;name,city;name;
-						附：
-							为什么没有 city，age组合呢。这是因为MySQL组合索引“最左前缀”的结果。
-							简单的理解就是只从最左面的开始组合。
-						例：
-							并不是只要包含这三列的查询都会用到该组合索引，下面的几个SQL就会用到这个组合索引：
-								SELECT * FROM mytable WHREE username="admin" AND city="郑州"
-								SELECT * FROM mytable WHREE username="admin"
-							下面几个则不会用到：
-		  　　					SELECT * FROM mytable WHREE age=20 AND city="郑州"
-								SELECT * FROM mytable WHREE city="郑州"
 			区别：
 				https://blog.csdn.net/Abysscarry/article/details/80792876
 				同时存在联合索引和单列索引（字段有重复的），这个时候查询mysql会怎么用索引呢。
 					这个涉及到mysql本身的查询优化器策略了，当一个表有多条索引可走时, Mysql 根据查询语句的成本来选择走哪条索引；
 				什么时候要用组合索引了：
-					...
-				最左前缀原则原理：
-					？
+					看是否会应用到多字段查询或排序
+					索引越少更新成本越低
+				最左前缀原则：
+					./mysql索引原理.txt goto: 索引的最左匹配特性
+					
 	删除索引：
 		语法：
 			Mysql: DROP INDEX <索引名> on <表名>

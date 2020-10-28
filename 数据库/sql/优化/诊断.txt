@@ -231,6 +231,7 @@ sql问题诊断：
 
 				例：
 					https://zhuanlan.zhihu.com/p/89793056
+					https://tech.meituan.com/2014/06/30/mysql-index.html
 
 				附：
 					为什么有索引但explain时缺没用到索引了：
