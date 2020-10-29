@@ -1,0 +1,146 @@
+Spring数据访问模板化：p348
+	介绍：
+		1. Spring自带了一组数据访问框架，简化数据访问过程，集成了多种数据访问技术。框架核心就是数据访问模板。
+				介绍：
+					不管你是直接通过JDBC还是像Hibernate这样的对象关系映射（object-relationalMapping ORM）等框架实现数据持久化。
+						支持JDBC、Hibernate、Java持久化API（Java Persistence API，JPA）等数据持久化方式。包括NoSQL。
+					Spring都能够帮你消除持久化代码中那些单调枯燥的数据访问逻辑。我们可以依赖Spring来处理底层的数据 访问，这样就可以专注于应用程序中数据的管理了。	
+		2. Spring数据访问模板将数据访问过程中固定的和可变的部分明确划分为两个不同的类：模板（template）和回调（callback）。
+		模板管理过程中固定的部分，而回调处理自定义的数据访问代码。用户仅需关注回调部分即可。
+			固定部分例如：准备释放资源、事务管理、异常处理等。
+			回调部分例如：应用程序相关的数据访问语句、 绑定参数以及整理结果集。
+		3. 针对不同的持久化平台，Spring提供了多个可选的模板。
+			如果直接使用JDBC，那你可以选择JdbcTemplate。
+			如果你希望使用对象关系映射框架，那HibernateTemplate或JpaTemplate可能会更适合你。
+			...p350
+		附：
+			Spring数据访问模板化应用了模板方法设计模式。
+	使用：
+		1.配置数据源：
+			介绍：
+				无论选择Spring的哪种数据访问方式，你都需要配置一个数据源用来连接数据库。
+					附：Spring所支持的大多数持久化功能都依赖于数据 源。
+					因此，在声明模板和Repository之前，我们需要在Spring中配置一个数据源用来连接数据库。
+				Spring提供了在Spring上下文中配置数据源bean的多种方式：
+					1.通过JDBC驱动程序定义的数据源； 
+					2.通过JNDI查找的数据源；
+					3.连接池的数据源。 
+					等
+			使用数据源连接池：p352
+				直接在Spring中配置数据源连接池。
+				例：
+					xml中将数据源注册为bean：
+						<bean id= "dataSource" class= "org. apache . commons . dbcp. BasicDa taSource"
+							p:driverC1asssName="org.h2.Driver"
+							p:url="jdbc:h2:tcp://localhost/~/spitter"
+							p:username="sa"
+							p:password=""
+							p:initialSize="5"
+							p:maxActive="10"/>
+					java配置中将数据源注册为bean：
+						@Bean
+						public BasicDataSource dataSource() {
+							BasicDataSourceds=newBasicDataSource();
+							ds.setDriverClassName("org.h2.Driver");
+							ds.setUrl("jdbc:h2:tcp://localhost/~/spitter");
+							ds.setUsername("sa");
+							ds.setPassword("");
+							ds.setInitialSize(5);
+							ds.setMaxActive(10);
+							returnds;
+						}
+			使用JNDI数据源:
+				Spring应用程序经常部署在Java EE应用服务器中，如WebSphere、TomcatWeb容器中等。这些服务器允许你配置通过JNDI获取数据源。
+				这种配置的好处在于数据源完全可以在应用程序之外进行管理，这样应用程序只需在访问数据库的时候查找数据源就可以了。
+				另外，在应用服务器中管理的数据源通常以池的方式组织，从而具备更好的性能，并且还支持系统管理员对其进行热切换。
+			基于JDBC驱动的数据源：p354
+				Spring中通过JDBC驱动定义数据源是最简单的配置方式。尽管这些数据源对于小应用或开发环境来说是不错的，但是要将其用于生产环境，你还是需要慎重考虑。
+				Spring 提供了三种JDBC数据源类:
+					因为SingleConnectionDataSource有且只有一个数据库连接，所以不适合用于多线程的应用程序，最好只在测试的时候使用。
+					而DriverManagerDataSource和SimpleDriverDataSource尽管支持多线程，但是在每次请求连接的时候都会创建新连接，这是以性能为代价的。
+				鉴于以上的这些限制，我强烈建议应该使用数据源连接池。
+			使用嵌入式的数据源：
+				嵌入式数据库
+		2.数据源选择：
+			使用profile选择数据源：p357
+				实际上，我们很可能面临这样一种需求，那就是在某种环境下需要其中一种数据源，而在另外 的环境中需要不同的数据源。
+				Spring的bean profile特性恰好用在这里，所需要做的就是将每个数据源配置在不同的profile中，然后在启动应用时决定激活哪个 profile。
+					借助Spring的profile特性在运行时选择数据源
+				例：
+					开发数据源：
+						// 当且仅当development profile处于激活状态时，会创建嵌入式数据库
+						@Profile( "development")
+						@Bean
+						public DataSource embeddedDataSource() {...}
+					生产环境的数据源:
+						@Profile("production")
+						@Bean
+						public DataSource dataSource() {...}
+			附：
+		3. 使用spring模板访问数据：
+			使用JDBC模板：
+				介绍：
+					Spring将数据访问的样板代码抽象到模板类之中。
+						Spring的JDBC框架承担了资源管理和异常处理的工作，从而简化了 JDBC代码，让我们只需编写从数据库读写数据的必需代码。
+					Spring为JDBC提供了三个模板类供选择：
+						JdbcTemplate：
+							最基本的Spring JDBC模板，这个模板支持简单的JDBC数据库访问功能以及基于索引参数的查询；
+						NamedParameterJdbcTemplate：
+							使用该模板类执行查询时 可以将值以命名参数的形式绑定到SQL中，而不是使用简单的索引参数； 
+						SimpleJdbcTemplate：
+							该模板类利用Java 5的一些特性如自动装箱、泛型以及可变参数列表来简化JDBC模板的使用。
+							Spring 3.1开始，SimpleJdbcTemplate 已经被废弃了，其Java 5的特性被转移到了JdbcTemplate中。
+				使用JdbcTemplate：
+					1.
+						只需要为JdbcTemplate设置DataSource，就可让JdbcTemplate正常工作。
+						@Bean
+						public JdbcTemplate jdbcTemplate (DataSource dataSource) {
+							return new JabcTemplate ( dataSource) ;
+						}
+					2.使用JdbcTemplate查询和操作数据：
+						...
+			orm相关模板：
+				第11章 p369
+			noSql相关模板：
+				第12章 p396
+
+					
+什么是Repository：
+	介绍：
+		为了避免持久化的逻辑分散到应用的各个组件中，最好将数据访问的功能放到一个或多个专注于此项任务的组件中。
+		这样的组件通常称为数据访问对象（data access object，DAO）或Repository。
+	附：
+		1.Repository通常声明为接口。
+			附：
+				1.spring注入接口后，是如何找到接口的实现类的了!!
+					https://ask.csdn.net/questions/720128?sort=votes_count
+				2.也可以不注入接口，直接注入实现类:
+					尽管Spring鼓励使用接口，但这并不是强制的。
+					你可以使用Spring将bean（DAO或其他类型）直接装配到另一个bean的某个属性中，而不需要一定通过接口注入。
+		2. Repository面向对象设计原则：
+			针对接口编程p345
+		3. Repository设计注意事项
+			1.数据访问层是以持久化技术无关的方式来进行访问的，持久化 方式的选择独立于Repository。
+				这样切换持久化框架对应用 程序其他部分所带来的影响最小。
+			2.同时只有数据访问相关的方法才通过 接口进行暴露。
+				如果将数据访问层的实现细节渗透 到应用程序的其他部分中，那么整个应用程序将与数据访问层耦合在 一起，从而导致僵化的设计。
+Spring的数据访问异常体系：
+	前景：
+		一方面，JDBC的异常体系过于简单了，甚至它算不上一个体系。
+		另一方面，Hibernate等持久化框架的异常体系是其本身所独有的。
+		我们需要的数据访问异常要具有描述性而且又与特定的持久化框架无关。
+	介绍：
+		Spring提供了统一的数据访问异常体系，这个异常体系用在了它支持的所有持久化方案中。
+			它并没有与特定的持久化方式相关联。这意味着我们可以使用Spring 抛出一致的异常，而不用关心所选择的持久化方案。这有助于我们将所选择持久化机制与数据访问层隔离开来。
+		为了利用Spring的数据访问异常，我们必须使用Spring所支持的数据访问模板。
+	附：
+		1.使用JDBC编程的2个问题：
+			1. 如果你曾 经编写过JDBC代码（不使用Spring），你肯定会意识到如果不强制捕 获SQLException的话，几乎无法使用JDBC做任何事 情。p346
+			2. SQLException异常提示表示在尝试访问数据库的时出现了问题，但是这个异常却没有告诉你哪里出错了以及如何进行处理。
+				因为可能导致抛出SQLException的常见问题包括：
+					应用程序无法连接数据库；
+					要执行的查询存在语法错误；
+					查询中所使用的表和/或列不存在；
+					试图插入或更新的数据违反了数据库约束。
+		2.spring异常都继承自 DataAccessException，它是一个非检查型异常。
+			Spring认为数据访问层触发异常的很多问题是不能在catch代码块中修复的。所以Spring使用了非检查型异常，而不是强制开发人员编写catch代码块（里面经常是空的）。把是否要捕获异常的权力留给了开发人员。

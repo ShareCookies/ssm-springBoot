@@ -12,6 +12,9 @@ mapper的复用：
 		通用Mapper：
 		https://github.com/abel533/Mapper/wiki
 		https://blog.csdn.net/qq_35387940/article/details/107978120?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
+			
+			自动生成@Table、@Column、@Id注解
+				https://blog.csdn.net/weixin_30273175/article/details/97835785?utm_medium=distribute.pc_relevant.none-task-blog-title-2&spm=1001.2101.3001.4242
 分页：
 	分页的思路：
 	　 1.向SQL传入相关参数去数据库查出该页的数据。

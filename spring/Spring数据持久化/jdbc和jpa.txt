@@ -1,0 +1,131 @@
+JDBC:
+	https://www.cnblogs.com/erbing/p/5805727.html
+	什么是JDBC：
+		JDBC（Java Data Base Connectivity,java数据库连接）是一种用于执行SQL语句的Java API，可以为多种关系数据库提供统一访问，它由一组用Java语言编写的类和接口组成。
+			Java语言中用它来规范客户端程序如何来访问数据库的应用程序接口。
+	JDBC使用：
+		使用JDBC的步骤
+　　		加载JDBC驱动程序 → 建立数据库连接Connection → 创建执行SQL的声明Statement → 处理执行结果ResultSet → 释放资源。
+			附：
+				使用后依次关闭对象及连接：ResultSet → Statement → Connection
+		1.Driver接口：
+			装载特定厂商的数据库驱动程序到jvm中。
+				Driver接口由数据库厂家提供
+			例：
+				装载MySql驱动：Class.forName("com.mysql.jdbc.Driver");
+					mysql-connector-java与mysql版本的对应：
+						https://www.cnblogs.com/junzi/p/6893122.html
+　　			装载Oracle驱动：Class.forName("oracle.jdbc.driver.OracleDriver");
+			附：
+				数据库驱动：
+				　　我们的应用程序也是不能直接使用数据库的，必须通过相应的数据库驱动程序去和数据库打交道。
+					其实也就是数据库厂商的JDBC接口实现，即对Connection等接口的实现类的jar文件。
+
+		2.Connection接口：
+			建立与特定数据库的连接（Connection 会话）。
+			在连接上下文中执行sql语句并返回结果
+			例：
+				连接MySql数据库：
+					Connection conn = DriverManager.getConnection("jdbc:mysql://host:port/database", "user", "password");
+
+　　			连接Oracle数据库：
+					Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@host:port:database", "user", "password");
+				常用方法:
+					createStatement()：创建向数据库发送sql的statement对象。
+					prepareStatement(sql) ：创建向数据库发送预编译sql的PrepareSatement对象。
+					prepareCall(sql)：创建执行存储过程的callableStatement对象。
+					setAutoCommit(boolean autoCommit)：设置事务是否自动提交。
+					commit() ：在链接上提交事务。
+					rollback() ：在此链接上回滚事务。
+		3.Statement接口：
+			https://baike.baidu.com/item/statement/4771842?fr=aladdin
+			Statement用于在已经建立数据库连接的基础上，向数据库发送要执行的SQL语句并返回它所生成结果的对象。
+			有三种 Statement 对象，它们都作为在给定连接上执行 SQL 语句的包容器：
+				Statement
+					Statement 对象用于执行不带参数的简单 SQL 语句；
+				PreparedStatement（它从 Statement 继承而来）
+					PreparedStatement 对象用于执行带或不带 IN 参数的预编译 SQL 语句；
+				CallableStatement（它从 PreparedStatement 继承而来）。
+					CallableStatement 对象用于执行对数据库已存在的存储过程的调用。
+			！
+				为什么要关闭对象了
+		4.ResultSet接口：
+			https://baike.baidu.com/item/ResultSet/10061608?fr=aladdin
+			ResultSet存放Statement执行sql后的数据库结果集。
+			附：
+				1.
+					ResultSet 对象具有指向其当前数据行的指针。
+					最初，指针被置于第一行之前。
+					next()方法将指针移动到下一行，没有下一行时返回 false。
+						所以可以在 while 循环中使用它来迭代结果集。
+				2. 在默认情况下，同一时间每个 Statement 对象在只能打开一个 ResultSet 对象。
+　　		
+			！
+				为什么要关闭对象了
+		例：
+		附：
+			JDBC优点：
+				JDBC不要求我们掌握其他框架的查询语言。它是建立在SQL之上的，而SQL本身就是数据访问语言。
+					因此JDBC能够更好地对数据访问的性能进行调优。
+				JDBC允许你使用数据库的所有特性，而这是其他框架不鼓励甚至禁止的。
+				JDBC能够让我们在更低的层次上处理数据，我们可以完全控制应用程序如何读取和管理数据。
+					例访问和管理数据库中单独的列。			
+	什么是DataSource数据源：
+		https://blog.csdn.net/qq_40910541/article/details/80771607
+		介绍：
+			JDBC2.0 提供了javax.sql.DataSource接口，它负责建立与数据库的连接，用于获取操作数据Connection对象。
+			在应用程序中访问数据库时不必在编写连接数据库的代码，直接引用DataSource获取数据库的连接对象即可。
+		数据源与数据库连接池:
+			数据源建立多个数据库连接，这些数据库连接会保存在数据库连接池中.
+			当需要访问数据库时，只需要从数据库连接池中获取空闲的数据库连接，当程序访问数据库结束时，数据库连接会放回数据库连接池中。
+		附：
+			druid连接池：
+				https://www.cnblogs.com/chy18883701161/p/12594889.html
+				git：https://github.com/alibaba/druid/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98
+				开启druid监控：https://www.cnblogs.com/lijiasnong/p/9889510.html
+			常见连接池的datasource：
+				https://blog.csdn.net/fightingXia/article/details/82555999
+				Spring Boot(2.0)默认数据源：HikariDataSource
+			JNDI?
+			
+			项目运行时查看mybatis，datasource属性：
+				https://blog.csdn.net/qq_41907418/article/details/108230787
+
+JPA
+	https://www.cnblogs.com/yunche/p/10279324.html
+	介绍：
+		JPA（Java Persistence API）是用于对象持久化的 API，是 Java EE 5.0 平台标准的 ORM 规范，使得应用程序以统一的方式访问持久层。
+		JPA 与 JDBC 的区别:
+			JDBC 也是一种规范和接口，不过 JDBC 是面向 SQL 的，使用起来比较繁琐。
+			所以就有了 ORM 框架，ORM建立了 Java 对象与数据库表之间的映射关系，用户可以通过直接操作对象来实现持久化，简化了操作的繁杂度。
+			而 JPA 就是 ORM 框架的规范。
+				附：
+					值得一提的是 Hibernate 是符合 JPA 规范的，而 MyBatis 却不符合，因为 MyBatis 还是需要写 SQL 的。
+	jpa实体类注解：
+		https://www.cnblogs.com/xuwenjin/p/8830850.html
+		介绍：
+			Java Persistence API定义了一种规范，可以通过注解将普通Java对象（有时被称作POJO）映射到数据库。
+			这些普通Java对象被称作Entity Bean。
+		@Entity
+			 表明该类为一个实体类
+		@Table注解：
+			https://docs.oracle.com/javaee/7/api/javax/persistence/Table.html
+			声明此对象映射到数据库的数据表。
+				当实体类与其映射的数据库表名不同名时需要使用 @Table注解说明
+			例：
+				@Table(name = ""）
+		@Id： 
+			@Id用于声明一个实体类的属性映射为数据库的主键列。
+			附：
+				该注解通常置于属性声明语句之前。也可置于属性的getter方法之前。
+		@GeneratedValue用于标注主键的生成策略
+			例：
+			  @GeneratedValue(strategy=GenerationType.AUTO)
+				@Id
+				public Integer getId() {
+					return id;
+				}
+		@Column注解
+			用来标识实体类中属性与数据表中字段的对应关系
+			例：
+				@Column(name="")

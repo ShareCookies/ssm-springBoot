@@ -1,4 +1,0 @@
-数据库连接池的概念
-	https://blog.csdn.net/huojiao2006/article/details/81180615
-Spring Boot 2.0默认连接池 HikariCP
-	https://www.cnblogs.com/michael-xiang/p/10747934.html
