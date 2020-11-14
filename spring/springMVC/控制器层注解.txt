@@ -1,10 +1,8 @@
-﻿spring的构造型注解：
+﻿spirngMVC的构造型注解：
 	@Controller：
-		@Controller注解是用来声明控制器的，但实际上这个注解对Spring MVC本身的影响并不大。
-		构造型注解是辅助实现组件扫描，帮助该类注册为Spring应用上下文中的一个bean。
-		替换为@Component注解，它所实现的效果是一样的，但是在表意性上可能会差一些。
-
-spirngMVC的相关注解：
+		@Controller注解声明了当前类为控制器，控制器注册为spring容器的bean，由spring来进行管理。
+		实际上这个注解对类本身的影响并不大，（构造型注解）只是辅助实现组件扫描，帮助该类注册为Spring应用上下文中的一个bean。替换为@Component注解，它所实现的效果是一样的，但是在表意性上可能会差一些。		
+spirngMVC控制器相关注解：
 	请求的处理：
 		@RequestMapping：
 			介绍：
@@ -44,16 +42,10 @@ spirngMVC的相关注解：
 		@GetMapping和@PostMapping：
 			@GetMapping和@PostMapping等是一个组合注解，是@RequestMapping(method = RequestMethod.GET)等的缩写。
 	数据的获取：
-		Get请求参数的获取：
-			https://blog.csdn.net/myt0929/article/details/84629973
-			
-			1.默认方式：
-				@RequestMapping(value = "/getUserInfo")
-					public User getUserInfo(Integer id){
-				}
-				默认情况下会从Param（就是URL后面的拼接参数）获取名字是id的项，自动转化成Integer类型，其他的类型也是类似。
-			2.使用@RequestParam
-			3.使用HttpServletRequest
+		url参数，form-data表单参数的接收：
+			1.使用@RequestParam
+				./请求参数映射.txt goto: # @RequestParam
+			2.使用HttpServletRequest
 				@RequestMapping(value = "/getUserInfo")
 				public User getUserInfo(HttpServletRequest request){
 					Integer id = Integer.parseInt(request.getParameter("id"));
@@ -62,52 +54,27 @@ spirngMVC的相关注解：
 					}
 				}
 				这个方法是获取整个URL的信息，然后手动获取和分离参数，和类型转化。这个里面带的内容很多，不仅Param还有Header，Cookies等。
-			@RequestParam：
-				./请求参数映射.txt
-		Post请求参数的获取：
-			介绍：
-				1.post传递的参数可以大致分成两种：
-					一种是表单：
-						1.contenType为正常：
-							请求参数将被放置于request.paramter，解析成map。
-							使用@RequestParam接收即可。
-						2.contenType为mutipart/form-data
-							数据传输会被特殊处理。？
-					第二种application/json：
-						参数是存放在json中的，参数必须要用@RequestBody才能解析出来。
-			
-				
-			@RequestBody：
-				./请求参数映射.txt
-
+		body中参数的接收（请求体的contenType一般为application/json）：
+			请求体的contenType一般为application/json，请求体参数一般为json格式
+			3. @RequestBody：
+				./请求参数映射.txt goto: # @RequestBody
+		附：
+			https://blog.csdn.net/myt0929/article/details/84629973
 	数据的返回：
-		返回的数据可分为1.html页面，2.其他某种格式的数据（如json，xml等）。
-		返回html页面：!
-			...
 		返回json类型数据：
 			@ResponseBody：
-				https://blog.csdn.net/paopao180/article/details/77803818
 				介绍：
 					1.该注解用于控制器方法上。
 						1.告诉Spring跳过正常的模型/视图流程（即不不适用视图解析器），转而使用消息转换器。
-						？
-							为什么消息转换器中不用配置JSON解析器
-						2.该注解将使控制器方法返回的对象，通过适当的HttpMessageConverter(消息转换器)转化为指定格式后，写入到Response对象的body数据区。
-					注：
-						1.一般是把对象转换为json格式
-						2.使用该注解能直接返回数据到前端而不返回到视图。
-							1：控制器方法将无法跳转到视图（如jsp页面）。
-							2：配置的视图解析器将对该类所有控制器方法不起作用，所有控制器方法的返回值将直接通过response返回到前端。
-						
+							
+						2.该注解将使控制器方法返回的对象，通过适当的HttpMessageConverter(消息转换器)转化为前端指定格式（Accept请求头指定，一般就是json格式）后，写入到Response对象的body数据区。
 			@RestController：
-				该注解用于控制器类上。
 				介绍：
-					如果在控制器类上使用@RestController来代替@Controller的话，Spring将会为该控制器的所有处理方法应用消息转换功能。
-					注：
-						1.@RestController注解相当于@ResponseBody ＋ @Controller的组合。
-						即相当于该控制器类下的每个方法都添加@ResponseBody。
-		!:
-			服务器端通过request.getReader() 打出浏览器提交的数据
-
-ServletAPI：？
+					该注解用于控制器类上。
+					如果在控制器类上使用@RestController来代替@Controller的话，Spring将会为该控制器的所有处理方法的返回应用消息转换功能。
+						即：@RestController注解相当于@ResponseBody ＋ @Controller的组合。相当于该控制器类下的每个方法都添加@ResponseBody。
+ServletAPI：！
 	springMvc中如何访问到servlet的api了。
+	public String loginSuccess(HttpServletRequest request){  
+		request.getReader()
+	}

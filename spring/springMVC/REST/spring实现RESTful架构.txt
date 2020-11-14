@@ -1,50 +1,98 @@
-spring RESTFUL 风格：https://blog.csdn.net/w605283073/article/details/51338765
-	？：
-	@RequestBody : 如果方法参数被 @RequestBody注解，Spring将绑定HTTP请求体到那个参数上。如果那样做，Spring将根据请求中的ACCEPT或者 Content-Type header（私下）使用 HTTP Message converters 来将http请求体转化为domain对象。
-
-	 
-
-	@ResponseBody : 如果方法加上了@ResponseBody注解，Spring返回值到响应体。如果这样做的话，Spring将根据请求中的 Content-Type header（私下）使用 HTTP Message converters 来将domain对象转换为响应体。
-
- 
-Spring是如何支持REST的:P500
-	hcg：
-		json数据接收：
-			用@RequestBody注解方法参数，来接收json类型数据。
-		json数据返回
-			用@ResponseBody注解方法，来返回json类型数据。
-			
-			注：
-				@RestController注解相当于@ResponseBody ＋ @Controller的组合。
-
 spring资源的表述：
-	Spring提供了两种方法将资源的Java表述形式转换为发送给客户端的表述形式。
-	内容协商（Content negotiation）：p503？
+	Spring提供了两种方法将，资源的Java表述形式（就是指方法返回对象），转换为发送给客户端的表述形式（转为json或xml）。
+	内容协商（ContentNegotiation）：p503
 		介绍：
-			选择一个视图，它能够将模型渲染为呈现给客户端的表述形式；
-		
-		控制器代码无需修改，相同的一套控制器方法能够为面向人类的用户产生HTML内容，
-		也能针对不是人类的客户端产生JSON或XML。
-
-	*消息转换器（Message conversion）：p510！！！
+			通过一个特殊视图，它能够将模型渲染为呈现给客户端的表述形式；
+			好处：
+				控制器代码无需修改，相同的一套控制器方法能够为面向人类的用户产生HTML内容，也能针对不是人类的客户端产生JSON或XML。
+		详情：
+			goto：方式1：通过模型与视图来实现restful
+	（推荐）消息转换器（MessageConversion）：p510
 		介绍：
-			1.通过一个消息转换器将控制器所返回的对象转换为呈现给客户端的表述形式。
+			通过一个消息转换器将控制器所返回的对象转换为呈现给客户端的表述形式。
+		详情：
+			goto：方式2：消息转换器实现restful
 		
-			2.当使用消息转换功能时，DispatcherServlet不再需要那么麻烦地将模型数据传送到视图中。
-			即，这里就没有模型，也没有视图，只有控制器产生的数据，以及消息转换器转换数据之后所产生的资源表述。
+方式1：通过模型与视图来实现restful：（不推荐）
+	ContentNegotiatingViewResolver视图解析器：
+		介绍：
+			Spring的ContentNegotiatingViewResolver是一个特殊的视图解析器，它考虑到了客户端所需要的内容类型。
+		应用：
+			应用ContentNegotiatingViewResolver视图解析器
+			@Bean
+			publicViewResolvercnViewResolver(}{
+				return new ContentNegotiatingViewResolver();
+			}
+		附：
+		要理解 ContentNegotiatingViewResolver是如何工作的，这涉及内 容协商的两个步骤： 
+			1．确定请求的媒体类型； 
+			2．找到适合请求媒体类型的最佳视图。
 
-		@ResponseBody：
-			控制器注解.txt 
-		@RequestBody：p514
-			控制器注解.txt 
-			介绍：
-				到目前为止，我们只关注了REST端点如何为客户端提供资源。
-				但是REST API也可以接受来自客户端的资源表述。
-				如果要让控制器将客户端发送的JSON和XML转换为它所使用的Java对象，那是非常不方便的。
-				而消息转换器能够将表述转换为对象。
-		@RestController：
-			springMVC注解.txt
-提供资源之外的信息：
-	异常处理.txt > REST风格下异常的处理：
-			
-			
+			1. 确定请求的媒体类型:(弄明白客户端需要什么类型的内容开始)
+				在内容协商两步骤中，第一步是确定客户端想要什么类型的内容表述。
+					表面上看，这似乎是一个很简单的事情。难道请求的Accept头 部信息不是已经很清楚地表明要发送什么样的表述给客户端吗？ 遗憾的是，Accept头部信息并不总是可靠的。如果客户端是Web浏览器，那并不能保证客户端需要的类型就是浏览器在Accept头部所发送的值。Web浏览器一般只接受对人类用户友好的内容类型（如 text/html），所以没有办法（除了面向开发人员的浏览器插件） 指定不同的内容类型。
+					1.ContentNegotiatingViewResolver将会考虑到Accept头部信息并使用它所请求的媒体类型，但是它会首先查看URL的文件扩展 名。如果URL在结尾处有文件扩展名的话，ContentNegotiatingViewResolver将会基于该扩展名确定 所需的类型。如果扩展名是“.json”的话，那么所需的内容类型必须是“application/json”。如果扩展名是“.xml”，那么客户端请求的 就是“application/xml”。当然，“.html”扩展名表明客户端所需的资源表述为HTML（text/html）。
+					2.如果根据文件扩展名不能得到任何媒体类型的话，那就会考虑请求中 的Accept头部信息。在这种情况下，Accept头部信息中的值就表明了客户端想要的MIME类型，没有必要再去查找了。 3.最后，如果没有Accept头部信息，并且扩展名也无法提供帮助的 话，ContentNegotiatingViewResolver将会使用“/”作为默认 的内容类型，这就意味着客户端必须要接收服务器发送的任何形式的表述。
+			2．找到适合请求媒体类型的最佳视图。
+				一旦内容类型确定之后，ContentNegotiatingViewResolver就该将逻辑视图名解析为渲染模型的View。
+				与Spring的其他视图解析器不同，ContentNegotiatingViewResolver本身不会解析视图。 而是委托给其他的视图解析器，让它们来解析视图。 ContentNegotiatingViewResolver要求其他的视图解析器将逻 辑视图名解析为视图。
+				解析得到的每个视图都会放到一个列表中。这个列表装配完成后，ContentNegotiatingViewResolver会循环 客户端请求的所有媒体类型，在候选的视图中查找能够产生对应内容类型的视图。第一个匹配的视图会用来渲染模型。
+		影响ContentNegotiatingViewResolver媒体类型的选择 ：
+			在上述的选择过程中，我们阐述了确定所请求媒体类型的默认策略。但是通过为其设置一个ContentNegotiationManager，我们能够 改变它的行为。借助ContentNegotiationManager我们所能做到的事情如下所示： 
+				1.指定默认的内容类型，如果根据请求无法得到内容类型的话，将会使用默认值； 
+				2.通过请求参数指定内容类型； 
+				3.忽视请求的Accept头部信息； 
+				4.将请求的扩展名映射为特定的媒体类型； 
+				5.将JAF（Java Activation Framework）作为根据扩展名查找媒体类型的备用方案。
+			ContentNegotiationManager：
+				p506
+				介绍：
+					在Spring 3.2之 前，ContentNegotiatingViewResolver的很多行为都是通 过直接设置ContentNegotiatingViewResolver的属性进行配置的。从Spring 3.2开始，Content- NegotiatingViewResolver的大多数Setter方法都废弃了，鼓励通过Content-NegotiationManager来进行配置。
+					
+					ContentNegotiatingViewResolver最大的优势在于，它在 Spring MVC之上构建了REST资源表述层，控制器代码无需修改。相 同的一套控制器方法能够为面向人类的用户产生HTML内容，也能针对不是人类的客户端产生JSON或XML。
+					ContentNegotiatingViewResolver还有2处严重的限制...
+					因为有这些限制，通常建议不要使用ContentNegotiatingViewResolver。更加倾向于使用 Spring的消息转换功能来生成资源表述。
+
+方式2：消息转换器实现restful:（推荐）
+	介绍：
+		正常情况下，控制层方法返回Java对象（除String外或View的实现以 外）时，这个对象会放入模型中并在视图中渲染使用。
+		但如果使用了消息转换（MessageConversion）功能的话，SpringMvc将跳过正常的模型/视图流程，并使用消息转换器将控制器产生的数据转换为服务于客户端的表述形式。
+			例：客户端希望接收json，那么消息转换器会将控制器返回的对象转换为JSON文档，并将其写入到响应体中。
+	使用消息转换器：
+		1. 消息转换器如何为客户端提供资源：（REST API如何为客户端提供资源）
+			Spring 提供了两种途径在控制器返回时应用消息转换器。
+			方式1：
+				最简单的方法是为控制器方法添加@ResponseBody注解。
+				@ResponseBody注解会告知Spring，我们要将返回的对象作为资源发送给客户端，并将其转换为客户端可接受的表述形式。
+				@ResponseBody：
+					../控制器注解.txt goto: @ResponseBody
+				附:
+					为控制器默认设置消息转换：
+						../控制器注解.txt goto: @RestController
+			方式2：
+				使用ResponseEntity<T> 作为处理方法的返回值。
+				
+		2. 消息转换器也可以接受来自客户端的资源表述：（REST API也可以接受来自客户端的资源表述）
+			同样Spring 也提供了两种途径在调用控制器时，为控制器的方法参数应用消息转换器功能。
+			方式1：
+				@RequestBody告诉SpringMvc查找一个消息转换器，将来自客户端的资源表述转换为对象，赋值给方法参数。
+				@RequestBody：
+					../请求参数映射.txt goto: # @RequestBody
+			方式2：
+				使用HttpEntity<T>作为作为处理方法的入参。
+		附：Spring自动注册大部分HTTP信息转换器，所以要使用它们的话，不需要Spring配置。
+	原理：
+		...
+		https://blog.csdn.net/qq_40244391/article/details/102808162
+		DispatcherServlet 默认装配 RequestMappingHandlerAdapter ，而 RequestMappingHandlerAdapter 默认装配如下 HttpMessageConverter...
+			MappingJackson2HttpMessageConverter 处理JSON格式的请求或响应消息。
+		当控制器处理方法使用到 @RequestBody/@ResponseBody 或 HttpEntity<T>/ResponseEntity<T> 时, Spring 首先根据请求头或响应头的 Accept 属性选择匹配的 HttpMessageConverter,  进而根据参数类型或泛型类型的过滤得到匹配的 HttpMessageConverter, 若找不到可用的 HttpMessageConverter 将报错。
+		
+总结：（简洁版）
+Spring是如何支持REST的:P500
+	json数据接收：
+		用@RequestBody注解方法参数，来接收json类型数据。
+	json数据返回：
+		用@ResponseBody注解方法，来返回json类型数据。
+		附：
+			@RestController注解相当于@ResponseBody ＋ @Controller的组合。

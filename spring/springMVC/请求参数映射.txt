@@ -1,18 +1,25 @@
-@RequestParam：
+# @RequestParam：
 	https://www.cnblogs.com/zeroingToOne/p/8992746.html
-	适用范围：
-		@RequestParam同时适用于get和post，Content-Type为任意。
-	属性：
-		value：
-			请求参数名
-		defaultValue：
-			参数在请求中不存在的话，就使用默认值
-		required：
-			默认为true
+	介绍：
+		a method parameter should be bound to a web request parameter.
+		1. 标明该方法参数要被绑定到那个请求参数。
+		In Spring MVC, "request parameters" map to query parameters, form data,and parts in multipart requests. 
+		This is because the Servlet API combinesquery parameters and form data into a single map called "parameters", and that includes automatic parsing of the request body.
+		2. 即在springMvc中，@RequestParam 能绑定以下几种请求参数，查询参数（url参数），表单参数（http的body内容为form-data），多请求体部分（body 为multipart的部分参数）。
+			附：以上这些请求参数将被放置于Servlet的request.paramter中，解析成map。使用@RequestParam接收即可。
+		注解属性：
+			value：
+				请求参数名
+			defaultValue：
+				参数在请求中不存在的话，就使用默认值
+			required：
+				默认为true
 	使用：
 		修饰方法参数：
-		1.请求附带的参数会自动转换赋值到@RequestParam 所修饰的变量上。
-		2.@RequestParam修饰的对象可以是基本数据类型和自定义对象。
+			1.请求附带的参数会自动转换赋值到@RequestParam 所修饰的变量上。
+			2.@RequestParam修饰的对象可以是基本数据类型和自定义对象。
+		附：
+			@RequestParam同时适用于get和post，Content-Type为任意。
 	例：
 		修饰基本数据类型:
 			(@RequestParam(value="username",required=false) String userName)
@@ -83,47 +90,48 @@
 			实质是将Request.getParameter()中的Key-Value参数Map，
 			利用Spring的转化机制ConversionService配置，转化成了参数@RequestParam修饰的基本类型数据或对象。
 			？https://www.cnblogs.com/lxh520/p/8760664.html
-			在Content-Type: application/x-www-form-urlencoded的请求中， 
+			在Content-Type: application/x-www-form-urlencoded的请求中， （我测试的x-www-form-urlencoded好像接收不到数据啊）
 			get 方式中queryString的值，和post方式中 body data的值都会被Servlet接受到并转化到Request.getParameter()参数集中，所以@RequestParam可以获取的到。
-@RequestBody：
+# @RequestBody：
 	https://www.cnblogs.com/zeroingToOne/p/8992746.html
 	介绍：
-		当使用了该注解，spring将使用消息转换器将json类型的post请求转换为指定对象（控制器方法中被注解的参数对象）。
+		当使用了该注解，spring将使用消息转换器将body中请求参数转换为指定对象（控制器方法中被注解的参数对象）。
 	使用：
 		修饰方法参数。
-		@RequestBody用于json类型的post请求数据，并将其转换成对应的数据类型。
+		@RequestBody用于接收body中请求参数（Content-Type建议为application/json），并将其转换成对应的数据类型。
 		@RequestBody只能修饰一个对象。
-	适用范围：
-		@RequestBody适用于post，Content-Type为json。
-	要求前端参数格式：
-		{"draft":"浙江","copyNum":null} 即直接传对象
-
-	解析：
-			1.GET请求中，因为没有HttpEntity（是指http消息主体吗），所以@RequestBody并不适用。
-			2.POST请求中，通过HttpEntity传递的参数，必须要在请求头中声明数据的类型Content-Type！
-			3.SpringMVC通过使用HandlerAdapter 配置的HttpMessageConverters来解析HttpEntity中的数据，然后绑定到@RequestBody修饰的对象上。！
-			使用@RequestBody接受的参数是不会被Servlet转化统一放在request对象的Param参数集中？
-
-
+			多个@RequestBody只有第一个生效：	
+				例：
+					(@RequestBody(required = false) String t1,@RequestBody(required = false) String t3)
+					t1，t3，只有t1能接收到body中请求参数。
+					pa可以接收url中请求参数。
+			附：
+				多个@RequestBody异常：
+				原因：
+					@RequestBody的含义是在当前对象获取整个http请求的body里面的所有数据，
+					因此spring就不能将这个数据同时强制包装成Course和List类型，即无法多个body。
+					并且从@requestbody设计上来说，只获取一次就可以拿到请求body里面的所有数据，
+					就没必要出现有多个@requestbody出现在controller的函数的形参列表当中。
+		附：
+			@RequestBody适用于get和post，Content-Type建议为application/json。
+			@RequestBody结合@RequestParam：
+				例：
+					(@RequestBody(required = false) String t1,String pa)
+					t1能接收到body中请求参数。
+					pa可以接收url中请求参数。
 	例：
-		(@RequestBody Dispatch dispatch
-	注：
-		1.多个@RequestBody异常：！
-			原因：
-				@RequestBody的含义是在当前对象获取整个http请求的body里面的所有数据，
-				因此spring就不能将这个数据同时强制包装成Course和List类型，即无法多个body。
-				并且从@requestbody设计上来说，只获取一次就可以拿到请求body里面的所有数据，
-				就没必要出现有多个@requestbody出现在controller的函数的形参列表当中。
+		(@RequestBody Dispatch dispatch)
+		要求前端参数格式：
+			//curl --location --request GET 'https://127.0.0.1:6051/test/nothaveResponseBobyAndtestRequestBody?pa=111' \
+			--header 'Content-Type: application/json' \
+			--data-raw '{"draft":"浙江","copyNum":null}'
 	解析：
-		当参数上使用了@RequestBody，Spring将会查看请求中的Content-Type头部信息，并查找能够将请求体转换为对象的消息转换器。
-		如客户端发送的数据是JSON表述形式，那么Content-Type头部信息可能就会是“application/json”。
-		在这种情况下，DispatcherServlet会查找能够将JSON转换为Java对象的消息转换器。
-		如果Jackson2库在类路径中，那么MappingJackson2HttpMessageConverter将会担此重任，
-		将JSON表述转换为指定对象，然后传递到控制器方法中。
-		
-		如果控制器方法还使用了@ResponseBody注解，方法返回的对象将会转换为某种资源表述，发送给客户端。
+		1. 当参数上使用了@RequestBody，SpringMVC将会查看请求中的Content-Type头部信息，并查找能够将请求体转换为对象的消息转换器。
+		2.SpringMVC是通过使用HandlerAdapter 配置的HttpMessageConverters来解析HttpEntity中的数据，然后绑定到@RequestBody修饰的对象上。！
+		附：
+			使用@RequestBody能接受的参数是不会被Servlet转化统一放在request对象的Param参数中的!
 
-附：
+rubbish·：
 	?(HttpServletRequest request):
 		./HttpServletRequest.txt
 	@CookieValue，@RequestHeader，@PathVariable...:
