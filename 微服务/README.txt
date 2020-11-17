@@ -82,6 +82,9 @@ Spring Cloud附：
 			使用Spring Cloud Sleuth和Zipkin进行分布式链路跟踪.
 			随着业务发展，系统拆分导致系统调用链路愈发复杂一个前端请求可能最终需要调用很多次后端服务才能完成.
 			当整个请求变慢或不可用时，我们是无法得知该请求是由那些后端服务引起的，这时就需要快读定位服务故障点，以对症下药。
-
+		Spring Cloud Stream:
+			https://www.cnblogs.com/dengpengbo/p/11103943.html
+			Stream实现了消息中间件和服务的高度解耦。
+			Stream能够让开发人员无感使用消息中间件，因为Stream对消息中间件的进一步封装，可以做到代码层面对中间件的无感知，甚至于动态的切换中间件(rabbitmq切换为kafka)，使得微服务开发的高度解耦，服务可以关注更多自己的业务流程
 	高并发架构的演进思路：
 		https://www.jianshu.com/p/9f985bbc9c70

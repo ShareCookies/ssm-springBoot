@@ -48,3 +48,8 @@ http请求转发：
         connector.setRedirectPort(8080);
         return connector;
     }
+
+？
+	1. .crt文件和.key文件作用？
+	2. postman测试https
+		https://www.cnblogs.com/shuiche/p/postman.html

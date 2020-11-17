@@ -34,3 +34,6 @@ XML配置中引用配置类：p95
 					也可以通过name属性指定一个不同的id名。
 
 			
+		附：
+			@Conditional、@ConditionalOnBean、@ConditionalOnMissingBean
+				https://blog.csdn.net/xcy1193068639/article/details/81517456
