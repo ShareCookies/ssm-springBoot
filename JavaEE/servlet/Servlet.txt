@@ -1,0 +1,65 @@
+Servlet:
+	介绍:
+		应用了Servlet接口的java程序。(就是一个实现了Servlet接口的类)
+		Servlet生命周期：
+			初始化init()：
+				Web容器（服务器）启用后加载Servlet并将其实例化后，Servlet生命周期开始，容器运行其init()方法进行Servlet的初始化；
+			处理请求service()：
+				请求到达时，web容器接收请求并调用对应的Servlet处理请求，web容器会调用Servlet的service()方法处理请求
+					附
+					1. HttpServlet的service()方法会根据需要调用与请求对应的doGet或doPost等方法；
+					2. Servlet处于服务器进程中，它通过多线程方式运行其service()方法，因此一个Servlet实例可以服务于多个请求，并且其实例一般不会销毁，
+			销毁destroy()：
+				当服务器关闭或项目被卸载时服务器会将Servlet实例销毁，此时会调用Servlet的destroy()方法。
+		附：
+			servlet容器有Tomcat...
+	使用：
+		servlet创建:
+			继承HttpServlet，重写doGet和doPost方法。
+			注:
+				HttpServlet实现了Servlet，重写里service方法，这个方法中会根据request的Method来判断具体是执行doGet还是doPost或其他。
+		servlet的声明:
+			在web.xml中定义一个Servlet。
+			因为定义了Servlet，web容器才能知道需要如何去分发请求进行业务处理的。即指定的url转到servlet。
+jsp：
+	介绍：
+		背景：
+			如果用Servlet来生成网页中的动态内容无疑是非常繁琐的工作，另一方面，所有的文本和HTML标签都是硬编码，即使做出微小的修改，都需要进行重新编译。
+			JSP解决了Servlet的这些问题，它是Servlet很好的补充，可以专门用作为用户呈现视图（View），而Servlet作为控制器（Controller）专门负责处理用户请求并转发或重定向到某个页面。
+			基于Java的Web开发很多都同时使用了Servlet和JSP。
+		
+		JSP页面其实是一个Servlet，能够运行Servlet的服务器（Servlet容器）通常也是JSP容器，可以提供JSP页面的运行环境，
+			Tomcat就是一个Servlet/JSP容器。
+		第一次请求一个JSP页面时，Servlet/JSP容器首先将JSP页面转换成一个JSP页面的实现类，
+			这是一个实现了JspPage接口或其子接口HttpJspPage的Java类。JspPage接口是Servlet的子接口，因此每个JSP页面都是一个Servlet。
+		转换成功后，容器会编译Servlet类，之后容器加载和实例化Java字节码，并执行它通常对Servlet所做的生命周期操作。
+		对同一个JSP页面的后续请求，容器会查看这个JSP页面是否被修改过，如果修改过就会重新转换并重新编译并执行。如果没有则执行内存中已经存在的Servlet实例。
+		
+		附：
+			jsp和servlet关系:
+				jsp就是在html里面写java代码，servlet就是在java里面写html代码…
+				jsp经过容器解释之后就是servlet.
+	JSP有9个内置对象：
+		- request：封装客户端的请求，其中包含来自GET或POST请求的参数；
+		- response：封装服务器对客户端的响应；
+		- pageContext：通过该对象可以获取其他对象；
+		- session：封装用户会话的对象；
+		- application：封装服务器运行环境的对象；
+		- out：输出服务器响应的输出流对象；
+		- config：Web应用的配置对象；
+		- page：JSP页面本身（相当于Java程序中的this）；
+		- exception：封装页面抛出异常的对象。
+	例：
+		我们可以看一段JSP代码对应的Java程序就知道一切了，而且9个内置对象的神秘面纱也会被揭开。
+		jsp对应的servlet.txt
+附:
+	servlet最好放在controller包中，servlet要配置URL地址，jsp不用因为jsp的地址就是文件夹地址。servlet通过配置的地址访问。
+	WEB-INF文件夹(网站信息文件)，该文件夹是受保护的，外部无法通过url来访问的。文件夹里面包含了web.xml以及class和libs目录。
+        web容器加载servlet，初始化servlet的init()，处理请求service()，处理完成destroy()。
+		
+	转发（forward）和重定向（redirect）：
+		forward是容器中控制权的转向，是服务器请求资源。
+服务器直接访问目标地址的URL，把那个URL 的响应内容读取过来，然后把这些内容再发给浏览器，
+浏览器根本不知道服务器发送的内容是从哪儿来的，所以它的地址栏中还是原来的地址。
+
+redirect就是服务器端根据逻辑，发送一个状态码，告诉浏览器重新去请求那个地址。

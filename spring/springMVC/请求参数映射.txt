@@ -81,10 +81,7 @@
 		1.@RequestParam加与不加的区别：
 			使用了@RequestParam，则请求必须带有参数。（使用了defaultValue或required=false例外）
 			不使用@RequestParam，则请求可带参数也可不带参，方法都能被访问执行。
-		附：
-			map接收请求参数：
-				map接收请求参数要加 @RequestParam，不然map接收不到参数
-				例：@RequestParam HashMap<String, Object> map
+
 	解析：?
 		@RequestParam的原理：
 			实质是将Request.getParameter()中的Key-Value参数Map，
@@ -162,4 +159,20 @@ rubbish·：
 				}
 			}
 		}
-		
+附：
+	map接收请求参数：
+		1. 接收url后参数：
+			请求参数要加 @RequestParam，不然map接收不到参数
+			例：
+				@PostMapping("/login2")
+				public String login2(@RequestParam Map loginVO) {
+					System.err.println(111);
+					return "";
+				}
+		2. 接收body参数：
+			例：
+				@PostMapping("/login")
+				public String login(@RequestBody Map loginVO) {
+					System.err.println(111);
+					return "";
+				}		

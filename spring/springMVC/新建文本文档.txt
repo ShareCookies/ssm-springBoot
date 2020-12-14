@@ -1,0 +1,31 @@
+ServletContext:
+	https://blog.csdn.net/qq_36371449/article/details/80314024
+	介绍
+		ServletContext官方叫servlet上下文。
+		服务器会为每一个工程创建一个对象，这个对象就是ServletContext对象。这个对象全局唯一，而且工程内部的所有servlet都共享这个对象。所以叫全局应用程序共享对象。
+		目的让servlet之间传递与共享数据.
+	域对象方法:
+		setAttribute(String name,Object value);
+			往域对象里面添加数据，添加时以key-value形式添加
+		getAttribute(String name);
+			根据指定的key读取域对象里面的数据
+		removeAttribute(String name);
+			根据指定的key从域对象里面删除数据
+spring的ServletContextResources：
+	ResourceLoader用来加载ServletContext资源，用于在WebApplicationContext外部使用（例如，在HttpServletBean或GenericFilterBean子类中）。
+
+	例：
+		// 从Web Context下的WEB-INF路径下读取book.xml资源
+		ServletContextResource src = new ServletContextResource
+		  (application , "WEB-INF/book.xml");
+		// 获取该资源的简单信息
+		System.out.println(src.getFilename());
+	ClassPathResource 以及 ServletContextResource：
+		FileSystemResource 和 ClassPathResource 是比较常见的两个获取资源的类。
+		除了他们两个之外，ServletContextResource也比较常用。
+		ClassPathResource 从系统的类路径中加载 
+		FileSystemResource 从文件系统加载，比如说自己指定配置文件的全路径 
+		InputStreamResource 从输入流中加载 
+		ServletContextResource 从Servlet 上下文环境中加载 
+		UrlResource 从指定的Url加载
+
