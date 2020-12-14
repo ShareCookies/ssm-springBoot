@@ -64,3 +64,5 @@ SQL可分为两个部分：
 	mysql命令：
 		查看数据库版本：
 			select @@version;
+		MySQL查看数据库和表容量大小：
+			https://blog.csdn.net/fdipzone/article/details/80144166

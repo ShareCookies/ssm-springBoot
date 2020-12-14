@@ -126,6 +126,7 @@ mysql sql注意事项：
 				SELECT * FROM fund	WHERE price > 2	 
 				AND (id>'10' OR id=1);	
 			or and：
+				https://blog.csdn.net/bingguang1993/article/details/79657256
 				注：
 					or and 混用最好加括号
 					./例/or and混用.txt		
