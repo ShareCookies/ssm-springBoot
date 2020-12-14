@@ -42,7 +42,49 @@ spring缓存注解：
 	@EnableCaching	
 		开启基于注解的缓存
 	@Cacheable	
-		主要针对方法配置，能够根据方法的请求参数对其结果进行缓存
+		https://blog.csdn.net/pengzhisen123/article/details/94409825
+		介绍：
+			1. @Cacheable可以标记在一个方法上，也可以标记在一个类上。当标记在一个方法上时表示该方法是支持缓存的，当标记在一个类上时则表示该类所有的方法都是支持缓存的。		
+			2. 对于一个支持缓存的方法，Spring会在其被调用后将其返回值缓存起来，以保证下次利用同样的参数来执行该方法时可以直接从缓存中获取结果，而不需要再次执行该方法。
+				注：需要注意的是当一个支持缓存的方法在对象内部被调用时是不会触发缓存功能的。
+			3. Spring在缓存方法的返回值时是以键值对进行缓存的。
+			值就是方法的返回结果。至于键的话，Spring又支持两种策略，默认策略和自定义策略。
+		
+		
+		    @Cacheable(cacheNames = "list-resource-byrole", key = "#roleId")
+			public List<String> listResourceByRoleId(String roleId) {
+				return mapper.listResourceByRoleId(roleId);
+			}
+		属性：
+			https://blog.csdn.net/lzb348110175/article/details/105349109
+			value/cacheNames：
+				这两个属性都是用来指定缓存组件的名称，即将方法的返回结果放在哪个缓存中。
+				属性定义为数组，可以指定多个缓存；其可以是一个Cache也可以是多个Cache，当需要指定多个Cache时其是一个数组。
+				例：
+					@Cacheable(value = "user") //@Cacheable(cacheNames = "user")
+					//@Cacheable({“cache1”, “cache2”})//Cache是发生在cache1和cache2上的 
+
+			key：
+				key属性是用来指定Spring缓存方法的返回结果时对应的key的。
+				当我们没有指定该属性时，Spring将使用默认策略生成key。我们这里先来看看自定义策略，至于默认策略会在后文单独介绍。
+				自定义策略：
+					自定义策略是指我们可以通过Spring的EL表达式来指定我们的key。这里的EL表达式可以使用方法参数及它们对应的属性。使用方法参数时我们可以直接使用“#参数名”或者“#p参数index”。
+					例：
+						@Cacheable(value=”users”, key=”#id”)
+						@Cacheable(value=”users”, key=”#p0”)
+						@Cacheable(value=”users”, key=”#user.id”)
+						@Cacheable(value=”users”, key=”#p0.id”)
+					例：
+						@Cacheable(cacheNames = "user-umsgroup-getbyuserno", key = "#userNo+#systemNo")
+						@Cacheable(cacheNames = "user-getumsuser-grouprelates", key = "#umsUserGroupRelate.groupNo+#umsUserGroupRelate.systemNo")
+			condition
+				指定发生的条件。有的时候我们可能并不希望缓存一个方法所有的返回结果。通过condition属性可以实现这一功能。
+				condition属性默认为空，表示将缓存所有的调用情形。其值是通过SpringEL表达式来指定的，当为true时表示进行缓存处理；当为false时表示不进行缓存处理，即每次调用该方法时该方法都会执行一次。
+				例：
+					如下示例表示只有当user的id为偶数时才会进行缓存。
+					@Cacheable(value={“users”}, key=”#user.id”, condition=”#user.id%2==0”)
+
+
 	@CacheEvict
 		清空缓存
 	@CachePut	

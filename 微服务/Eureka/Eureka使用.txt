@@ -91,7 +91,7 @@ springCloud eureka 客户端的使用：
 				Feign是一个声明式Web Service客户端。				
 				Spring Cloud对Feign进行了封装，使其支持了Spring MVC标准注解和HttpMessageConverters。
 				
-				Feign可以与Eureka和Ribbon组合使用以支持负载均衡。
+				Feign可以与Eureka和Ribbon组合使用以支持负载均衡。？
 
 		4、使用feign代理远程对象：
 		hcg:使用feign实现一个本地远程代理对象。属于设计模式中的远程代理。
@@ -123,7 +123,9 @@ springCloud eureka 客户端的使用：
 	Eureka概念原理：
 		https://www.jianshu.com/p/2fa691d4a00a
 		./eureka如何管理服务调用.png
-	Spring cloud实现FeignClient指定Zone调用
-		https://blog.csdn.net/zhxdick/article/details/91868730?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
-		eureka.instance.metadata-map.zone设置不同实例所属的zone，zone之间不互相调用，只有zone内部调用（其实这里用zone做了集群隔离，实际上集群肯定是跨可用区的，这里的eureka中的zone在我们项目里面并不是可用区的概念）。
-	
+	Springcloud中的region和zone的使用
+		https://www.cnblogs.com/nxzblogs/p/11681929.html
+		Spring cloud实现FeignClient指定Zone调用
+			https://blog.csdn.net/zhxdick/article/details/91868730?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
+			eureka.instance.metadata-map.zone设置不同实例所属的zone，zone之间不互相调用，只有zone内部调用（其实这里用zone做了集群隔离，实际上集群肯定是跨可用区的，这里的eureka中的zone在我们项目里面并不是可用区的概念）。
+		
