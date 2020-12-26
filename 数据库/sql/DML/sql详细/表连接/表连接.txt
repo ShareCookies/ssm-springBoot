@@ -63,3 +63,31 @@
 
 		非等连接：？
 			介绍：使用等值以外的条件来匹配左、右两个表中的行 select A.c1,B.c2 from A join B on A.c3 != B.c3;
+连接算法：
+	https://www.cnblogs.com/shangyu/p/6055181.html
+	hash join是一种数据库在进行多表连接时的处理算法，对于多表连接还有两种比较常用的方式：sort merge-join 和 nested loop。 
+	对于不同的查询方式，使用相同的join算法也会有不同的代价产生，对于具体使用哪一种连接方式是由优化器通过代价的衡量来决定的。
+	nested loop join
+		嵌套循环连接，是比较通用的连接方式，分为内外表，每扫描外表的一行数据都要在内表中查找与之相匹配的行。
+			(即对嵌套的内表进行不断循环)
+		没有索引的复杂度是O(N*M)，这样的复杂度对于大数据集是非常劣势的，一般来讲会通过索引来提升性能。
+			？是指对内表索引来提高性能吗
+ 　 sort merge-join
+		merge join需要首先对两个表按照关联的字段进行排序，分别从两个表中取出一行数据进行匹配，如果合适放入结果集；
+		不匹配将较小的那行丢掉继续匹配另一个表的下一行，依次处理直到将两表的数据取完。
+		merge join的很大一部分开销花在排序上，也是同等条件下差于hash join的一个主要原因。
+	hashjoin：
+		https://www.cnblogs.com/shangyu/p/6055181.html
+		原理：
+			对于简单的两个表来讲，hash-join就算将两表中的小表（称S）作为hash表，然后去扫描另一个表(称M)的每一行数据，用得出来的行数据根据连接条件去映射建立的hash表，hash表是放在内存中的，这样可以很快的得到对应的S表与M表相匹配的行。
+			hash-join只适用于等值连接，对于>, <, <=, >=这样的查询连接还是需要nested loop这种通用的连接算法来处理。
+			如果连接key本来就是有序的或者需要排序，那么可能用merge-join的代价会比hash-join更小，此时merge-join会更有优势。
+				附：
+					对于结果集很大的情况，merge-join需要对其排序效率并不会很高，
+					而nested loop join是一种嵌套循环的查询方式无疑更不适合大数据集的连接，
+					而hash-join正是为处理这种棘手的查询方式而生，尤其是对于一个大表和一个小表的情况，基本上只需要将大小表扫描一遍就可以得出最终的结果集。
+		附：
+			mysql5.7不支持hashjoin，mysql8支持了hashjoin。
+				https://dev.mysql.com/doc/refman/5.7/en/
+				https://dev.mysql.com/doc/refman/8.0/en/hash-joins.html
+			hashjoin其实还有很多需要考虑和实现的地方，比如数据倾斜严重如何处理、内存放不下怎木办，hash如何处理冲突等，这些并不是本文介绍的重点，不再详述，每个拿出来都可以再讲一篇了。

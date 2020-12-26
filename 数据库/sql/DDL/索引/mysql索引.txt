@@ -142,7 +142,8 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 			例：
 				https://www.jianshu.com/p/40edfbb50046
 				3个字段：name, city, age、
-				如果分别在 usernname，city，age上建立单列索引，让该表有3个单列索引，远低于组合索引。虽然此时有了三个索引，但MySQL只能用到其中的那个它认为似乎是最有效率的单列索引。
+				如果分别在 usernname，city，age上建立单列索引，让该表有3个单列索引，远低于组合索引。
+				因为此时有了三个索引，但MySQL只能用到其中的那个它认为似乎是最有效率的单列索引。
 			
 				建立组合索引
 					ALTER TABLE mytable ADD INDEX name_city_age (name(10),city,age);
