@@ -60,6 +60,12 @@ Redis集群：
 					2、数据通过异步复制,不保证数据的强一致性
 redis介绍：
 	基于内存亦可持久化的日志型、Key-Value 数据库，并提供多种语言的 API的非关系型数据库。
+	附：
+		Redis的三个客户端框架比较：
+			Jedis,Redisson,Lettuce
+			Jedis：
+				是 Redis 官方首选的 Java 客户端开发包。
+			...
 redis基础语法：
 	键：
 		一个键可以存储redis的一个类型
@@ -70,7 +76,7 @@ redis基础语法：
 				redis>keys apple*
 				1) apple1
 				2) apple2
-	类型：
+	数据类型：
 		字符串(String)：
 			string类型是Redis最基本的数据类型，一个键最大能存储512MB。
 			string类型是二进制安全的。即redis的string可以包含任何数据，比如jpg图片或者序列化的对象。
@@ -89,22 +95,18 @@ redis基础语法：
 					key1 value1
 					key2 value2
 		列表(List)
-			Redis 列表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）
+			Redis 列表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）,左边出栈或右边出栈。
 			数据格式: 
 				listName  
 					1 value1
 					2 value2
 			操作：
+				https://blog.csdn.net/nangeali/article/details/81735443
 				在 key 对应 list 的头部添加字符串元素
 					格式: lpush  name  value
 				在 key 对应 list 的尾部添加字符串元素
 					格式: rpush  name  value
-				移除并返回列表 key 的头元素。
-					LPOP key
-				key 对应 list 中删除 count 个和 value 相同的元素
-					格式: lrem name  index
-				返回 key 对应 list 的长度
-					格式: llen name
+				...
 		集合(Set)
 			Redis的Set是string类型的无序集合，不允许重复的成员。
 			集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)。
@@ -128,6 +130,12 @@ redis基础语法：
 				有序集合	否					是			分值			排行榜系统、社交等
 			命名空间：
 				https://blog.csdn.net/HeliosJ/article/details/103258441
+	有效期：
+		expire(key, seconds)：
+			设置key-value的有效期为seconds秒。
+			例：
+				expire confirm 100 设置confirm这个key100秒过期
+		ttl confirm 获取confirm 这个key的有效时长
 redis配置：
 	https://www.runoob.com/redis/redis-conf.html
 	配置 redis 外网可访问：
@@ -163,13 +171,7 @@ Redis常用命令：
 		  keys * 取出当前所有的key
 		  exists name 查看n是否有name这个key
 		  del name 删除key name
-		有效期：
-			expire(key, seconds)：
-				设置key-value的有效期为seconds秒。
-				例：
-					expire confirm 100 设置confirm这个key100秒过期
-			
-			  ttl confirm 获取confirm 这个key的有效时长
+		...  
 		  select 0 选择到0数据库 redis默认的数据库是0~15一共16个数据库
 		  move confirm 1 将当前数据库中的key移动到其他的数据库中，这里就是把confire这个key从当前数据库中移动到1中
 		  persist confirm 移除confirm这个key的过期时间
@@ -186,9 +188,33 @@ Redis常用命令：
 		  config get dir/* 实时传储收到的请求
 		  flushdb 删除当前选择数据库中的所有key
 		  flushall 删除所有数据库中的数据库
-		  
-		  
-		  
-setnx(key, value)：“set if not exits”，若该key-value不存在，则成功加入缓存并且返回1，否则返回0。
-get(key)：获得key对应的value值，若不存在则返回nil。
-getset(key, value)：先获取key对应的value值，若不存在则返回nil，然后将旧的value更新为新的value。
+	setnx(key, value)：“set if not exits”，若该key-value不存在，则成功加入缓存并且返回1，否则返回0。
+	get(key)：获得key对应的value值，若不存在则返回nil。
+	getset(key, value)：先获取key对应的value值，若不存在则返回nil，然后将旧的value更新为新的value。
+Redis的内存淘汰策略：
+	https://zhuanlan.zhihu.com/p/105587132
+	过期策略
+		Redis中同时使用了惰性过期和定期过期两种过期策略。
+		定期删除
+			redis 会将每个设置了过期时间的 key 放入到一个独立的字典中，以后会定期遍历这个字典来删除到期的 key。
+			Redis 默认会每秒进行十次过期扫描（100ms一次），过期扫描不会遍历过期字典中所有的 key，而是采用了一种简单的贪心策略。
+				1.从过期字典中随机 20 个 key；
+				2.删除这 20 个 key 中已经过期的 key；
+				3.如果过期的 key 比率超过 1/4，那就重复步骤 1；
+			redis默认是每隔 100ms就随机抽取一些设置了过期时间的key，检查其是否过期，如果过期就删除。注意这里是随机抽取的。为什么要随机呢？你想一想假如 redis 存了几十万个 key ，每隔100ms就遍历所有的设置过期时间的 key 的话，就会给 CPU 带来很大的负载。
+		惰性删除
+			所谓惰性策略就是在客户端访问这个key的时候，redis对key的过期时间进行检查，如果过期了就立即删除，不会给你返回任何东西。
+	为什么需要淘汰策略
+		因为redis的过期策略不是精准的删除(会存在key没有被删除掉的场景),且Redis有内存大小限制，
+		那在内存用完的时候，还继续往Redis里面添加数据不就没内存可用了会出现异常，因此Redis定义了几种内存淘汰策略用来处理这种情况。
+		附：
+			如果不设置最大内存大小或者设置最大内存大小为0，在64位操作系统下不限制内存大小，在32位操作系统下最多使用3GB内存
+	内存淘汰策略
+		1. noeviction(默认策略)：当内存使用超过配置的时候会返回错误，不会驱逐任何键
+		2. allkeys-lru：加入键的时候，如果过限，首先通过LRU算法驱逐最久没有使用的键
+		3. volatile-lru：加入键的时候如果过限，首先从设置了过期时间的键集合中驱逐最久没有使用的键
+		4. allkeys-random：加入键的时候如果过限，从所有key随机删除
+		5. volatile-random：加入键的时候如果过限，从过期键的集合中随机驱逐
+		6. volatile-ttl：从配置了过期时间的键中驱逐马上就要过期的键
+		7. volatile-lfu：从所有配置了过期时间的键中驱逐使用频率最少的键
+		8. allkeys-lfu：从所有键中驱逐使用频率最少的键

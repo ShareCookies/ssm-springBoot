@@ -1,4 +1,5 @@
 下载地址：http://redis.io/download
+源码安装：
 	安装：
 		$ wget http://download.redis.io/releases/redis-5.0.5.tar.gz
 		$ tar xzf redis-5.0.5.tar.gz
@@ -27,5 +28,16 @@
 	源码安装重启：
 		./redis-cli -h 127.0.0.1 -p 6379 shutdown
 		./redis-server ../redis.conf 
+apt-get安装：
+	You can install the latest stable version of Redis from the redislabs/redis package repository.
+	Add the repository to the apt index, update it and install:
 
-
+	$ sudo add-apt-repository ppa:redislabs/redis
+	$ sudo apt-get update
+	$ sudo apt-get install redis
+附：
+	通过redis.conf 配置远程访问
+		daemonize yes #以后台进程方式启动
+		#bind 127.0.0.1  #注释掉bind 127.0.0.1，允许所有ip访问
+		protected-mode no #关闭保护模式
+		requirepass your_passwd #设置密码,注释掉就是没有密码啦

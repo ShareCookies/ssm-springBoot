@@ -21,3 +21,10 @@ redis基础上新增
 			max-wait: -1 #连接池最大阻塞等待时间（使用负值表示没有限制）
 3.测试
 	
+注：
+	https://www.cnblogs.com/xiaotong1223/p/9263517.html
+	使用Jedis连接redis单机版
+	使用JedisCluster连接redis集群版
+	？
+		一定要这么连吗，jedis能连集群版吗，jedisCluster能连单机吗
+		jedisPool

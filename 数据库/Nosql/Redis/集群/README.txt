@@ -5,7 +5,6 @@ Redis不同集群方案优缺点分析：
 springBoot连接Sentinel主从：
 	./springBoot连接Sentinel主从.txt
 Redis有三种集群模式，分别是：主从模式，Sentinel模式，Cluster模式
-
 主从模式：
 	在主从主从模式中，数据库分为两类：主数据库(master)和从数据库(slave)。
 	主从复制特点：
@@ -113,7 +112,6 @@ Sentinel模式
 			一个sentinel或sentinel集群可以管理多个主从Redis，多个sentinel也可以监控同一个redis
 		当使用sentinel模式的时候，客户端就不要直接连接Redis，而是连接sentinel的ip和port，由sentinel来提供具体的可提供服务的Redis实现。
 			这样当master节点挂掉以后，sentinel就会感知并将新的master节点提供给使用者。
-	
 	工作机制：
 		* 每个sentinel以每秒钟一次的频率向它所知的master，slave以及其他sentinel实例发送一个 PING 命令 
 		* 如果一个实例距离最后一次有效回复 PING 命令的时间超过 down-after-milliseconds 选项所指定的值， 则这个实例会被sentinel标记为主观下线。 
@@ -141,29 +139,46 @@ Sentinel模式
 Cluster模式介绍
 	介绍：
 		cluster模式的出现就是为了解决单机Redis容量有限的问题，对存储的数据进行分片，将Redis的数据根据一定的规则分配到多台机器（多个Redis实例中）。
-
 		cluster集群特点：
-
 			* 多个redis节点网络互联，数据共享
-
+				* 客户端可以连接任何一个主节点进行读写
+				是怎么实现的了，我连a，a没数据它是如何从别的地方获取到数据了？
+					应该要先了解下redis的分配规则，当你读取数据时可能会根据关键特征寻找节点读取数据。
+					https://blog.csdn.net/weixin_43145146/article/details/98851126
 			* 所有的节点都是一主一从（也可以是一主多从），其中从不提供服务，仅作为备用
-
-			* 不支持同时处理多个key（如MSET/MGET），因为redis需要把key均匀分布在各个节点上，
-			  并发量很高的情况下同时创建key-value会降低性能并导致不可预测的行为
-			  
+				主从都挂了。那么整个集群进入fail状态。
+				附：
+					https://www.cnblogs.com/dadonggg/p/8628735.html
+					1、集群是如何判断是否有某个节点挂掉
+					　　节点之间通过互相的ping-pong判断是否节点可以连接上。如果有一半以上的节点去ping一个节点的时候没有回应，集群就认为这个节点宕机了，然后去连接它的备用节点。
+					2、集群进入fail状态的必要条件
+						A、某个主节点和所有从节点全部挂掉，我们集群就进入faill状态。
+						B、如果集群超过半数以上master挂掉，无论是否有slave，集群进入fail状态.
+						C、如果集群任意master挂掉,且当前master没有slave.集群进入fail状态				
+			* 不支持同时处理多个key（如pipeline，MSET/MGET），即不支持批处理操作	
+			因为redis需要把key均匀分布在各个节点上， 并发量很高的情况下同时创建key-value会降低性能并导致不可预测的行为
+				？为什么了，举个例子
+				redis集群会根据其分配规则来把数据分配到指定节点，如果用批量操作即高并发可能会导致数据分配错节点等情况，那么查找时可能就找不到数据了等未知情况，所以redis的Jedis(Redis 的 Java 客户端(api))不主动提供集群的批处理支持方法？
 			* 支持在线增加、删除节点
-
-			* 客户端可以连接任何一个主节点进行读写
-	配置文件：
-	全部启动redis服务：
-		附：如果redis版本比较低，则需要安装ruby。任选一台机器安装ruby即可
-	创建集群
-		# redis-cli -a 123456 --cluster create 192.168.30.128:7001 192.168.30.128:7002 192.168.30.129:7003 192.168.30.129:7004 192.168.30.130:7005 192.168.30.130:7006 --cluster-replicas 1
-	集群操作
-		登录集群：
-			# redis-cli -c -h 192.168.30.128 -p 7001 -a 123456                  # -c，使用集群方式登录
-		查看集群信息
-			CLUSTER INFO 
-		列出节点信息
-			CLUSTER NODES
-			注：这里与nodes.conf文件内容相同
+				？redis集群数据是均摊的吗，新加入的节点会被分配数据吗
+				应该不是，还是要了解分配规则 https://blog.csdn.net/qq_40718168/article/details/89454996
+		redis cluster集群是去中心化的，每个节点都是平等的，连接哪个节点都可以获取和设置数据。
+			平等指的是master节点，因为slave节点根本不提供服务，只是作为对应master节点的一个备份。
+			master节点如果挂掉，它的slave节点变为新master节点继续对外提供服务，而原来的master节点如果重启，则变为新master节点的slave节点。
+	集群搭建：
+		https://blog.csdn.net/miss1181248983/article/details/90056960
+		1. 修改配置文件：
+			主要是将redis配置文件中的cluster-enable配置打开即可
+		2. 启动所有的redis服务：
+			附：如果redis版本比较低，则需要安装ruby。任选一台机器安装ruby即可
+		3.创建集群
+			# redis-cli -a 123456 --cluster create 192.168.30.128:7001 192.168.30.128:7002 192.168.30.129:7003 192.168.30.129:7004 192.168.30.130:7005 192.168.30.130:7006 --cluster-replicas 1
+		附：
+		集群的操作
+			登录集群：
+				# redis-cli -c -h 192.168.30.128 -p 7001 -a 123456                  # -c，使用集群方式登录
+			查看集群信息
+				CLUSTER INFO 
+			列出节点信息
+				CLUSTER NODES
+				注：这里与nodes.conf文件内容相同
