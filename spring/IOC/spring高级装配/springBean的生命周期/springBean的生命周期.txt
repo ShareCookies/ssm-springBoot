@@ -1,24 +1,32 @@
 bean工厂（容器）执行以下若干步骤来创建bean：
-	1. Spring对bean进行实例化;（实例化bean）
+	1. 实例化bean:（Spring容器对bean进行实例化）
 		BeanFactory容器：
 			对于BeanFactory容器，当客户向容器请求一个尚未初始化的bean时，或初始化bean的时候需要注入另一个尚未初始化的依赖时，容器就会调用createBean进行实例化。
 		ApplicationContext容器:
 			对于ApplicationContext容器，当容器启动结束后，通过获取BeanDefinition对象中的信息，实例化所有的bean。
-
-	2. Spring将值和bean的引用注入到bean对应的属性中;（设置对象属性）
-		设置对象属性：实例化后的对象被封装在BeanWrapper对象中，紧接着，Spring根据BeanDefinition中的信息 以及 通过BeanWrapper提供的设置属性的接口完成依赖注入。
-		附：goto：spring bean的加载顺序。
+			
+		附：
+			此时bean的实例化就是指通过构造器方法进行实例化
+		附：
+			goto：spring bean的加载顺序。
+	2. 设置对象属性:（Spring将值和bean的引用注入到bean对应的属性中）
+		设置对象属性：
+			实例化后的对象被封装在BeanWrapper对象中，紧接着Spring根据BeanDefinition中的信息 以及 通过BeanWrapper提供的设置属性的接口完成依赖注入。？
+		
 	3-8:（处理一些接口方法-》bean被成功创建放入容器）
 		处理Aware接口：
-			3.如果bean实现 了BeanNameAware接口，会调用它实现的setBeanName(String beanId)方法，此处传递的就是Spring配置文件中Bean的id值；
-			4.如果bean实现 了BeanFactoryAware接口，如果这个Bean已经实现了BeanFactoryAware接口，会调用它实现的setBeanFactory()方法，将BeanFactory容器实例传入。
-			5.如果bean实现了ApplicationContextAware接口，Spring将调
-			用setApplicationContext()方法，将bean所在的应用上下文的
-			引用传入进来;
-		6.如果bean实现了BeanPostProcessor接口，Spring将调用它们的调用postProcessBeforeInitialization(Object obj, String s)方法。
+			3.如果bean实现 了BeanNameAware接口，
+				Spring会调用它实现的setBeanName(String beanId)方法，此处传递的就是Spring配置文件中Bean的id值；
+			4.如果bean实现 了BeanFactoryAware接口，
+				Spring会调用它实现的setBeanFactory()方法，将BeanFactory容器实例传入。
+			5.如果bean实现了ApplicationContextAware接口，
+				Spring将调用setApplicationContext()方法，将bean所在的应用上下文的引用传入进来;
+		6.如果bean实现了BeanPostProcessor接口，
+			Spring将调用它们的调用postProcessBeforeInitialization(Object obj, String s)方法。
 			附：此处通常用于对Bean进行一些自定义的处理
-		7.如果bean实现了 InitializingBean接口，Spring将调用它们的afterPropertiesSet()方法。
-			附：同样效果：如果bean使用init-method（init-method属性）声明了初始化方法，该方法也会被调用;
+		7.调用自定义的初始化方法
+			如果bean实现了 InitializingBean接口，Spring将调用它们的afterPropertiesSet()方法。
+				附：同样效果：如果bean使用init-method（init-method属性）声明了初始化方法，该方法也会被调用;
 		8.如果bean实现了BeanPostProcessor接口，Spring将调用它们的postProcessAfterInitialization(Object obj, String s)方法;
 			附：由于这个方法是在Bean初始化结束时调用的，所以可以被应用于内存或缓存技术；
 		9.
@@ -28,6 +36,9 @@ bean工厂（容器）执行以下若干步骤来创建bean：
 		附：同样效果：如果bean使用destroy-method（destroy-method）声明了销毁方法，该方法也会被调用。
 	附：
 		./springBean的生命周期.png
+	例：
+		https://www.cnblogs.com/wangjiming/p/11669091.html
+		./例/
 附：
 	spring bean的加载顺序：
 		属性是使用构造方法进行注入时，那么spring bean的创建是有顺序的。
@@ -75,6 +86,10 @@ bean工厂（容器）执行以下若干步骤来创建bean：
 					}
 				注：
 					1.使用该方式创建Bean，实际上它的依赖并没有被注入，只有在你须要的时候他才会被注入进来。
-					2.可无需set，直接在属性上使用@Autowired注解即可。
+					？
+						我在set方法中断点了，可是看到的却是bean在创建时属性就注入了，
+						？如何证明是在需要的时候才注入了？那我断点看到的是什么了
+					2.可无需set，直接在属性上使用@Autowired或@Resource注解即可。
+				
 			方式4：使用 @PostConstruct
 			方式5：实现ApplicationContextAware and InitializingBean接口
