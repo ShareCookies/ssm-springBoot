@@ -74,9 +74,13 @@
 								请求：["1","2"]
 							3.List<String>封装进一个对象中。
 							分为两种情况，get和post的不同。
-							...:
-								https://blog.csdn.net/huangcsdnjava/article/details/75005498
-								https://blog.csdn.net/Carson073/article/details/84874693
+							get：
+								(String docId, @RequestParam 对象)
+								请求：?list属性名=1&list属性名=2
+							post：
+								(@RequestBody 对象)
+								请求{"list属性名":["1","2"]}
+							https://blog.csdn.net/Carson073/article/details/84874693	
 		注：
 		1.@RequestParam加与不加的区别：
 			使用了@RequestParam，则请求必须带有参数。（使用了defaultValue或required=false例外）

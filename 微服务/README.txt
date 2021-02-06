@@ -13,31 +13,33 @@ Spring Cloud介绍：
 			微服务是可以独立部署、水平扩展、独立访问（或者有独立的数据库）的服务单元。
 Spring Cloud微服务框架的搭建：
 	搭建微服务框架至少需要一下几个模块：
-		Eureka 用于服务的注册于发现，Feign 支持服务对服务的调用以及均衡负载。
+		Eureka 用于服务的注册于发现
 			./Eureka/README.txt
 			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/Eureka
+		Feign 用于支持服务对服务的调用以及均衡负载。
+			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/Eureka
+		Spring Cloud Zuul（或Spring Cloud Gateway）  api网关负责与第三方（或前端）的调用端通信。
+			./网关/README.txt
+			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E7%BD%91%E5%85%B3
+		结合以上模块就可搭建一个微服务框架。
+	附：
 		Hystrix 处理服务的熔断防止故障扩散。
 			./Eureka/Hystrix熔断器.txt
 			https://github.com/yuyumyself/ssm-springBoot/blob/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/Eureka/Hystrix%E7%86%94%E6%96%AD%E5%99%A8.txt
 		Spring Cloud Config 服务集群配置中心。
 			./配置中心/README.txt
 			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83
+
 		Spring Cloud Bus 集群中传播状态的变化（通常配置变化事件）。
 			./配置中心/SpringCloudBus.txt
 			https://github.com/yuyumyself/ssm-springBoot/blob/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/SpringCloudBus.txt
-		Spring Cloud Zuul（或Spring Cloud Gateway）  api网关负责与第三方（或前端）的调用端通信。
-			./网关/README.txt
-			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E7%BD%91%E5%85%B3
-		结合以上模块就可搭建一个微服务框架。
-		
-		
 Spring Cloud附：
 	Spring Cloud 各依赖模块简要介绍：
 		Spring Cloud和Spring Boot 是什么关系
 			Spring Boot 是 Spring 的一套快速配置脚手架，可以基于Spring Boot 快速开发单个微服务（单个spring应用）.
 			Spring Cloud是一个基于Spring Boot实现的云应用开发工具；
 			Spring Boot专注于快速、方便集成的单个个体，Spring Cloud是关注全局的服务治理框架；
-
+		
 		Netflix Eureka
 			服务中心
 			Eureka 是一个基于 REST 的服务，主要用来 定位服务来进行中间层服务器的负载均衡和故障转移。
@@ -49,7 +51,16 @@ Spring Cloud附：
 			容错管理工具，旨在通过熔断机制控制服务和第三方库的节点,从而对延迟和故障提供更强大的容错能力。
 			解释：
 				比如突然某个小弟生病了，但是你还需要它的支持，然后调用之后它半天没有响应，你却不知道，一直在等等这个响应；有可能别的小弟也正在调用你的武功绝技，那么当请求多之后，就会发生严重的阻塞影响老大的整体计划。这个时候Hystrix就派上用场了，当Hystrix发现某个小弟不在状态不稳定立马马上让它下线，让其它小弟来顶上来，或者给你说不用等了这个小弟今天肯定不行，该干嘛赶紧干嘛去别在这排队了。
+		Ribbon：客户端负载均衡服务调用组件
+			ribbon提供了客户端负载均衡调用服务功能。但eureka本身就有提供负载均衡功能了，所以可无需ribbon。
 
+			例：
+				Eureka 实现微服务负载均衡
+					Eureka,resttemplate负载均衡。
+					？
+						eureka提供地址表，实际访问是有客户端来的，那是怎么实现负债均衡的了？					
+				Zuul + Ribbon 脱离Eureka完成负载均衡+重试机制
+					https://www.cnblogs.com/deepSleeping/p/11777768.html
 		Netflix Zuul
 			Zuul 是在云平台上提供动态路由,监控,弹性,安全等边缘服务的框架。
 			Zuul 相当于是设备和 Netflix 流应用的 Web 网站后端所有请求的前门。当其它门派来找大哥办事的时候一定要先经过zuul,看下有没有带刀子什么的给拦截回去，或者是需要找那个小弟的直接给带过去。

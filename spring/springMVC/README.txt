@@ -4,7 +4,7 @@
 		1、前端控制器DispatcherServlet：（一切的起源）
 			用户发来一个请求，首先接受的肯定是servlet容器（DispatcherServlet）。			
 		2、处理器映射器HandlerMapping（返回controller）
-			前端控制器（DispatcherServlet）收到请求后会解析请求，并通过处理器映射器（HandlerMapping）根据url信息找到我们需要的处理器（Handler）（也可以叫Controller）,返回给前端控制器。
+			前端控制器（DispatcherServlet）收到请求后会解析请求，并通过处理器映射器（HandlerMapping）根据url信息找到我们需要的处理器（HandlerExecutionChain）,返回给前端控制器。
 ​				例：
 				/**
 				​* Return the HandlerExecutionChain for this request.
@@ -24,9 +24,11 @@
 					}
 					return null;
 				}
-		3、处理器执行链HandlerExecutionChain（里头包含了controller）
-			处理器映射器返回的其实是处理器执行链(HandlerExecutionChain)，只是处理器执行链里包含了处理器。
-			而处理器就是我们写的controller层方法。
+			注：
+			处理器执行链HandlerExecutionChain
+				处理器映射器返回的其实是处理器执行链(HandlerExecutionChain)，而处理器执行链里包含了处理器（controller）。
+			处理器：
+				处理器就是我们写的controller层方法。
 		4、处理器适配器HandlerAdapter（通过适配器执行controller）
 			前端控制器(DispatcherServlet)查找合适的处理器适配器(HandlerAdapter)，通过处理器适配器执行处理器。
 			​例：
@@ -62,6 +64,11 @@
 								​如果控制器中的方法直接负责产生HTML的话，就很 难在不影响请求处理逻辑的前提下，维护和更新视图。控制器方法和 视图的实现会在模型内容上达成一致，这是两者的最大关联，除此之 外，两者应该保持足够的距离。
 				2. restful形式:
 					restful形式是处理器适配器执行完处理器后，直接把处理器返回的数据通过消息转换器转换为json，然后塞入response传给客户端，而不返回mv了就跳过了第5步。
+					注：
+						使用消息转换器接受来自客户端的资源表述:
+							./REST/spring实现RESTful架构.txt > 消息转换器也可以接受来自客户端的资源表述
+							附：
+								@JsonFormat等注解要想生效，要用消息转换器来接收参数。
 		5、视图解析器ViewResolver
 ​			前端控制器接到ModelAndView之后，交由我们的视图解析器去查找合适的视图，最然进行视图渲染，渲染完成塞入response最终返回给用户。
 			​例：

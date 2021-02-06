@@ -2,27 +2,29 @@ https://blog.csdn.net/miss1181248983/article/details/90056960
 https://blog.csdn.net/u013058742/article/details/80004893
 Redis不同集群方案优缺点分析：
 	https://www.cnblogs.com/johnvwan/p/12083024.html
-springBoot连接Sentinel主从：
-	./springBoot连接Sentinel主从.txt
+
 Redis有三种集群模式，分别是：主从模式，Sentinel模式，Cluster模式
 主从模式：
-	在主从主从模式中，数据库分为两类：主数据库(master)和从数据库(slave)。
-	主从复制特点：
-		* 主数据库可以进行读写操作，当读写操作导致数据变化时会自动将数据同步给从数据库
-		* 从数据库一般都是只读的，并且接收主数据库同步过来的数据
-		* 一个master可以拥有多个slave，但是一个slave只能对应一个master
-		* slave挂了不影响其他slave的读和master的读和写，重新启动后会将数据从master同步过来
-		* master挂了以后，不影响slave的读，但redis不再提供写服务，master重启后redis将重新对外提供写服务
-		安全设置：
-			当master节点设置密码后，
-			客户端访问master需要密码
-			启动slave需要密码，在配置文件中配置即可
-			客户端访问slave不需要密码
-	工作机制：
-		当slave启动后，主动向master发送SYNC命令。
-		master接收到SYNC命令后在后台保存快照（RDB持久化）和缓存保存快照这段时间的命令，然后将保存的快照文件和缓存的命令发送给slave。
-		slave接收到快照文件和命令后加载快照文件和缓存的执行命令。
-		复制初始化后，master每次接收到的写命令都会同步发送给slave，保证主从数据一致性。
+	介绍：
+		在主从主从模式中，数据库分为两类：主数据库(master)和从数据库(slave)。
+		主从复制特点：
+			* 主数据库可以进行读写操作，当读写操作导致数据变化时会自动将数据同步给从数据库
+			* 从数据库一般都是只读的，并且接收主数据库同步过来的数据
+			* 一个master可以拥有多个slave，但是一个slave只能对应一个master
+			* slave挂了不影响其他slave的读和master的读和写，重新启动后会将数据从master同步过来
+			* master挂了以后，不影响slave的读，但redis不再提供写服务，master重启后redis将重新对外提供写服务
+			安全设置：
+				当master节点设置密码后，
+				客户端访问master需要密码
+				启动slave需要密码，在配置文件中配置即可
+				客户端访问slave不需要密码
+		工作机制：
+			当slave启动后，主动向master发送SYNC命令。
+			master接收到SYNC命令后在后台保存快照（RDB持久化）和缓存保存快照这段时间的命令，然后将保存的快照文件和缓存的命令发送给slave。
+			slave接收到快照文件和命令后加载快照文件和缓存的执行命令。
+			复制初始化后，master每次接收到的写命令都会同步发送给slave，保证主从数据一致性。
+	springBoot连接Sentinel主从：
+		./springBoot连接Sentinel主从.txt
 	主从模式搭建
 		环境准备：
 			master节点                  192.168.30.128
@@ -182,3 +184,6 @@ Cluster模式介绍
 			列出节点信息
 				CLUSTER NODES
 				注：这里与nodes.conf文件内容相同
+	spring连接redis集群：
+		https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#cluster
+		https://blog.csdn.net/u010199866/article/details/80705797?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-6&spm=1001.2101.3001.4242

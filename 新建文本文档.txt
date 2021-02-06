@@ -1,0 +1,5 @@
+多租户
+	https://zhuanlan.zhihu.com/p/174217549
+	从定义中我们可以理解：多租户是一种架构，目的是为了实现多用户环境下，使用同一套程序且保证用户间数据隔离。
+Swagger API 文档	
+	https://developer.ibm.com/zh/articles/j-using-swagger-in-a-spring-boot-project/	

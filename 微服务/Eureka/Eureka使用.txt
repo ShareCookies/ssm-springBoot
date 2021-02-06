@@ -90,9 +90,6 @@ springCloud eureka 客户端的使用：
 				启用feign。
 				Feign是一个声明式Web Service客户端。				
 				Spring Cloud对Feign进行了封装，使其支持了Spring MVC标准注解和HttpMessageConverters。
-				
-				Feign可以与Eureka和Ribbon组合使用以支持负载均衡。？
-
 		4、使用feign代理远程对象：
 		hcg:使用feign实现一个本地远程代理对象。属于设计模式中的远程代理。
 		@FeignClient(name= "spring-cloud-producer")
@@ -117,6 +114,7 @@ springCloud eureka 客户端的使用：
 				return HelloRemote.hello("test");
 			}
 
+
 附：
 	依次启动spring-cloud-eureka、spring-cloud-producer、spring-cloud-consumer三个项目，即可进行一个微服务框架应用的测试。
 
@@ -128,4 +126,8 @@ springCloud eureka 客户端的使用：
 		Spring cloud实现FeignClient指定Zone调用
 			https://blog.csdn.net/zhxdick/article/details/91868730?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
 			eureka.instance.metadata-map.zone设置不同实例所属的zone，zone之间不互相调用，只有zone内部调用（其实这里用zone做了集群隔离，实际上集群肯定是跨可用区的，这里的eureka中的zone在我们项目里面并不是可用区的概念）。
-		
+	Feign与Ribbon...
+	
+		Ribbon是一个基于 HTTP 和 TCP 客户端 的负载均衡的工具。它可以 在客户端 配置RibbonServerList（服务端列表），使用 HttpClient 或 RestTemplate 模拟http请求，步骤相当繁琐。
+
+​ Feign 是在 Ribbon的基础上进行了一次改进，是一个使用起来更加方便的 HTTP 客户端。采用接口的方式， 只需要创建一个接口，然后在上面添加注解即可 ，将需要调用的其他服务的方法定义成抽象方法即可， 不需要自己构建http请求。然后就像是调用自身工程的方法调用，而感觉不到是调用远程方法，使得编写客户端变得非常容易

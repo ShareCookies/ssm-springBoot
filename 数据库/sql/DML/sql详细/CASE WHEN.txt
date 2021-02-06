@@ -1,9 +1,8 @@
 https://blog.csdn.net/rongtaoup/article/details/82183743
 
 介绍：
-	在SQL的世界中CASE语句类似if else  语句，
-	作用是根据条件返回对应结果，
-	我认为这个语句的优先级时最高的，时会被最新执行的。
+	在SQL的世界中CASE语句类似if else  语句，作用是根据条件返回对应结果。
+		即新增一列，该列值为对某列进行条件判断后赋值。
 
 Case具有两种格式：
 
@@ -31,11 +30,4 @@ Case具有两种格式：
 	注：
 		如果省略了else，那么未符合条件时返回，NULL
 例：
-	SELECT
-    STUDENT_NAME,
-    (CASE WHEN score < 60 THEN '不及格'
-        WHEN score >= 60 AND score < 80 THEN '及格'
-        WHEN score >= 80 THEN '优秀'
-        ELSE '异常' END) AS REMARK
-	FROM
-		TABLE
+	SELECT 	(CASE FILE_CATEGORY WHEN '1' THEN 1 ELSE 0 END) AS 新列名 FROM EGOV_RECEIVAL 
