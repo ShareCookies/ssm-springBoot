@@ -3,10 +3,8 @@
 	https://github.com/mr-ping/RabbitMQ_into_Chinese
 RabbitMQ：
 	https://www.cnblogs.com/sgh1023/p/11217017.html
-	
-	RabbitMQ是基于AMQP协议实现的，其结构AMQP协议简直就是一模一样。。
+	RabbitMQ是基于AMQP协议实现的，其结构AMQP协议简直就是一模一样。
 	RabbitMQ的工作原理:
-		
 		RabbitMQ组成：
 			生产者、消费者和RabbitMQ服务端。
 		RabbitMQ基本结构:
@@ -24,18 +22,17 @@ RabbitMQ：
 								该类型的交换器将所有发送到该交换器的消息被转发到所有RoutingKey中指定的Topic的队列上面。
 								Exchange将RoutingKey和某Topic进行模糊匹配，其中“”用来匹配一个词，“#”用于匹配一个或者多个词。
 									例如“com.#”能匹配到“com.rabbitmq.oa”和“com.rabbitmq”；而"login."只能匹配到“com.rabbitmq”。
-								
 							Fanout Exchange
 								该类型的交换器不处理路由键，会把所有发送到交换器的消息路由到所有绑定的队列中。
 								优点是转发消息最快，性能最好。
 							Headers Exchange
 								该类型的交换器不依赖路由规则来路由消息，而是根据消息内容中的headers属性进行匹配。
 								headers类型交换器性能差，在实际中并不常用。
+					？broke我可以认为是Virtual Host吗
 					Queue：
 						消息队列，存储消息的队列，消息到达队列并转发给指定的
 				Producer：
 					消息生产者，即生产方客户端，生产方客户端将消息发送.
-					
 				Consumer：消息消费者，即消费方客户端，接收MQ转发的消息。
 				附：
 					生产者发送消息流程：
@@ -50,29 +47,42 @@ RabbitMQ：
 						4、当有消息到达Queue时Broker默认将消息推送给消费者。
 						5、消费者接收到消息。
 						6、ack回复
-
+					？
+						发送者消息会丢失吗？
+						rabbitMq停机会导致消息丢失吗？
+						rabbitMq高可用？
 	六种消息模型
 		* https://blog.csdn.net/kavito/article/details/91403659?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
-		
-		基本消息模型：
-			P：生产者，C：消费者，queue。
+		基本消息模型：(PRODUCER-COMSUMER)
+			1生产者P，1消费者C，1队列Q。
+			P：生产者，也就是要发送消息的程序
+			C：消费者：消息的接受者，会一直等待消息到来。
+				？是一直去轮询，还是queue主动推
+			queue：消息队列，缓存消息。生产者向其中投递消息，消费者从其中取出消息。 
+			？
+				队列中有两条消息，有一次消费就都没了？
+				@RabbitListener具体用法？
 		work消息模型：
-			工作队列或竞争消费者模式。
+			工作队列(或叫竞争消费者模式)。
 			work queues与入门程序相比，多了一个消费端，两个消费端共同消费同一个队列中的消息，但是一个消息只能被一个消费者获取。
 		Publish/subscribe（发布订阅模式）
 			交换机类型 Fanout， 也称为广播
 			...
 		Routing 路由模型
-			交换机类型：direct
+			P：生产者，向Exchange发送消息，发送消息时，会指定一个routing key。
+			X：Exchange（交换机），接收生产者的消息，然后把消息递交给 与routing key完全匹配的队列
+			C1：消费者，其所在队列指定了需要routing key 为 error 的消息
+			C2：消费者，其所在队列指定了需要routing key 为 info、error、warning 的消息交换机类型：direct
 			...
 		Topics 通配符模式
 			交换机类型：topics
+			每个消费者监听自己的队列，并且设置带统配符的routingkey,生产者将消息发给broker，由交换机根据routingkey来转发消息到指定的队列。
 		RPC:
-			
 安装rabbitmq：
 	http://blog.didispace.com/spring-boot-rabbitmq/
 	RabbitMq管理：
 		我们可以直接通过配置文件的访问进行管理，也可以通过Web的访问进行管理。
+		http://localhost:15672/
 		默认用户及密码：guest guest
 		...
 spring使用rabbitmq：
@@ -91,17 +101,16 @@ spring使用rabbitmq：
 			spring.rabbitmq.username=spring
 			spring.rabbitmq.password=123456
 	例：
-	简易使用只生产者与消费者：
+		基本消息模型:
+			简易使用,只有1个生产者1个消费者1个队列。
 		创建消息生产者Sender
 			通过注入AmqpTemplate接口的实例来实现消息的发送，
 				AmqpTemplate接口定义了一套针对AMQP协议的基础操作。
 			在Spring Boot中会根据配置来注入其具体实现。
-			
 			@Component
 			public class Sender {
 				@Autowired
 				private AmqpTemplate rabbitTemplate;
-				
 				//在该生产者，我们会产生一个字符串，并发送到名为hello的队列中。
 				public void send() {
 					String context = "hello " + new Date();
@@ -114,7 +123,6 @@ spring使用rabbitmq：
 			//通过@RabbitListener注解定义该类对hello队列的监听
 			@RabbitListener(queues = "hello")
 			public class Receiver {
-				
 				//用@RabbitHandler注解来指定对消息的处理方法。
 				@RabbitHandler
 				public void process(String hello) {
