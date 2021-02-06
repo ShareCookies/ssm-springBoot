@@ -29,3 +29,18 @@ spring的ServletContextResources：
 		ServletContextResource 从Servlet 上下文环境中加载 
 		UrlResource 从指定的Url加载
 
+springMvc的控制器作用域单例的:
+	例：
+		int scopeTestInt;
+		@GetMapping("/testMvcDefaultScope")
+		public String testMvcDefaultScope() {
+			this.scopeTestInt = this.scopeTestInt + 1;
+			return String.valueOf(this.scopeTestInt);
+		}
+		//scopeTestInt会一直不断的增加，清浏览器缓存去除会话等影响，也是一直不断增加
+
+
+
+
+静态类方法等为什么能被多线程并发调用了？
+	看jvm原理吗
