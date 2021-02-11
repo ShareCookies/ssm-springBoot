@@ -1,0 +1,63 @@
+集群健康
+	请求：
+
+		curl -X GET "localhost:9200/_cat/health?v"
+	响应：
+
+		epoch      timestamp cluster       status node.total node.data shards pri relo init unassign pending_tasks max_task_wait_time active_shards_percent
+		1533625274 15:01:14  elasticsearch green           1         1      0   0    0    0        0             0                  -                100.0%
+		介绍：
+			cluster 集群名称
+			status 集群状态
+				Green ： everything is good（一切都很好）（所有功能正常）
+				Yellow ： 所有数据都是可用的，但有些副本还没有分配（所有功能正常）
+				Red ： 有些数据不可用（部分功能正常）
+			node.total 节点数量
+			node.data ？
+			shards 分片
+			pri 主分片
+			relo 副分片
+节点列表
+	请求：
+		curl -X GET "localhost:9200/_cat/nodes?v"
+	响应：
+
+		ip        heap.percent ram.percent cpu load_1m load_5m load_15m node.role master name
+		127.0.0.1           15          53   0    0.03    0.03     0.05 mdi       *      Px524Ts
+		
+		介绍：
+			节点名称 name
+			节点地址 ip
+			?这是所有集群的节点列表吗
+查看全部索引
+	请求：
+		curl -X GET "localhost:9200/_cat/indices?v"
+	响应：
+		health status index    uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+		yellow open   customer rG5fxdruTNmD-bdYIF5zOg   5   1          0            0      1.1kb          1.1kb
+		结果的第二行告诉我们，我们现在有叫"customer"的索引，并且他有5个主分片和1个副本（默认是1个副本），有0个文档。
+			1. 是指每个分片对应一个副本吧。？
+			2. 索引的健康状态是yellow，意味着副本(尚未)被分配。（自动分片副本）
+			之所以会出现这种情况，是因为Elasticsearch默认情况下为这个索引创建了一个副本。
+			由于目前我们只有一个节点在运行，所以直到稍后另一个节点加入集群时，才会分配一个副本(对于高可用性)。一旦该副本分配到第二个节点上，该索引的健康状态将变为green。
+			3. 分片位置也会被均衡分配到各节点上吧？
+			4. 5个副本都在2节点吗？还是互相分开放，如ab分片1节点，则副本在2节点，cdf分片2节点，则副本1节点？
+			5. 分片文件位置？副本文件位置？
+		介绍：
+			index 索引名称
+			pri 主分片
+				默认是5个主分片
+				? 就一个节点拿来的5分片
+				? 集群状态中分片和索引分片区别
+			rep 副本
+				默认是1个副本
+			docs.count 文档数
+			health 索引的健康状态
+				yellow意味着一些副本(尚未)被分配
+			附：
+				初建索引之所以会出现这种参数，是因为Elasticsearch默认情况下为这个索引创建了一个副本。
+				要改变为green，要另一个节点加入集群，并把副本分配到第二个节点上，该索引的健康状态将变为green。
+					
+		附：
+			health status index uuid pri rep docs.count docs.deleted store.size pri.store.size
+			//输出意味着：我们在集群中没有索引

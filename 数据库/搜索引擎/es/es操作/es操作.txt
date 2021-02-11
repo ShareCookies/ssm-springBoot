@@ -1,0 +1,67 @@
+创建索引库
+	ES的索引库是一个逻辑概念，它包括了分词列表？及文档列表，同一个索引库中存储了相同类型的文档。
+	它就相当于MySQL中的表，或相当于Mongodb中的集合。
+
+	创建索引库：
+		例1：
+			使用postman等工具创建：
+			put http://localhost:9200/索引库名称
+			{
+				"settings":{
+					"index":{
+						"number_of_shards":1,
+						"number_of_replicas":0
+					}
+				}
+			}
+			number_of_shards：
+				设置分片的数量。
+				在集群中通常设置多个分片，表示一个索引库将拆分成多片分别存储不同的结点，提高了ES的处理能力和高可用性，入门程序使用单机环境，这里设置为1。
+			number_of_replicas：
+				设置副本的数量。
+				设置副本是为了提高ES的高可靠性，单机环境设置为0.
+		例2：
+			curl -X PUT "localhost:9200/索引名?pretty"
+			附：
+				pretty指把数据格式化下返回回来
+删除一个索引
+	例1：
+		curl -X DELETE "localhost:9200/索引名?pretty"
+	附：
+		即使索引下有数据，也会被删除
+索引一个文档:(创建一个文档)
+	put一些数据到"customer"索引中
+	curl -X PUT "192.168.0.104:9200/customer/_doc/1?pretty" -H 'Content-Type: application/json' -d'{"name": "John Doe"}'
+	返回
+		{
+			"_index": "customer",//索引名
+			"_type": "_doc",//类型
+			"_id": "1",//文档id
+			"_version": 2,//更新次数
+			"result": "updated",//更新操作
+			"_shards": {
+				"total": 2,//？什么意思
+				"successful": 1,
+				"failed": 0
+			},
+			"_seq_no": 1,
+			"_primary_term": 1
+		}3
+	附：
+		1. 如果索引不在，则会自动新增索引，然后创建文档。
+		2. 如果文档id重复则会更新
+更新文档
+	curl -X POST "localhost:9200/customer/_doc/1?pretty" -H 'Content-Type: application/json' -d'
+	{
+	  "doc": { "name": "Jane Doe", "age": 20 }
+	}'
+	附：如果文档未存在，则会新建，result会为create
+删除文档
+	curl -X DELETE "localhost:9200/customer/_doc/文档id?pretty"
+批处理_bulk：(批量增删改)
+	...
+
+
+doc写入原理：
+	...
+	https://www.yuque.com/yanyulou-jxe2g/iz0eoq/ygoxy0#yWvjq

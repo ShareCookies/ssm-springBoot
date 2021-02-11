@@ -1,0 +1,357 @@
+{
+	"info": {
+		"_postman_id": "97d4b895-b3d3-4ec8-bee3-cee6ad103afa",
+		"name": "hcg-es",
+		"description": "es学习",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "新增文档",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\": \"202129\",\"high\":1751}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.0.104:9200/customer/_doc/ttt?pretty",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"104"
+					],
+					"port": "9200",
+					"path": [
+						"customer",
+						"_doc",
+						"ttt"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post更新文档",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"script\" : \"ctx._source.high += 5\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.0.104:9200/customer/_doc/tt1t?pretty",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"104"
+					],
+					"port": "9200",
+					"path": [
+						"customer",
+						"_doc",
+						"tt1t"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post批处理(批量进行增、删、改)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"update\":{\"_id\":\"1\"}}\r\n{\"doc\": { \"name\": \"John Doe becomes Jane Doe\" } }\r\n{\"delete\":{\"_id\":\"2\"}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.0.104:9200/customer/_doc/_bulk?pretty",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"104"
+					],
+					"port": "9200",
+					"path": [
+						"customer",
+						"_doc",
+						"_bulk"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get(post也行) 简单搜索-空搜索",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.0.104:9200/_all/_search",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"104"
+					],
+					"port": "9200",
+					"path": [
+						"_all",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get 获取index的映射信息",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.0.104:9200/customer/_mapping",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"104"
+					],
+					"port": "9200",
+					"path": [
+						"customer",
+						"_mapping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "分词测试之存储时field是否分词测试(mapping为text会分词)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t \"field\": \"name\",\r\n\t \"text\": \"my-dogs\"  \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.0.104:9200/customer/_analyze",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"104"
+					],
+					"port": "9200",
+					"path": [
+						"customer",
+						"_analyze"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "分词测试之存储时field是否分词测试((mapping为keyword不会分词)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\r\n// \t \"field\": \"new_field\",\r\n// \t \"text\": \"my-dogs\"  \r\n// }\r\n{\r\n\t \"field\": \"keywordField\",\r\n\t \"text\": \"my-dogs\"  \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.0.104:9200/customer/_analyze",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"104"
+					],
+					"port": "9200",
+					"path": [
+						"customer",
+						"_analyze"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "分词测试之查询时 是否分词测试（代）",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\r\n// \t \"field\": \"new_field\",\r\n// \t \"text\": \"my-dogs\"  \r\n// }\r\n{\r\n\t \"field\": \"keywordField\",\r\n\t \"text\": \"my-dogs\"  \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.0.104:9200/",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"104"
+					],
+					"port": "9200",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "手动为索引新增field 的mapping",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "// {\r\n//  \"properties\" : {\r\n//    \"keywordField\" : {\r\n//      \"type\" :\"keyword\"\r\n//    }\r\n//  }\r\n// }\r\n//??\r\n// {\r\n//  \"properties\" : {\r\n//    \"textField1\" : {\r\n//      \"type\" :\"text\"\r\n//    }\r\n//  }\r\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://192.168.0.104:9200/customer/_mapping",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"104"
+					],
+					"port": "9200",
+					"path": [
+						"customer",
+						"_mapping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete删除索引",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://192.168.0.104:9200/customer?pretty",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"0",
+						"104"
+					],
+					"port": "9200",
+					"path": [
+						"customer"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

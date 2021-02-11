@@ -1,0 +1,107 @@
+mapping
+	介绍：
+		映射：
+			自动或手动为index中每个域(或index中的type)建立的一种数据结构和相关配置，的功能可称为mapping
+				辅助理解：类似表结构定义，描述数据在每个字段内如何存储
+			mapping数据类型指明Elasticsearch如何处理这些域。
+				为了能够将时间域视为时间，数字域视为数字，字符串域视为全文或精确值字符串， Elasticsearch 需要知道每个域中数据的类型，这些信息就包含在映射结构中。
+
+		//文章后面的mapping都可以理解为映射生成的一个映射结构。
+		映射结构：
+			映射定义了index（type）中每个域的mapping数据类型，以及Elasticsearch如何处理这些域。
+				映射也用于配置与类型有关的元数据。
+			9个数据类型：(mapping的基本类型)
+				字符串: keyword/text
+					keyword 不会分词
+					text 会分词
+
+				整数 : byte, short, integer, long
+				浮点数: float, double
+				布尔型: boolean
+				日期: date
+				
+			数据类型又可以概括的分为两类：
+				精确值和全文。		
+
+				exact value精确值：
+					精确值查询，结果是要么匹配查询，要么不匹配。
+					精准值在建立倒排索引的时候，分词过程是将整个值一起作为一个关键词建立到倒排索引中的。！
+						如何证明改观点了！
+					例:
+						日期、用户 ID,对于精确值来讲，Foo 和 foo 是不同的，2014 和 2014-09-15 也是不同的。
+				full text 全文：
+					为了促进在全文域中的查询，
+					数据存入es时，如果field是全文类型，数据会经过分析过程，之后es会把结果建立到倒排索引中。 
+					附：
+						字符串可以表示精确值，也可以表示全文，是根据field对应mapping(的type和分析器)来决定的!
+				注：
+					倒排索引:
+						Elasticsearch 使用一种称为 倒排索引 的数据结构，它适用于快速的全文搜索。
+						一个倒排索引由文档中所有不重复词的列表构成，对于其中每个词都有一个包含它的文档列表。
+
+						例:
+							假设我们有个文档，每个文档的 content 域包含如下内容：
+								The quick brown fox jumped over the lazy dog
+							为了创建倒排索引，我们首先将每个文档的 content 域过滤，接着拆分成单独的词（我们称它为 词条 或 tokens ），接着在精化。
+							最后创建一个包含所有不重复词条的排序列表，并且列出每个词条出现在哪个文档。
+							结果如下所示：
+								Term      Doc_1  Doc_2
+								-------------------------
+								Quick   |       |  X
+								The     |   X   |
+								brown   |   X   |  X
+								dog     |   X   |
+								dogs    |       |  X
+								...
+								------------------------
+						?
+							为什么取名倒排索引了
+					分析过程：
+						./全文之分析.txt
+				
+		新增mapping：(如何为index定义一个mapping)
+			每个 index 都有一个 mapping。
+			1. 如果你在创建索引时没指定，那么es会自动帮你创建一个空mapping。
+			新增document时，es会使用dynamic mapping(动态映射),自动补充mapping(自动设置mapping数据类型)等;
+			附：
+				dynamic mapping使用如下规则猜测JSON对应的域类型：
+					布尔型boolean: true 或者 false 
+					整数long: 123 
+					浮点数double: 123.45 
+					字符串，有效日期date: 2014-09-15 
+					字符串keyword/text: "hello world" 
+					例：
+						1. 这意味着如果你通过引号( "123" )索引一个数字，它会被映射为 string 类型，而不是 long 。
+						2. 但是如果这个域已经映射为long，那么 es 会尝试将这个字符串转化为 long，如果无法转化则抛出一个异常。	
+			2. 也可以手动创建index(或·type)的mapping，自己对各个field进行设置，包括数据类型、索引行为、分词器,等等
+
+				例：
+					PUT /索引名
+					{
+						"mappings" : {
+							"properties" : {
+								"field1" : { "type" : "text" },//默认标准分析器
+								"publisher_id" : { "type" : "text","index": "not_analyzed" },
+								"field2": {"type": "text","analyzer": "english"},
+							}
+						}
+					}
+			附：
+				./dynamic mapping设置.txt	
+		注：
+			查看mapping：（查看index的mapping）
+				get http://192.168.0.104:9200/索引名/_mapping
+			mapping定义后是无法更改的：
+				1. 是指无法更改已有field对应的mapping类型。
+					如果你在新增doc时，改变已有field字段mapping类型，那么会报错。
+				2. 但如果你在新增doc时，field字段是新增的，那么es会自动帮你更新mapping。
+				3. 手动为索引新增field mapping
+				即无法update field mapping
+				附：
+					如何更改已有field的mapping了：
+						https://www.yuque.com/yanyulou-jxe2g/iz0eoq/ygoxy0#mK1kt
+						重建索引。
+						索引的field设置是不能被修改的，如果要修改一个Field, 那么应该重新按照新的mapping,建立一个index,然后将数据批查询出来，重新用bulk api写入index中。
+						批量查询的时候，建议采用scroll api,并粗采用多线程并发的方式来reindex数据，每次col就查询指定日期的一段数据，交给一个线程即可。
+						...
+

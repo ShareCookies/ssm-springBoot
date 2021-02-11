@@ -1,0 +1,63 @@
+dynamic mapping设置:
+	dynamic mapping级别：
+		true:遇到陌生字段,就进行dynamic mapping (mapping 默认)
+		false:遇到陌生字段，就忽略
+		strict:遇到陌生字段，就报错	
+		例：
+			PUT /my_index
+			{
+			  "mappings": {
+				  "dynamic": "strict",
+				  "properties": {
+					"title": {
+					  "type": "text"
+					},
+					"address": {
+					  "type": "object",
+					  "dynamic": "true"
+					}
+				  }
+				}
+			}
+	
+	date_detection：
+		默认会按照一定格式识别date, 比如yy-MM-dd。
+		date_detection可以手动关闭。
+		例：
+			PUT /my_index/_mapping
+			{
+			   "date_detection": false
+			}
+	定制自己的dynamic mapping template：
+		例：
+			查询结果只能查询到1。
+			title没有匹配到任何的dynamic模板，默认就是standard分词器,不会过滤停用词, is会进入倒排索引,用is来搜索是可以搜索到的。
+			title_ en匹配到了dynamic模板，就是english分词器，过滤停用词, is这种停用词就会被过滤掉,用is来搜索就搜索不到了。
+
+			定制模板：
+				PUT /dd_index
+				{
+					"mappings": {
+							"dynamic_templates": [
+								{ "en": {
+									  "match":              "*_en", 
+									  "match_mapping_type": "string",
+									  "mapping": {
+										  "type":           "text",
+										  "analyzer":       "english"
+									  }
+								}}
+							]
+				}}
+			插入数据：
+				PUT /dd_index/_doc/1
+				{
+				  "title": "this is my first article"
+				}
+
+				PUT /dd_index/_doc/2
+				{
+				  "title_en": "this is my first article"
+				}
+			搜索校验：
+				GET /dd_index/_search?q=is		

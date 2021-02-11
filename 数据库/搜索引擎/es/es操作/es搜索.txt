@@ -1,0 +1,209 @@
+附：
+	查询原理(ID路由)
+		假设客户端请求查询_ id= 10的数据。
+		1. 请求发送到ES集群中的任意节点，此时该节点成为本次请求的协调节点。
+		2. 协调节点默认根据数据的_id作为routing(可以手动指定，只需要在查询时增加_routing参数即可)进行hash算法, Hash(routing) % number. _of_shards,假设计算出目标数据:存放的shard的下标是3。
+		3. 接着协调节点请求master节点，获取下标为3的shard所在节点的访问路径、端口等信息,并将查询请求转发至目标节点中。
+		(注意:显然下标为3的shard不一定只有一个， 有可能存在一个primary shard和多个replicashard的场景，于到底把请求发送到哪一个shard_ 上，取决于随机轮寻算法round-robin)
+		4. 目标节点在目标分片内根据id轻松的查询到数据,并将数据回传给协调节点。
+		协调节点将数据返回给客户端。
+		
+	搜索原理(文本搜索)
+		假设客户端请求查询某一个field的值为"hello java"。
+		1. 请求发送到ES集群中的任意节点，此时该节点成为本次请求的协调节点。
+		2. 此时协调节点不知道目标数据到底存放在哪个节点的那个分片上,因此协调节点会把请求转发到ES集群当中的每一个节点中。
+		3. 分片搜索过程：
+			搜索请求发送到某一个coordinate node,coordinate node将请求转发到所有shard,每个shard本地搜索,并构建一个本地的priority queue,各个shard将自己的priority queue返回给coordinate node,并构建一个全局的priority queue。
+			例：
+				请求100-110数据
+				则每个shard会构建本地priority queue来存储各自110条数据，注意不是10条数据。
+				当每个shard本地的priority queue构建好之后，Coordinate node会去priority queue拉取数据，然后在本地构建全局的priority queue，把三个110合并排序取出10条数据
+
+			附：
+				一般搜索,如果不加from和size,就默认搜索前10条,按照score排序
+
+		4. 整合数据并返回给客户端
+		附：
+			搜索请求为什么要分到所有的shard上：
+				1. 因为所有的shard都能包含部分数据，所以我们要把请求分发到所有的shard去执行。
+			
+				2. 如果primary shard有replica，那么请求也可以打到replica,就不去请求shard,这个就是负载。
+				replica可以处理读请求，起到一个负载的作用
+
+
+es搜索：
+	https://www.elastic.co/guide/cn/elasticsearch/guide/current/search.html
+	https://www.elastic.co/guide/cn/elasticsearch/guide/current/search-in-depth.html
+	es搜索可以做到：
+		1. 类似SQL的结构化查询
+			如：
+				在gender 或者 age 这样的字段上使用结构化查询，
+				join_date 这样的字段上使用排序
+		2. 全文检索
+			找出所有匹配关键字的文档，并按照相关性（relevance）排序后返回结果。
+		3. 以上二者兼而有之。
+
+搜索API语法：(hcg)
+	GET /索引.../类型/_search
+	附：
+		空搜索：(搜索指定索引下全部商品)
+			例：
+				返回集群中所有索引下的所有文档
+				get http://192.168.0.104:9200/_all/_search
+				
+				解析：
+					搜索集群中的所有文档
+					es 将转发搜索请求到每一个主分片或者副本分片，汇集查询出的前10个结果？(怎么汇集)，并且返回给我们。
+				返回结果：	
+					./es搜索返回结果.txt
+				
+		多索引：(多索引、所类型)
+			https://www.elastic.co/guide/cn/elasticsearch/guide/current/multi-index-multi-type.html#multi-index-multi-type
+			对多个索引或类型下进行搜索
+			附：
+				当在单一的索引下进行搜索的时候，Elasticsearch 转发请求到索引的每个分片中，可以是主分片也可以是副本分片，然后从每个分片中收集结果。
+				多索引搜索恰好也是用相同的方式工作的一只是会涉及到更多的分片。
+				搜索一个索引有五个主分片和搜索五个索引各有一个分片准确来所说是等价的。
+				接下来，你将明白这种简单的方式如何灵活的根据需求的变化让扩容变得简单。
+		
+搜索API：
+	有两种形式的搜索API：(搜索API传参有两种传参方式)
+		一种是 “轻量的” 查询字符串 版本，要求在查询字符串中传递所有的参数，
+		另一种是更完整的 请求体 版本，要求使用 JSON 格式和更丰富的查询表达式作为搜索语言。
+
+	query StringSearch：(url参数版)
+		url中进行传参进行数据搜索。
+		附：
+			查询字符串搜索适用于通过命令行做简单的及时查询，如果查询清求很复杂，就是很难去构建。
+		例：
+			1.查询在 tweet 类型中 tweet 字段包含 elasticsearch 单词的所有文档：
+			GET /_all/tweet/_search?q=tweet:elasticsearch
+			
+			2.查询在 name 字段中包含 john 并且在 tweet 字段中包含 mary 的文档。	
+			实际的查询就是这样
+				+name:john+tweet:mary
+			get查询需要URL编码，导致更加难懂：
+				GET /_search?q=%2Bname%3Ajohn+%2Btweet%3Amary
+		注：
+			+ 前缀表示必须与查询条件匹配。
+			- 前缀表示一定不与查询条件匹配。
+			没有 + 或者 - 的所有其他条件都是可选的——匹配的越多，文档就越相关。					
+	query DSL：(请求体版)
+		https://www.elastic.co/guide/cn/elasticsearch/guide/current/full-body-search.html
+		请求体中进行传参进行数据搜索。
+		请求体查询可以实现：
+			1.自身的复杂查询请求
+			2. 同时还能允许你对结果进行片段强调（高亮）
+			3. 对所有或部分结果进行聚合分析
+			4. 同时还可以给出 你是不是想找 的建议，这些建议可以引导使用者快速找到他想要的结果。
+
+		附：
+			DSL(Domain Specified Language,特定领域的语言) ,es为搜索定义的一种搜索语言，格式是json。
+			DSL适合生产环境的使用，可以构建复杂的查询
+
+		附：
+			短语搜索(phrase search)：(精确查询)
+				phrase search跟全文检索相反,它要求输入的搜索串,必须在指定的字段文本中,完全包含-模一样的， 才算匹配并作为结果返回
+				例：
+					GET /test/cars/_search	
+					{
+						"query" : {
+							"match_phrase" : {
+								"producer" : "audi producer"
+							}
+						}
+					}
+			全文检索 (full-text search)：
+				全文检索会将输入的搜索串拆解开来，去倒排索引里面去一匹配， 只要能匹配上任意一个拆解后的单词，就可以作为结果返回。
+
+				例1:
+					GET /test/cars/_search
+					{
+						"query" : {
+							"match" : {
+								"producer" : "audi producer"
+							}
+						}
+					}
+			注：
+				es是如何实现精确查询和全文检索的：*
+					./全文之映射.txt
+			搜索过滤：
+				例1:
+					搜索商品名称包含suv,而且售价大于15万元的商品
+					GET /test/cars/_search
+					{
+						"query" : {
+							"bool" : {
+								"must" : {
+									"match" : {
+										"name" : "suv" 
+									}
+								},
+								"filter" : {
+									"range" : {
+										"price" : { "gt" : 150000 } 
+									}
+								}
+							}
+						}
+					}
+			高亮搜索结果(highlight search)
+				例：
+					GET /test/cars/_ search
+
+					{
+					   "query" : {
+						   "match" : {
+							   "producer" : "producer"
+						   }
+					   },
+					   "highlight": {
+						   "fields" : {
+							   "producer" : {}
+						   }
+					   }
+					}
+			_source元数据定制返回结果
+				...
+			分页
+				Elasticsearch 可以通过 from 和 size 参数来达到分页效果。
+					size
+						显示应该返回的结果数量，默认是 10
+					from
+						显示应该跳过的初始结果数量，默认是 0
+				例：
+					query StringSearch：
+						GET /_search?size=5&from=10
+					query DSL：
+						GET /_search
+						{
+						  "from": 30,
+						  "size": 10
+						}
+
+				附：
+					考虑到分页过深以及一次请求太多结果的情况，结果集通常在返回之前先进行排序。 
+					但请记住一个请求经常跨越多个分片，每个分片都产生自己的排序结果，这些结果需要进行集中排序以保证整体顺序是正确的。
+					！
+					在分布式系统中深度分页
+						获取全部结果的前 10 个：
+							理解为什么深度分页是有问题的，我们可以假设在一个有 5 个主分片的索引中搜索。 当我们请求结果的第一页（结果从 1 到 10 ），每一个分片产生前 10 的结果，并且返回给 协调节点 ，协调节点对 50 个结果排序得到全部结果的前 10 个。
+						获取全部结果的10001 到 10010 ：
+								现在假设我们请求第 1000 页—​结果从 10001 到 10010 。
+								所有都以相同的方式工作除了每个分片不得不产生前10010个结果以外。 然后协调节点对全部 50050 个结果排序最后丢弃掉这些结果中的 50040 个结果。
+
+						可以看到，在分布式系统中，对结果排序的成本随分页的深度成指数上升。这就是 web 搜索引擎对任何查询都不要返回超过 1000 个结果的原因。！！！
+			es script内置脚本:
+				...
+			_mget批量查询
+				一般来说， 在进行查询的时候，如果一次性要查询多条数据的话, 那么-定要用batch批量 操作的api。
+				尽可能减少网络开销次数,可能可以将性能提升数倍，甚至数十倍,非常非常之重要。	
+注：
+	Doc values(正排索引)：
+		https://www.yuque.com/yanyulou-jxe2g/iz0eoq/ygoxy0#Y8Rbi
+		ES存储document时，会根据数据对应的field类型建立对应的索引,但通常来说只创建倒排索引。
+		倒排索引是为了搜索而存在的,如果对数据进行排序、聚合、过滤等操作时，再使用倒排索就明显不适合了。
+		这个时候就需要在ES中创建正排索引(doc values)。doc values保存在磁盘中,如果OS Cache系统缓存的空间足够大，ES会缓存doc values,因此性能还是很不错的。
+		...
+		

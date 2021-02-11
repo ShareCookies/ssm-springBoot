@@ -1,0 +1,60 @@
+注：
+	es新版本要求至少jdk1.8以上。
+apt-get方式安装：
+	https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html
+	安装命令：
+		sudo systemctl start elasticsearch.service
+		sudo systemctl stop elasticsearch.service
+		自启：
+			sudo /bin/systemctl daemon-reload
+			sudo /bin/systemctl enable elasticsearch.service
+	检查是否安装成功：
+		 curl http://localhost:9200/  有返回配置信息即算启用成功。
+	配置:
+		/etc/elasticsearch/elasticsearch.yml
+		外网：
+			network.host: 0.0.0.0
+			#https://blog.csdn.net/qq_43655835/article/details/104637625
+			#配置以下三者，最少其一
+			#[discovery.seed_hosts, discovery.seed_providers, cluster.initial_master_nodes]
+			cluster.initial_master_nodes: ["node-1"] #这里的node-1为node-name配置的值
+	附:
+		日志文件位置：
+			sudo tail -f -n 100 /var/log/elasticsearch/elasticsearch.log
+
+
+		可视化客户端：
+			https://zhuanlan.zhihu.com/p/105355487
+			elasticsearch-head谷歌插件
+docker方式安装:
+	https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html
+windows方式安装：
+	https://www.cnblogs.com/hualess/p/11540477.html
+	https://www.elastic.co/guide/en/elasticsearch/reference/current/zip-windows.html
+	1.下载es的window安装包
+	2. 进入bin目录，在cmd下运行：elasticsearch.bat
+
+
+附：
+	es安装包：
+		https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html
+	配置文件：
+		elasticsearch.yml 用于配置Elasticsearch运行参数 
+		jvm.options 用于配置Elasticsearch JVM设置
+		log4j2.properties 用于配置Elasticsearch日志
+		ES的配置文件的地址根据安装形式的不同而不同：
+			使用zip、tar安装，配置文件的地址在安装目录的config下。
+			使用RPM安装，配置文件在/etc/elasticsearch下。
+			使用MSI安装，配置文件的地址在安装目录的config下，并且会自动将config目录地址写入环境变量ES_PATH_CONF。
+	head插件：
+		head插件是一个ES可视化客户端管理工具，可用来监视ES的状态、和ES服务进行交互，比如创建映射、创建索引等。
+		head的项目地址在https://github.com/mobz/elasticsearch-head 。
+		安装：
+			1、安装node.js
+			2、下载head并运行
+				git clone git://github.com/mobz/elasticsearch-head.git
+				cd elasticsearch-head
+				npm install
+				npm run start open
+			3、浏览器访问，连接es服务器即可
+				 http://localhost:9100/
