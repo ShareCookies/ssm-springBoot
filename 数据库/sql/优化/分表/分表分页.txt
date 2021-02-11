@@ -1,0 +1,65 @@
+* https://blog.csdn.net/uiuan00/article/details/102716457
+
+分表分页：
+	附：
+		有多少页如何统计？
+			根据条件去每个分表count下。
+				？会影响效率吗，count效率了...
+			不展示有多少页了，去查时看能否找到数据。
+	分表后数据分散在各个库，所以查询时会出现多种情况：
+		数据都在1表或都在2表、2表，极端情况。
+		数据在1，2，3表完全一致，极端情况.
+		数据在1，2，3表各自包含一部分，这也是最常见的情况。（下面分析的情况以这种情况为前提，数据是各表都要分布，而不是范围分布（0-1000，0-2000），如果范围分布那么我可能2表一个数据都没塞啊）
+			？？？可是我好像一个数据都没赛，好像根据下面算法也能找出结果....后面在看吧
+			https://cloud.tencent.com/developer/article/1692720
+
+		附：
+			当然数据怎么分布也可以通过你的分表策略来避免！
+		【假设】一页10条数据，查询第二页的数据，未分表时的实现：
+			select * from order order by create_time asc limit 10,10;
+		【假设】分了3张表，分表后的实现：
+		  实现1：全局查询方式
+			把3张表0-20条的数据都查询出来，然后在内存中进行排序，返回。
+			优点：实现简单。
+			缺点：需要查询大量的数据，耗时：1. 耗网络带宽，2. 汇总结构还需要大量数据的内存排序，耗内存，耗CPU， 3，随着页码增加，比如查第100页，那就需要每张表limit 0,(100+10)，很恐怖。
+			附：
+				也可以勉强使用，一次性返回所有数据，前端就不要在查了！
+ 实现2：二次查找
+	第一步：limit 10,10中，拿到第一个10除以分表数3，结果取整为3；
+	第二步：
+		select * from order_1 order by create_time asc limit 3,10；
+		select * from order_2 order by create_time asc limit 3,10；
+		select * from order_3 order by create_time asc limit 3,10；
+	获取到以上3个List<Order>，然后得到min_create_time，order1_max_create_time
+		min_create_time
+			找到所返回3页全部数据的最小值
+		order1_max_create_time
+			各List的最大时间数据
+		附：
+		查总体上的10到20条数据，为什么要查每个的3-13(4-14)数据。
+			从3开始查：因为数据是基本分布的，0-2是 理论上是 总体09
+			查10条：因为是分表查询，
+				表1只有5条，表2只有2条。那么如果只招3条，是不是意味着数量不够了。
+	第三步：
+		select * from order_1 where between min_create_time and order1_max_create_time; 
+		select * from order_2 where between min_create_time and order2_max_create_time; 
+		select * from order_3 where between min_create_time and order3_max_create_time; 
+		相对第一次查询，第二次查询条件放宽了，故第二次查询会返回比第一次查询结果集更多的数据。
+		...
+	第四步：
+        通过min_create_time在各个表虚拟一个位置，也就确定了min_create_time在全局表的位置，合并集合就能找到limit 10,10的数据了.
+		疑问：
+			会有0-2之间的数据一直没被找出来吗。
+			应该不会，二次查找就会根据mintime找到表0-2间数据，所以关键是确保min_time是第10条数据接口。
+			
+			证明min_time是第10条数据：
+				limit 0，10
+					0，10
+					0，10
+					0，10 
+					得到了30条中最小的10条，第10条一定在3表中的某一个第四条（甚至跟高5，6）
+					
+					所以可以确保min_time是第10条数据。
+	总结：
+		1次查找，找出 最小时间(第10条数据时间)，和各表最大时间（为什么最大时间了，嗯你不取最大，取什么了，因为可能跟据某种规则其数据都在某张表）。
+		2次查找，把找出数据精修合并，就是结果了。
