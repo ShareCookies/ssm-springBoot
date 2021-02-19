@@ -59,14 +59,32 @@ Redis集群：
 					1、资源隔离性较差，容易出现相互影响的情况。
 					2、数据通过异步复制,不保证数据的强一致性
 redis介绍：
-	基于内存亦可持久化的日志型、Key-Value 数据库，并提供多种语言的 API的非关系型数据库。
+	Redis 是 C 语言开发的、一个开源（遵从 BSD 协议）、高性能、键值对（key-value）的、内存、数据库。
+	特性：
+		提供多种语言的 API
+		高性能!
+			数据在内存中，读写速度非常快，支持并发 10W QPS(每秒查询率(Query Per Second) )！。
+			单进程单线程
+				采用 IO 多路复用机制。
+				是线程安全的
+		也是一种 NoSQL（not-only sql，泛指非关系型数据库）的数据库
+		可持久化
+			可以将内存中数据保存在磁盘中，重启时加载。
+		高可用
+			主从复制、哨兵
+	附：
+		可以用作缓存、消息中间件等
 	附：
 		Redis的三个客户端框架比较：
 			Jedis,Redisson,Lettuce
 			Jedis：
 				是 Redis 官方首选的 Java 客户端开发包。
 			...
-redis基础语法：
+redis基础概念：
+	附：
+		redisObject？
+			Redis 内部使用一个 redisObject 对象来表示所有的 key 和 value。
+
 	键：
 		一个键可以存储redis的一个类型
 		附：
@@ -95,33 +113,47 @@ redis基础语法：
 					key1 value1
 					key2 value2
 		列表(List)
-			Redis 列表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）,左边出栈或右边出栈。
+			List是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）,左边出栈或右边出栈。
 			数据格式: 
 				listName  
 					1 value1
 					2 value2
+				附：这里的1,2是指插入顺序
 			操作：
+				lpush、rpush、lpop、rpop、lrange（获取列表片段）...
 				https://blog.csdn.net/nangeali/article/details/81735443
 				在 key 对应 list 的头部添加字符串元素
 					格式: lpush  name  value
 				在 key 对应 list 的尾部添加字符串元素
 					格式: rpush  name  value
 				...
+			附：
+				实现方式：？
+					Redis List 的实现是一个双向链表，既可以支持反向查找和遍历，更方便操作，不过带来了额外的内存开销。
+				应用场景：
+					可以用来当消息队列用...
 		集合(Set)
-			Redis的Set是string类型的无序集合，不允许重复的成员。
-			集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)。
+			Set是string类型的无序集合，不允许重复的成员。
+			附：
+				集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)。
 			数据格式: 
 				setName
 					1 value1
 					2 value2
+					附：这里的1,2并没有任何含义，只是指返回数据排序，并不固定
 		有序集合(zset(sorted set))
-			Redis zset 和 set 一样也是string类型元素的集合,且不允许重复的成员。
-			不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。
+			zset 和 set 一样也是string类型元素的集合,且不允许重复的成员。
+			不同的是每个元素都会关联一个double类型的分数,redis正是通过分数来为集合中的成员进行从小到大的排序。
 			zset的成员是唯一的,但分数(score)却可以重复。
 			数据格式: 
 				zsetName
 					1 value1 score
-					2 value2 score		
+					2 value2 score
+			附：
+				实现方式：？
+					Sorted Set 的内部使用 HashMap 和跳跃表（skipList）来保证数据的存储和有序，HashMap 里放的是成员到 Score 的映射。
+					而跳跃表里存放的是所有的成员，排序依据是 HashMap 里存的 Score，使用跳跃表的结构可以获得比较高的查找效率，并且在实现上比较简单。
+
 		附：
 			list set zset的区别：
 				数据结构	是否允许重复元素	是否有序	有序实现方式	应用场景
