@@ -36,8 +36,24 @@ apt-get安装：
 	$ sudo apt-get update
 	$ sudo apt-get install redis
 附：
-	通过redis.conf 配置远程访问
-		daemonize yes #以后台进程方式启动
-		#bind 127.0.0.1  #注释掉bind 127.0.0.1，允许所有ip访问
-		protected-mode no #关闭保护模式
-		requirepass your_passwd #设置密码,注释掉就是没有密码啦
+	redis配置：
+		https://www.runoob.com/redis/redis-conf.html
+		配置 redis 外网可访问：
+			https://www.runoob.com/w3cnote/redis-external-network.html
+			通过redis.conf 配置远程访问
+				daemonize yes #以后台进程方式启动
+				#bind 127.0.0.1  #注释掉bind 127.0.0.1，允许所有ip访问
+				protected-mode no #关闭保护模式
+				requirepass your_passwd #设置密码,注释掉就是没有密码啦	
+
+		设置密码：
+			https://www.cnblogs.com/tenny-peng/p/11543440.html
+			# requirepass foobared
+			requirepass ***     //注意，行前不能有空格
+			重启：
+				./redis-cli -h 127.0.0.1 -p 6379 shutdown
+				./redis-server ../redis.conf 
+			验证密码：
+				一旦设置密码，必须先验证通过密码，否则所有操作不可用
+				auth password验证密码
+				>auth 123456

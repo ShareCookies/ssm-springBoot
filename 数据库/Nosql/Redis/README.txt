@@ -5,81 +5,39 @@
 教程：
 	https://www.runoob.com/redis/redis-commands.html
 	https://blog.csdn.net/hellozpc/article/details/81267030
-redis安装：
-	./linux安装redis.txt
-Spring Boot 使用 Redis:
-	/springBoot/附属功能/redis/
-	https://github.com/yuyumyself/ssm-springBoot/tree/master/springBoot/%E9%99%84%E5%B1%9E%E5%8A%9F%E8%83%BD/redis
-Redis集群：
-	./集群/
-	Redis架构模式：
-		单机版
-			特点：简单
-			问题：
-				1、内存容量有限 2、处理能力有限 3、无法高可用。
-		主从
-			主从复制：
-				Redis 的复制（replication）功能允许用户根据一个 Redis 服务器来创建任意多个该服务器的复制品，其中被复制的服务器为主服务器（master），而通过复制创建出来的服务器复制品则为从服务器（slave）。 只要主从服务器之间的网络连接正常，主从服务器两者会具有相同的数据，主服务器就会一直将发生在自己身上的数据更新同步 给从服务器，从而一直保证主从服务器的数据相同。
-				特点：
-				1、master/slave 角色
-				2、master/slave 数据相同
-				3、降低 master 读压力在转交从库
-				问题：
-					无法保证高可用
-					没有解决 master 写的压力
-			主从+哨兵：
-				Redis sentinel 是一个分布式系统中监控 redis 主从服务器，并在主服务器下线时自动进行故障转移。其中三个特性：
-				监控（Monitoring）：    Sentinel  会不断地检查你的主服务器和从服务器是否运作正常。
-				提醒（Notification）： 当被监控的某个 Redis 服务器出现问题时， Sentinel 可以通过 API 向管理员或者其他应用程序发送通知。
-				自动故障迁移（Automatic failover）： 当一个主服务器不能正常工作时， Sentinel 会开始一次自动故障迁移操作。
-				特点：
-					1、保证高可用
-					2、监控各个节点
-					3、自动故障迁移
-					缺点：
-						主从模式，切换需要时间丢数据
-						没有解决 master 写的压力
-		集群（proxy 型）：
-			Twemproxy 是一个 Twitter 开源的一个 redis 和 memcache 快速/轻量级代理服务器； Twemproxy 是一个快速的单线程代理程序，支持 Memcached ASCII 协议和 redis 协议。
-			特点：
-				1、多种 hash 算法：MD5、CRC16、CRC32、CRC32a、hsieh、murmur、Jenkins 
-				2、支持失败节点自动删除
-				3、后端 Sharding 分片逻辑对业务透明，业务方的读写方式和操作单个 Redis 一致
-				缺点：增加了新的 proxy，需要维护其高可用。
-				failover 逻辑需要自己实现，其本身不能支持故障的自动转移可扩展性差，进行扩缩容都需要手动干预
-		集群（直连型）：
-			从redis 3.0之后版本支持redis-cluster集群，Redis-Cluster采用无中心结构，每个节点保存数据和整个集群状态,每个节点都和其他所有节点连接。
-			特点：
-				1、无中心架构（不存在哪个节点影响性能瓶颈），少了 proxy 层。
-				2、数据按照 slot 存储分布在多个节点，节点间数据共享，可动态调整数据分布。
-				3、可扩展性，可线性扩展到 1000 个节点，节点可动态添加或删除。
-				4、高可用性，部分节点不可用时，集群仍可用。通过增加 Slave 做备份数据副本
-				5、实现故障自动 failover，节点之间通过 gossip 协议交换状态信息，用投票机制完成 Slave到 Master 的角色提升。
-				缺点：
-					1、资源隔离性较差，容易出现相互影响的情况。
-					2、数据通过异步复制,不保证数据的强一致性
+
 redis介绍：
 	Redis 是 C 语言开发的、一个开源（遵从 BSD 协议）、高性能、键值对（key-value）的、内存、数据库。
 	特性：
-		提供多种语言的 API
-		高性能!
-			数据在内存中，读写速度非常快，支持并发 10W QPS(每秒查询率(Query Per Second) )！。
+		高性能
+			数据在内存中，读写速度非常快，官方数据支持 10W QPS(每秒内的查询次数(Query Per Second) )！。
 			单进程单线程
 				采用 IO 多路复用机制。
+					判断数据是否已到达没的话先去读别的，可redis数据不是在内存中吗!
+					所以这里的io复用应该是对请求，这也是redis为什么能单机承受10w并发原因之一吧！
+
 				是线程安全的
-		也是一种 NoSQL（not-only sql，泛指非关系型数据库）的数据库
-		可持久化
-			可以将内存中数据保存在磁盘中，重启时加载。
+			附
+				为什么redis是单线程：
+					因为 Redis 完全是基于内存的操作，CPU 不是 Redis 的瓶颈，Redis 的瓶颈最有可能是机器内存的大小或者网络带宽。
+					因此就使用了单线程。
+						单线程更简单.
+						避免了不必要的上下文切换和竞争条件等性能消耗。
 		高可用
 			主从复制、哨兵
-	附：
-		可以用作缓存、消息中间件等
+		也是一种 NoSQL（not-only sql，泛指非关系型数据库）的数据库
+		提供多种语言的 API
+		可持久化
+			可以将内存中数据保存在磁盘中，重启时加载。
+
 	附：
 		Redis的三个客户端框架比较：
 			Jedis,Redisson,Lettuce
 			Jedis：
 				是 Redis 官方首选的 Java 客户端开发包。
 			...
+		redis用途：
+			可以用作缓存、消息中间件等
 redis基础概念：
 	附：
 		redisObject？
@@ -168,61 +126,14 @@ redis基础概念：
 			例：
 				expire confirm 100 设置confirm这个key100秒过期
 		ttl confirm 获取confirm 这个key的有效时长
-redis配置：
-	https://www.runoob.com/redis/redis-conf.html
-	配置 redis 外网可访问：
-		https://www.runoob.com/w3cnote/redis-external-network.html
-	设置密码：
-		https://www.cnblogs.com/tenny-peng/p/11543440.html
-		# requirepass foobared
-		requirepass ***     //注意，行前不能有空格
-		重启：
-			./redis-cli -h 127.0.0.1 -p 6379 shutdown
-			./redis-server ../redis.conf 
-		验证密码：
-			一旦设置密码，必须先验证通过密码，否则所有操作不可用
-			auth password验证密码
-			>auth 123456
-redis持久化：
-	持久化就是把内存的数据写到磁盘中去，防止服务宕机了内存数据丢失。
-	Redis 提供了两种持久化方式:RDB（默认） 和AOF 
-	RDB（Redis DataBase）：
-		功能的核心函数rdbSave(生成RDB文件)和rdbLoad（从文件加载内存）两个函数
-	AOF（Append-only file）:
-		每当执行服务器(定时)任务或者函数时flushAppendOnlyFile 函数都会被调用， 这个函数执行以下两个工作
-			aof写入保存：
-			WRITE：根据条件，将 aof_buf 中的缓存写入到 AOF 文件
-			SAVE：根据条件，调用 fsync 或 fdatasync 函数，将 AOF 文件保存到磁盘中。
-	比较：
-		1、aof文件比rdb更新频率高，优先使用aof还原数据。
-		2、aof比rdb更安全也更大
-		3、rdb性能比aof好
-		4、如果两个都配了优先加载AOF
-Redis常用命令：
-	1、键值相关命令
-		  keys * 取出当前所有的key
-		  exists name 查看n是否有name这个key
-		  del name 删除key name
-		...  
-		  select 0 选择到0数据库 redis默认的数据库是0~15一共16个数据库
-		  move confirm 1 将当前数据库中的key移动到其他的数据库中，这里就是把confire这个key从当前数据库中移动到1中
-		  persist confirm 移除confirm这个key的过期时间
-		  randomkey 随机返回数据库里面的一个key
-		  rename key2 key3 重命名key2 为key3
-		  type key2 返回key的数据类型
-	2、服务器相关命令
-		  ping PONG返回响应是否连接成功
-		  echo 在命令行打印一些内容
-		  select 0~15 编号的数据库
-		  quit  /exit 退出客户端
-		  dbsize 返回当前数据库中所有key的数量
-		  info 返回redis的相关信息
-		  config get dir/* 实时传储收到的请求
-		  flushdb 删除当前选择数据库中的所有key
-		  flushall 删除所有数据库中的数据库
-	setnx(key, value)：“set if not exits”，若该key-value不存在，则成功加入缓存并且返回1，否则返回0。
-	get(key)：获得key对应的value值，若不存在则返回nil。
-	getset(key, value)：先获取key对应的value值，若不存在则返回nil，然后将旧的value更新为新的value。
+
+redis安装：
+	./linux安装redis.txt
+Spring Boot 使用 Redis:
+	./spring/	
+Redis集群：
+	./集群/
+
 Redis的内存淘汰策略：
 	https://zhuanlan.zhihu.com/p/105587132
 	过期策略
@@ -242,11 +153,90 @@ Redis的内存淘汰策略：
 		附：
 			如果不设置最大内存大小或者设置最大内存大小为0，在64位操作系统下不限制内存大小，在32位操作系统下最多使用3GB内存
 	内存淘汰策略
-		1. noeviction(默认策略)：当内存使用超过配置的时候会返回错误，不会驱逐任何键
-		2. allkeys-lru：加入键的时候，如果过限，首先通过LRU算法驱逐最久没有使用的键
+		1. noeviction(无受害者no eviction)(默认策略)：当内存使用超过配置的时候会返回错误，不会驱逐任何键
+		2. allkeys-lru(Least Recently Used最近最少使用)：加入键的时候，如果过限，首先通过LRU算法驱逐最久没有使用的键
+			Least Recently Used 是一种常用的页面置换算法，选择最近最久未使用的页面予以淘汰。？
 		3. volatile-lru：加入键的时候如果过限，首先从设置了过期时间的键集合中驱逐最久没有使用的键
 		4. allkeys-random：加入键的时候如果过限，从所有key随机删除
 		5. volatile-random：加入键的时候如果过限，从过期键的集合中随机驱逐
 		6. volatile-ttl：从配置了过期时间的键中驱逐马上就要过期的键
 		7. volatile-lfu：从所有配置了过期时间的键中驱逐使用频率最少的键
 		8. allkeys-lfu：从所有键中驱逐使用频率最少的键
+
+
+
+注1：
+	Redis常用命令：
+		1、键值相关命令
+			  keys * 取出当前所有的key
+			  exists name 查看n是否有name这个key
+			  del name 删除key name
+			...  
+			  select 0 选择到0数据库 redis默认的数据库是0~15一共16个数据库
+			  move confirm 1 将当前数据库中的key移动到其他的数据库中，这里就是把confire这个key从当前数据库中移动到1中
+			  persist confirm 移除confirm这个key的过期时间
+			  randomkey 随机返回数据库里面的一个key
+			  rename key2 key3 重命名key2 为key3
+			  type key2 返回key的数据类型
+		2、服务器相关命令
+			  ping PONG返回响应是否连接成功
+			  echo 在命令行打印一些内容
+			  select 0~15 编号的数据库
+			  quit  /exit 退出客户端
+			  dbsize 返回当前数据库中所有key的数量
+			  info 返回redis的相关信息
+			  config get dir/* 实时传储收到的请求
+			  flushdb 删除当前选择数据库中的所有key
+			  flushall 删除所有数据库中的数据库
+		setnx(key, value)：“set if not exits”，若该key-value不存在，则成功加入缓存并且返回1，否则返回0。
+		get(key)：获得key对应的value值，若不存在则返回nil。
+		getset(key, value)：先获取key对应的value值，若不存在则返回nil，然后将旧的value更新为新的value。
+		3. 批处理命令：
+			...
+	redis的应用场景：
+		./redis应用.txt
+附：
+	pipeline：?
+		redis的pipeline可以一次性发送多个命令去执行，在执行大量命令时，可以减少网络通信次数提高效率。
+		redis集群使用pipeline：
+			jedisCluster（redis的集群连接api）并不支持pipeline语法（只是不提供相应的方法而已）。
+			不过只要稍稍看下jedis的源码，就可以发现虽然没有现成的轮子，但是却很好造。
+			造轮子：
+				https://blog.csdn.net/weixin_30765577/article/details/97804057?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~aggregatepage~first_rank_v2~rank_v29-1-97804057.nonecase&utm_term=redis%E9%9B%86%E7%BE%A4%E4%BD%BF%E7%94%A8pipeline&spm=1000.2123.3001.4430
+				https://my.oschina.net/u/4554374/blog/4306457
+	redis持久化：
+		1. Redis 为了保证效率，数据缓存在了内存中，但是会周期性的把更新的数据写入磁盘(或者把修改操作写入追加的记录文件中)，以保证数据的持久化。
+			附：
+			持久化：持久化就是把内存的数据写到磁盘中去，防止服务宕机了内存数据丢失。
+		2. 当 Redis 重启的时候，它会优先使用 AOF 文件来还原数据集，因为 AOF 文件保存的数据集通常比 RDB 文件所保存的数据集更完整。
+		！
+			默认不是rdb，同时有是，是aof吧
+		附：
+			你也可以关闭持久化功能，让数据只在服务器运行时存。
+		
+		Redis 提供了两种持久化方式:RDB（默认） 和AOF
+			Redis 默认是快照 RDB 的持久化方式。
+			RDB（Redis DataBase）：
+				RDB：快照形式是直接把内存中的数据保存到一个dump.rdb(二进制文件)的文件中，定时保存，保存策略。
+				功能的核心函数rdbSave(生成RDB文件)和rdbLoad（从文件加载内存）两个函数
+				
+				RDB工作原理：
+					...
+
+			AOF（Append-only file）:
+				AOF：把所有的对 Redis 的服务器进行修改的命令都存到一个文件里(命令的集合)。
+				每当执行服务器(定时)任务或者函数时flushAppendOnlyFile 函数都会被调用， 这个函数执行以下两个工作
+					aof写入保存：
+					WRITE：根据条件，将 aof_buf 中的缓存写入到 AOF 文件
+					SAVE：根据条件，调用 fsync 或 fdatasync 函数，将 AOF 文件保存到磁盘中。
+				AOF工作原理：
+					...
+			附
+				比较：
+					1、aof文件比rdb更新频率高，优先使用aof还原数据。
+					2、aof比rdb更安全也更大
+					3、rdb性能比aof好
+					4、如果两个都配了优先加载AOF
+					...
+					要使用那个了！
+						https://baijiahao.baidu.com/s?id=1660009541007805174&wfr=spider&for=pc

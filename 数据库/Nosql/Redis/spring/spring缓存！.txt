@@ -1,5 +1,5 @@
 redis介绍：
-	/数据库/Nosql/Redis/Redis.txt
+	../Redis.txt
 
 spring缓存官网：
 	Spring官方demo：
@@ -44,20 +44,23 @@ spring缓存注解：
 	@Cacheable	
 		https://blog.csdn.net/pengzhisen123/article/details/94409825
 		介绍：
-			1. @Cacheable可以标记在一个方法上，也可以标记在一个类上。当标记在一个方法上时表示该方法是支持缓存的，当标记在一个类上时则表示该类所有的方法都是支持缓存的。		
-			2. 对于一个支持缓存的方法，Spring会在其被调用后将其返回值缓存起来，以保证下次利用同样的参数来执行该方法时可以直接从缓存中获取结果，而不需要再次执行该方法。
-				注：需要注意的是当一个支持缓存的方法在对象内部被调用时是不会触发缓存功能的。
-			3. Spring在缓存方法的返回值时是以键值对进行缓存的。
-			值就是方法的返回结果。至于键的话，Spring又支持两种策略，默认策略和自定义策略。
-		
-		
-		    @Cacheable(cacheNames = "list-resource-byrole", key = "#roleId")
-			public List<String> listResourceByRoleId(String roleId) {
-				return mapper.listResourceByRoleId(roleId);
-			}
+			1. 根据方法的请求参数对其结果进行缓存。
+				即：
+				Spring在缓存方法的返回值时是以键值对进行缓存的。
+				值就是方法的返回结果。
+				至于键的话，Spring又支持两种策略，默认策略和自定义策略。
+			2. @Cacheable 的执行逻辑是：查找缓存 - 有就返回 -没有就执行方法体 - 将结果缓存起来；
+				即：
+				对于一个支持缓存的方法，Spring会在其被调用后将其返回值缓存起来，以保证下次利用同样的参数来执行该方法时可以直接从缓存中获取结果，而不需要再次执行该方法。
+			注：需要注意的是当一个支持缓存的方法在对象内部被调用时是不会触发缓存功能的。
+		附： 	
+			@Cacheable可以标记在一个方法上，也可以标记在一个类上。
+			当标记在一个方法上时表示该方法是支持缓存的。
+			当标记在一个类上时则表示该类所有的方法都是支持缓存的。		
+
 		属性：
 			https://blog.csdn.net/lzb348110175/article/details/105349109
-			value/cacheNames：
+			value/cacheNames：？
 				这两个属性都是用来指定缓存组件的名称，即将方法的返回结果放在哪个缓存中。
 				属性定义为数组，可以指定多个缓存；其可以是一个Cache也可以是多个Cache，当需要指定多个Cache时其是一个数组。
 				例：
@@ -83,9 +86,20 @@ spring缓存注解：
 				例：
 					如下示例表示只有当user的id为偶数时才会进行缓存。
 					@Cacheable(value={“users”}, key=”#user.id”, condition=”#user.id%2==0”)
+		例：
+		    @Cacheable(cacheNames = "list-resource-byrole", key = "#roleId")
+			public List<String> listResourceByRoleId(String roleId) {
+				return mapper.listResourceByRoleId(roleId);
+			}
 
 
 	@CacheEvict
-		清空缓存
+		根据条件对缓存进行清空。
 	@CachePut	
 		保证方法被调用，又希望结果被缓存。
+			即@CachePut 的逻辑是：执行方法体 - 将结果缓存起来；
+	附：
+		@Cacheable 和 @CachePut 区别：
+	　　　　@Cacheable 的逻辑是：查找缓存 - 有就返回 -没有就执行方法体 - 将结果缓存起来；
+	　　　　@CachePut 的逻辑是：执行方法体 - 将结果缓存起来；
+		　　所以 @Cacheable 适用于查询数据的方法，@CachePut 适用于更新数据的方法。
