@@ -1,0 +1,9 @@
+MySQL8.0中已移除的特性，功能
+	https://blog.csdn.net/qianglei6077/article/details/86685737
+	
+	
+	已弃用的INFORMATION_SCHEMA INNODB_LOCKS和INNODB_LOCK_WAITS表已被删除。请改用Performance_Schema 中data_locks和data_lock_waits表。
+
+	注：
+		在MySQL 5.7中，INNODB_LOCKS表中的LOCK_TABLE列和sys模式innodb_lock_waits和x $ innodb_lock_waits视图中的locked_table列包含组合的模式/表名称值。 
+		在MySQL 8.0中，data_locks表和sys模式视图包含单独的模式名称和表名称列。

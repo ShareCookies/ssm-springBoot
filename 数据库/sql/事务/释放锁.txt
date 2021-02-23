@@ -3,10 +3,15 @@ https://blog.csdn.net/David_jiahuan/article/details/91558816?utm_medium=distribu
 
 释放死锁：
 	https://blog.csdn.net/dujianxiong/article/details/90770301
+	字段解释：
+		https://blog.csdn.net/J080624/article/details/80596958/?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-3&spm=1001.2101.3001.4242
 	1. 通过事务表和锁表，确认INNODB_TRX里面是否有正在锁定的事务，通过trx_mysql_thread_id（事务对应的线程ID），
 	看看ID是否在show processlist里面的sleep线程中，如果是，就证明这个sleep的线程事务一直没有commit或者rollback而是卡住了，我们需要手动kill掉。
-		当前正在运行的所有事务
+		当前正在运行的所有事务：
 			mysql> SELECT * FROM information_schema.INNODB_TRX;
+			目的：
+				找出运行比较久的事务，判断他们的事务状态。
+				可与附1结合来判断到锁之间关系，可能是两个事务间死锁或某个事务阻塞死。
 			附：
 				推荐mysql客户端执行：SELECT * FROM INFORMATION_SCHEMA.INNODB_TRX\G（便于复制出来查看）
 				https://blog.csdn.net/zhaoyangjian724/article/details/52858519
@@ -16,15 +21,49 @@ https://blog.csdn.net/David_jiahuan/article/details/91558816?utm_medium=distribu
 					事务执行的状态, 允许的值为 RUNNING, LOCK WAIT, ROLLING BACK, and COMMITTING.
 				TRX_STARTED：
 					事务开始时间
-				TRX_QUERY：事务执行的语句
 				TRX_WAIT_STARTED:
-					时间 当事务开始等待锁的时间（TRX_STATE is LOCK WAIT时才有，否则为空）
+					事务开始等待锁的时间（TRX_STATE is LOCK WAIT时才有，否则为空）
+				TRX_QUERY：事务执行的语句
+		附1:
 		当前出现的锁
-			mysql> SELECT * FROM information_schema.INNODB_LOCKs;
+			当前出现的锁：
+				mysql> SELECT * FROM information_schema.INNODB_LOCKs;
+				附：
+					Field	Type	Null	Key	Default	Extra
+					lock_id	varchar(81)	NO			锁ID
+					lock_trx_id	varchar(18)	NO			拥有锁的事务ID
+					lock_mode	varchar(32)	NO			锁模式
+					lock_type	varchar(32)	NO			锁类型
+					lock_table	varchar(1024)	NO			被锁的表
+					lock_index	varchar(1024)	YES		NULL	被锁的索引
+					lock_space	bigint(21) unsigned	YES		NULL	被锁的表空间号
+					lock_page	bigint(21) unsigned	YES		NULL	被锁的页号
+					lock_rec	bigint(21) unsigned	YES		NULL	被锁的记录号
+					lock_data	varchar(8192)	YES		NULL	被锁的数据
+			锁对应的等待关系：
+				查看INNODB_LOCK_WAITS表数据：
+					mysql> select * from information_schema.INNODB_LOCK_WAITS;\G
+					*************************** 1. row ***************************
+					requesting_trx_id: 75E35 ## 请求锁的事务
+					requested_lock_id: 75E35:0:7509:5 ## 请求锁的锁ID
+					blocking_trx_id: 75E34 ## 拥有锁的事务
+					blocking_lock_id: 75E34:0:7509:5 ## 拥有锁的锁ID
+			附：
+				mysql8已抛弃，请改用Performance_Schema 中data_locks和data_lock_waits表。
+					例：
+						SELECT * FROM `performance_schema`.data_locks;
+		附2:
 		查看数据库当前的进程
 			mysql> show  processlist;
 	2. mysql命令杀掉线程：
 		kill 线程id  (trx_mysql_thread_id)
+		附：
+			kill后线程不结束：
+				因为？
+					1. 因为有一条执行语句造成了阻塞，其他的查询均在排队ing...
+					把造成阻塞的sql kill掉，就云淡风轻了。
+					需要注意，造成阻塞的sql要特别检查执行计划(explain)，优化之。我的经验，这种sql一般是巨耗资源的。
+					https://bbs.csdn.net/topics/200049269
 附：
 	mysql死锁日志：
 		通过show engine innodb status 查看最新一次记录死锁的日志。
