@@ -2,6 +2,7 @@ mysql sql注意事项：
 	1.判断某字段为空	is null
 	2.某字段不为空	is not null
 	3.where status!=4 不会列出（比较）为null的
+		!
 	4.mysql字段值默认不区分大小写，以二进制形式保存的区分大小写
 	
 	附：
@@ -61,75 +62,54 @@ mysql sql注意事项：
 			样例：
 				以id分组，把去冗余的name字段的值打印在一行
 				select id,group_concat(distinct name) from aa group by id;		
-	表连接：
-		./sql详细/表连接				
-	子查询：
-			https://blog.csdn.net/qq_27623337/article/details/52814235
-			子查询作为数据源：
-				样例：
-				SELECT     M.Name AS ProductName  FROM        
-				(SELECT     Name, ProductModelID
-				 FROM    Production.ProductModel) AS M 
-			子查询作为筛选条件：
-				样例：
-				.. WHERE 某字段 IN  (SELECT 某字段 FROM .. WHERE ..)
-				注:
-				1.not  in 为不存在
-				2.()中条件只允许返回一个字段，即 in引导的子句只能返回一个字段
-				3.not  in 的()查询中返回的任意一条记录含有空值，则整个查询将不返回任何记录。
-
-			注：
-			SQL JOIN 中 on 与 where 的区别 ?			
-	exists:（NOT EXISTS） 子查询检查
-		https://dev.mysql.com/doc/refman/8.0/en/exists-and-not-exists-subqueries.html
-		If a subquery returns any rows at all, EXISTS subquery is TRUE, and NOT EXISTS subquery is FALSE.
-		EXISTS用于检查子查询是否至少会返回一行数据,子查询实际上并不返回任何数据,而是返回值True或False
-		总结：
-			先查外表所有结果，然后把外表值代入到子查询中，进行子查询。
-			常用于外小内大，或根本不用。
+	join：表连接
+		./sql详细/表连接
 		注：
-			1. 子查询的select 并没有用，mysql自动忽略。
-			MySQL ignores the SELECT list in such a subquery, so it makes no difference.
+			SQL JOIN 中 on 与 where 的区别 ！
+		JOIN原理：
+			mysql5.5
+				
+	推荐:
+		1. 能在应用上做的算好的都提前算好。
+			数据库是最底层的，瓶颈往往是数据库。建议数据库只是作为数据store的工具，而不要添加业务上去。
+		2. join等可以不用就不用，宁可进行多次单表查询然后合并。
+		为什么多次单表查询：
+			高性能mysql p203
+			因为毕竟后期分表分库处理也麻烦等，而且join嵌套查询...
+			！:代确认
+			 
+			JOIN：
+				https://www.cnblogs.com/maohuidong/p/10399638.html
+				JOIN的话它是走嵌套查询的。小表驱动大表，且通过索引字段进行关联。
+				如果表记录比较少的话，还是OK的。大的话业务逻辑中可以控制处理。
+
+	子查询：
+		https://blog.csdn.net/qq_27623337/article/details/52814235
+		子查询作为数据源：
+			样例：
+			SELECT M.Name AS ProductName  FROM (SELECT Name,ProductModelID FROM Prod7uction.ProductModel) AS M 
+		子查询作为筛选条件：
+			样例：
+			.. WHERE 某字段 IN  (SELECT 某字段 FROM .. WHERE ..)
+			注:
+			1.not  in 为不存在
+			2.()中条件只允许返回一个字段，即 in引导的子句只能返回一个字段
+			3.not  in 的()查询中返回的任意一条记录含有空值，则整个查询将不返回任何记录。
+
+	exists:（NOT EXISTS） 子查询检查
+		介绍：
+			https://dev.mysql.com/doc/refman/8.0/en/exists-and-not-exists-subqueries.html
+			If a subquery returns any rows at all, EXISTS subquery is TRUE, and NOT EXISTS subquery is FALSE.
+			EXISTS用于检查子查询是否至少会返回一行数据,子查询实际上并不返回任何数据,而是返回值True或False
+			总结：
+				先查外表所有结果，然后把外表值代入到子查询中，进行子查询。
+				常用于外小内大，或根本不用。
+			注：
+				1. 子查询的select 并没有用，mysql自动忽略。
+				MySQL ignores the SELECT list in such a subquery, so it makes no difference.
 		例：
 			https://blog.csdn.net/wxf_suzhou/article/details/82962515
-		SQL中in 、or、和exist 区别：
-			https://blog.csdn.net/liuxilil/article/details/6718409?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.add_param_isCf&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.add_param_isCf
-			https://blog.csdn.net/qq_32800367/article/details/82467804
-			in 的效率如何，要看具体数据库的实现：
-				推荐in的结果提前算好。
-				in原理了？？？
-					mysql5.7.1 
-					内外表大小改变并不影响查询效率，为什么了？
-					有空时再去官网仔细找下，或研究下innodb技术内幕。
-				附：
-					https://blog.csdn.net/dzyweer/article/details/79787916
-					https://www.cnblogs.com/longy2012/articles/13225737.html
-					https://blog.csdn.net/weixin_41926488/article/details/80317225?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control
-					内小外大：
-						select * FROM UMS_LOGIN_LOG WHERE USER_NO IN ("111")
-						select * FROM UMS_LOGIN_LOG WHERE USER_NO IN (SELECT USER_NO2 FROM test)
-					内大外小：
-						select * FROM test WHERE USER_NO IN (select USER_NO FROM UMS_LOGIN_LOG)
-						select * FROM test WHERE USER_NO IN ('1300B00081217843')
-					耗时均为毫秒
-			exits效率如何：
-				外表大，那么很不友好。
-				原理：
-					遍历外表所有值，然后把外表值代入到子查询中，进行子查询。
-						如果子查询没有条件，那么其实就是单纯查询外表而已。
-						select * FROM UMS_LOGIN_LOG WHERE  EXISTS (SELECT USER_NO2 FROM test) 
-						百万数据耗时7s
-					select * FROM UMS_LOGIN_LOG WHERE  EXISTS (SELECT USER_NO2 FROM test WHERE UMS_LOGIN_LOG.USER_NO = test.USER_NO2)
-					百万数据耗时30s
-				常用于外小内大，或根本不用
-	IN：（NOT IN）列查询
-		介绍：指定某个列的多个可能值
-		样例：
-		Select * from fund where price in (2,3);
-		特殊条件:
-		空值判断： is null
-		样例：
-		Select * from user where realname  is   null;
+
 
 	BETWEEN	：列范围
 		列值在某个范围内

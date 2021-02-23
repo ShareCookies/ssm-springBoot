@@ -121,7 +121,29 @@
 			1.与 SQL 标准不同的地方在于 InnoDB 存储引擎在 REPEATABLE-READ（可重读） 事务隔离级别下使用的是Next-Key Lock 锁算法，
 			因此可以避免幻读的产生，这与其他数据库系统(如 SQL Server) 是不同的。
 			所以说InnoDB 存储引擎的默认支持的隔离级别是 REPEATABLE-READ（可重读） 已经可以完全保证事务的隔离性要求，即达到了 SQL标准的 SERIALIZABLE(可串行化) 隔离级别。
+				?mysql可串行化是如何实现避免丢失修改的。
+				例：
+					避免了回滚丢失修改。
+					BEGIN
+					SELECT * FROM `zjgy_real`.`UMS_LOGIN_LOG` LIMIT 0,10;
+					//会话2先开始
+					UPDATE UMS_LOGIN_LOG SET USER_NAME = '1111' WHERE ID = 'X0-0AeSwDxNwVkwa';
+					ROLLBACK
+					
+					BEGIN;
+					SELECT * FROM `zjgy_real`.`UMS_LOGIN_LOG` LIMIT 0,10;
+					UPDATE UMS_LOGIN_LOG SET USER_NAME = '2' WHERE ID = 'X0-0AeSwDxNwVkwa';
 			
+					避免了数据库的覆盖丢失修改
+					BEGIN
+					SELECT * FROM `zjgy_real`.`UMS_LOGIN_LOG` LIMIT 0,10;
+					//会话2先开始
+					// 在执行查询，还是第一次值（这是为了实现可重复读），那么此时就有个问题？？？如果在应用中进行查询计算的话，不是就有丢失修改了。SELECT * FROM `zjgy_real`.`UMS_LOGIN_LOG` LIMIT 0,10;
+					UPDATE UMS_LOGIN_LOG SET USER_NAME = USER_NAME + '1'  WHERE ID = 'X0-0AeSwDxNwVkwa';
+
+					BEGIN;
+					SELECT * FROM `zjgy_real`.`UMS_LOGIN_LOG` LIMIT 0,10;
+					UPDATE UMS_LOGIN_LOG SET USER_NAME = USER_NAME + '2' WHERE ID = 'X0-0AeSwDxNwVkwa';
 			2.因为隔离级别越低，事务请求的锁越少，所以大部分数据库系统的隔离级别都是 READ-COMMITTED(读取提交内容) 。
 			但是你要知道的是InnoDB 存储引擎默认使用 REPEAaTABLE-READ（可重读） 并不会有任何性能损失。
 			
