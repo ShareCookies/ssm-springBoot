@@ -24,3 +24,63 @@ MySQL之text字段
 		text性能影响
 
 	...
+	
+阿里mysql规范:
+	https://zhuanlan.zhihu.com/p/88425702
+	阿里巴巴Java开发.pdf goto：数据库
+
+数据库表设计
+	https://www.jianshu.com/p/581859fb88a8
+	？
+	表字段数量，长度？
+
+		无所谓，关键是每条记录不允许超过8K，也就是你定义的所有的列加起来不能超过8k
+		字段过多表结构有问题过于复杂，设计分类下
+		数据库理论,3nf...
+	1.使用外键的优缺点：
+		https://blog.csdn.net/u014590757/article/details/79590348
+		https://blog.csdn.net/Jack_Huang_888/article/details/106313614
+字符串型
+	https://blog.csdn.net/weixin_41588181/article/details/83929611?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-1
+
+	CHAR(M), VARCHAR(M)
+		CHAR(M)
+			CHAR(M)定义的列的长度为固定的，M取值可以为0～255之间.
+			当保存CHAR值时，在它们的右边填充空格以达到指定的长度。
+			当检索到CHAR值时，尾部的空格被删除掉。！
+				例 char(10)不论你存储的数据是否达到了10个字节，都要占去10个字节的空间,不足的自动用空格填充。
+			？
+				CHAR字段上的索引效率级高
+		VARCHAR(M)
+			VARCHAR(M)定义的列的长度为可变长字符串，M取值可以为0~65535(64k)之间，(VARCHAR的最大有效长度由最大行大小？和使用的字符集确定。整体最大长度是65,532字节）。
+			VARCHAR值保存时只保存需要的字符数，另加一个字节来记录长度(如果列声明的长度超过255，则使用两个字节)。
+			VARCHAR值保存时不进行填充。当值保存和检索时尾部的空格仍保留，符合标准SQL。
+			？
+				varchar存储变长数据，但存储效率没有CHAR高。如果一个字段可能的值是不固定长度的，我们只知道它不可能超过10个字符，把它定义为 VARCHAR(10)是最合算的。
+		总结一下，从空间上考虑，用varchar合适；从效率上考虑，用char合适，关键是根据实际情况找到权衡点，所有当需要大量查询需求的时候，用char。当对于保存数据量过大的需求时，为了节省储存空间用varchar。
+		？
+			为什么char效率更高
+	TEXT
+		最大长度为65,535(2的16次方–1)字符的TEXT列。
+		Text主要是用来存放非二进制的文本
+			例：论坛帖子,题目，或者百度知道的问题和回答之类。
+		附：
+			TEXT列不能有默认值。
+			后面如果指定长度，不会报错误，但是这个长度是不起作用的，
+				即你插入数据的时候，超过你指定的长度还是可以正常插入。
+	附：
+		！
+			效率来说基本是char>varchar>text。
+		？
+			mysql行长度好像有最大限制
+	注：
+		字符串容量：
+			https://zhidao.baidu.com/question/2121425850053132267.html?qbl=relate_question_0&word=mysql%B3%A4%B6%C8%D6%B8%B5%C4%CA%C7%CA%B2%C3%B4
+			mysql长度是当前字符集的字符长度，而不是字节长度
+			utf-8
+				utf-8下，varchar、char 长度就是字符数，即一个字母是一个字符，一个汉字也是一个字符数数。
+				例：
+					varchar 10 能存10个汉字或字母或数字。
+			！
+				数据库中定义的varchar(20)指的是20个字符。
+				字符集只能用来把字符跟二进制进行映射而已，如果找不到对应的字符映射就会报错出异常。所以到底能容纳几个字应该是跟字符集没有关系的！

@@ -5,11 +5,13 @@ mysql官网：
 https://github.com/Snailclimb/JavaGuide/blob/master/docs/database/MySQL.md	
 
 SQL可分为两个部分：
-	结构化查询语言(Structured Query Language)简称SQL，是一种数据库查询和程序设计语言.
-	SQL可分为两个部分：
-		数据操作语言 (DML DataManipulateLanguage) 和 数据定义语言 (DDL Data Definition Language)。
-		./DML/
-		./DDL/
+ 	结构化查询语言(Structured Query Language)简称SQL，是一种数据库查询和程序设计语言.
+ 	SQL可分为两个部分：
+ 		数据操作语言 (DML DataManipulateLanguage) 和 数据定义语言 (DDL Data Definition Language)。
+		DML:
+			./DML/README.txt
+		DDL
+			./DDL/README.txt
 存储引擎：
 	存储引擎就是对于数据库文件的一种存取机制。是对存储查询数据,为储存的数据建立索引,等技术方法的实现。
 		hcg：什么是引擎，汽车通过引擎来使汽车前进，数据库管理系统则通过存储引擎来从数据库中读取和存入数据。
@@ -40,13 +42,18 @@ SQL可分为两个部分：
 			用的hash散列
 			基于内存非常快，不能进行持久化
 		...
-	一个数据库中多个表可以使用不同引擎以满足各种性能和实际需求，使用合适的存储引擎，将会提高整个数据库的性能。
-
-	MVCC ：
-		https://segmentfault.com/a/1190000012650596
-
+		附：
+			一个数据库中多个表可以使用不同引擎以满足各种性能和实际需求，使用合适的存储引擎，将会提高整个数据库的性能。
 事务：
-	./事务/事务.txt
+ 	./事务/事务.txt
+	
+	？
+		MVCC ：
+			https://segmentfault.com/a/1190000012650596
+索引:
+	./DML/索引/mysql索引.txt
+存储过程:
+	./DML/mysql存储过程.txt
 	
 优化：
 	./数据库优化.txt
