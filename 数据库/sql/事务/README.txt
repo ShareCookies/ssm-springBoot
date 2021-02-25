@@ -32,8 +32,65 @@ https://guobinhit.blog.csdn.net/article/details/61200815?utm_medium=distribute.p
 							以update操作为例：
 							当事务执行update时，其生成的undo log中会包含被修改行的主键（以便知道修改了哪些行）、修改了哪些列、这些列在修改前后的值等信息，回滚时便可以使用这些信息将数据还原到update之前的状态。
 		4、D (Durability持久性)
-			事务完成后所做的改动都会被持久化，即使发生灾难性的失败。通过日志和同步备份可以在故障发生后重建数据。
+			定义：
+				持久性，是指事务一旦提交，它对数据库的改变就应该是永久性的，接下来的其他操作或故障不应该对其有任何影响。
+			实现原理：redo log
+				下面先聊一下redo log存在的背景：
 
+					InnoDB 作为 MySQL 的存储引擎，数据是存放在磁盘中的，但如果每次读写数据都需要磁盘 IO，效率会很低。
+					为此，InnoDB 提供了缓存（Buffer Pool），Buffer Pool中包含了磁盘中部分数据页的映射，作为访问数据库的缓冲：
+					当从数据库读取数据时，会首先从Buffer Pool中读取，如果Buffer Pool中没有，则从磁盘读取后放入Buffer Pool；
+					当向数据库写入数据时，会首先写入Buffer Pool，Buffer Pool中修改的数据会定期刷新到磁盘中，这一过程称为“刷脏”。
+
+					Buffer Pool的使用大大提高了读写数据的效率，但是也带了新的问题：如果 MySQL 宕机，而此时Buffer Pool中修改的数据还没有刷新到磁盘，就会导致数据的丢失，事务的持久性无法保证。于是，redo log被引入来解决这个问题。
+				redo log实现持久性：
+					当数据修改时，除了修改Buffer Pool中的数据，还会在redo log记录这次操作；
+						当事务提交时，会调用fsync接口对redo log进行刷盘。
+						fsync是个同步接口，只有改接口执行完才提交事务。
+					如果 MySQL 宕机，重启时可以读取redo log中的数据，对数据库进行恢复。
+					附：
+						！
+							redo log采用的是 WAL（Write-ahead logging，预写式日志），所有修改先写入日志，再更新到Buffer Pool，保证了数据不会因 MySQL 宕机而丢失，从而满足了持久性要求。
+				附：
+					既然redo log也需要在事务提交时将日志写入磁盘，为什么它比直接将Buffer Pool中修改的数据写入磁盘（即刷脏）要快：
+						主要有以下两方面的原因：
+
+						1. 刷脏是随机 IO，因为每次修改的数据位置随机，但写redo log是追加操作，属于顺序 IO ？。
+						2. 刷脏是以数据页（Page）为单位的，MySQL 默认页大小是 16 KB，一个Page上一个小修改都要整页写入；而redo log中只包含真正需要写入的部分？，无效 IO 大大减少。
+					binlog（二进制日志）：
+						我们知道，在 MySQL 中还存在binlog（二进制日志）也可以记录写操作并用于数据的恢复，但二者是有着根本的不同的：
+							作用不同：
+								redo log是用于crash recovery的，保证 MySQL 宕机也不会影响持久性；
+								binlog是用于point-in-time recovery的，保证服务器可以基于时间点恢复数据，此外binlog还用于主从复制。
+							层次不同：
+								redo log是 InnoDB 存储引擎实现的;
+								而binlog是 MySQL 的服务器层实现的，同时支持 InnoDB 和其他存储引擎。
+							内容不同：redo log是物理日志，内容基于磁盘的Page；binlog的内容是二进制的，根据binlog_format参数的不同，可能基于 SQL 语句、基于数据本身或者二者的混合。
+							写入时机不同：
+								binlog在事务提交时写入；
+								redo log的写入时机相对多元：
+									前面曾提到当事务提交时会调用fsync对redo log进行刷盘;
+									redolog写入策略：
+										这是默认情况下的策略，修改innodb_flush_log_at_trx_commit参数可以改变该策略，但事务的持久性将无法保证。
+										除了事务提交时，还有其他刷盘时机，如master thread每秒刷盘一次redo log等，这样的好处是不一定要等到commit时刷盘，commit速度大大加快。
+					redolog是自动执行的吗：
+						innodb的恢复行为：
+							在启动innodb的时候，不管上次是正常关闭还是异常关闭，总是会进行恢复操作。
+
+							因为redo log记录的是数据页的物理变化，因此恢复的时候速度比逻辑日志(如二进制日志)要快很多。而且，innodb自身也做了一定程度的优化，让恢复速度变得更快。
+
+							重启innodb时，checkpoint表示已经完整刷到磁盘上data page上的LSN，因此恢复时仅需要恢复从checkpoint开始的日志部分。
+								例如，当数据库在上一次checkpoint的LSN为10000时宕机，且事务是已经提交过的状态。启动数据库时会检查磁盘中数据页的LSN，如果数据页的LSN小于日志中的LSN，则会从检查点开始恢复。
+
+								还有一种情况，在宕机前正处于checkpoint的刷盘过程，且数据页的刷盘进度超过了日志页的刷盘进度。这时候一宕机，数据页中记录的LSN就会大于日志页中的LSN，在重启的恢复过程中会检查到这一情况，这时超出日志进度的部分将不会重做，因为这本身就表示已经做过的事情，无需再重做。
+
+						？
+							binlog二进制日志应该不会被自动执行吧
+
+
+		
+		
+		
 		2、C (Consistency 一致性) 	
 			事务使数据库从一个一致性状态变到另一个一致性状态。
 				附：在事务开始之前和事务结束以后，数据库的完整性没有被破坏。
@@ -61,17 +118,7 @@ https://guobinhit.blog.csdn.net/article/details/61200815?utm_medium=distribute.p
 					Consistency failure
 						Consistency is a very general term, which demands that the data must meet all validation rules. In the previous example, the validation is a requirement that A + B = 100. All validation rules must be checked to ensure consistency. Assume that a transaction attempts to subtract 10 from A without altering B. Because consistency is checked after each transaction, it is known that A + B = 100 before the transaction begins. If the transaction removes 10 from A successfully, atomicity will be achieved. However, a validation check will show that A + B = 90, which is inconsistent with the rules of the database. The entire transaction must be cancelled and the affected rows rolled back to their pre-transaction state. If there had been other constraints, triggers, or cascades, every single change operation would have been checked in the same way as above before the transaction was committed. Similar issues may arise with other constraints. We may have required the data types of both A and B to be integers. If we were then to enter, say, the value 13.5 for A, the transaction will be cancelled, or the system may give rise to an alert in the form of a trigger (if/when the trigger has been written to this effect). Another example would be with integrity constraints, which would not allow us to delete a row in one table whose primary key is referred to by at least one foreign key in other tables.
 				...看看mysql管网文档
-		3、I (Isolation 隔离性) 
-			并发执行的事务彼此无法看到对方的中间状态
-				附：即指并发的事务之间不会互相影响。如果一个事务要访问的数据正在被另外一个事务修改，只要另外一个事务未提交，它所访问的数据就不受未提交事务的影响。
-			例：
-				现在有个交易是从A账户转100元至B账户，在这个交易还未完成的情况下，如果此时B查询自己的账户，是看不到新增加的100元的。
-			hcg:
-				并发的事务之间不会互相影响。
-				（所以这里就会可能发生丢失修改吗！但你可以提高事务访问级别，来避免这个问题，或事务中sql加排他锁来避免该问题？）
 
-		注：
-			MySQL事务的四个特性中ACD三个特性是通过Redo Log（重做日志）和Undo Log 实现的，而 I（隔离性）是通过Lock（锁）来实现。
 事务隔离级别：
 	介绍：
 		事务并发问题：
