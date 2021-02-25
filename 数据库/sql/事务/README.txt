@@ -1,11 +1,39 @@
+https://guobinhit.blog.csdn.net/article/details/61200815?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-12.control&dist_request_id=a3a2ba39-036d-4552-abd7-1eac3e380c28&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-12.control
+
 事务介绍：
 	事务（transaction）是指访问并可能更新数据库中数据项的一个程序执行单元(unit)。
 	事务要满足以下四个特性：
 		1、A (Atomicity 原子性) 
-			事务中各项操作，要么全做要么全不做，任何一项操作的失败都会导致整个事务的失败；
+			原子性，是指一个事务是一个不可分割的工作单位。事务中各项操作，要么全做要么全不做，任何一项操作的失败都会导致整个事务的失败；
 				附：事务成功的条件是事务里的所有操作都成功，只要有一个操作失败，整个事务就失败，需要回滚。
 			例：
 				比如银行转账，从A账户转100元至B账户，分为两个步骤：1）从A账户取100元；2）存入100元至B账户。这两步要么一起完成，要么一起不完成，如果只完成第一步，第二步失败，钱会莫名其妙少了100元。
+
+			实现原理：undo log
+				InnoDB 存储引擎提供了两种事务日志：
+					redo log（重做日志）和undo log（回滚日志）。
+					其中，redo log用于保证事务持久性；undo log则是事务原子性和隔离性实现的基础。
+
+				实现原子性的关键，是当事务回滚时能够撤销所有已经成功执行的 SQL 语句。
+				InnoDB 实现回滚，靠的是undo log：
+					介绍：
+						当事务对数据库进行修改时，InnoDB 会生成对应的undo log；
+						如果事务执行失败或调用了rollback，导致事务需要回滚，便可以利用undo log中的信息将数据回滚到修改之前的样子。
+						？
+							undo log具体记录了什么：
+				                ...
+				                cud类型、修改前数据、修改后数据
+					实现思路：
+						undo log属于逻辑日志，它记录的是 SQL 执行的相关信息。当发生回滚时，InnoDB 会根据undo log的内容做与之前相反的工作：
+							对于每个insert，回滚时会执行delete；
+							对于每个delete，回滚时会执行insert；
+							对于每个update，回滚时会执行一个相反的update，把数据改回去。
+						例：
+							以update操作为例：
+							当事务执行update时，其生成的undo log中会包含被修改行的主键（以便知道修改了哪些行）、修改了哪些列、这些列在修改前后的值等信息，回滚时便可以使用这些信息将数据还原到update之前的状态。
+		4、D (Durability持久性)
+			事务完成后所做的改动都会被持久化，即使发生灾难性的失败。通过日志和同步备份可以在故障发生后重建数据。
+
 		2、C (Consistency 一致性) 	
 			事务使数据库从一个一致性状态变到另一个一致性状态。
 				附：在事务开始之前和事务结束以后，数据库的完整性没有被破坏。
@@ -41,8 +69,7 @@
 			hcg:
 				并发的事务之间不会互相影响。
 				（所以这里就会可能发生丢失修改吗！但你可以提高事务访问级别，来避免这个问题，或事务中sql加排他锁来避免该问题？）
-		4、D (Durability持久性) 
-			事务完成后所做的改动都会被持久化，即使发生灾难性的失败。通过日志和同步备份可以在故障发生后重建数据。
+
 		注：
 			MySQL事务的四个特性中ACD三个特性是通过Redo Log（重做日志）和Undo Log 实现的，而 I（隔离性）是通过Lock（锁）来实现。
 事务隔离级别：
