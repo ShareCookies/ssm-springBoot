@@ -57,9 +57,24 @@ MySQL之text字段
 			VARCHAR值保存时不进行填充。当值保存和检索时尾部的空格仍保留，符合标准SQL。
 			？
 				varchar存储变长数据，但存储效率没有CHAR高。如果一个字段可能的值是不固定长度的，我们只知道它不可能超过10个字符，把它定义为 VARCHAR(10)是最合算的。
-		总结一下，从空间上考虑，用varchar合适；从效率上考虑，用char合适，关键是根据实际情况找到权衡点，所有当需要大量查询需求的时候，用char。当对于保存数据量过大的需求时，为了节省储存空间用varchar。
+		总结一下:
+		    从空间上考虑，用varchar合适；
+		    从效率上考虑，用char合适;
+		    关键是根据实际情况找到权衡点，当需要大量查询需求的时候，用char。当对于保存数据量过大的需求时，为了节省储存空间用varchar。
 		？
-			为什么char效率更高
+			为什么说char效率更高:
+			    可能因为char固定好了长度，在建索引后后续就无需在修改索引项长度等。
+
+			    实测：
+			       char varchar查询对比？
+			       char varchar写对比？
+			       char varchar查询对比？
+			       char varchar写查对比？
+			       char varchar(定长)等对比？
+			    https://bbs.csdn.net/topics/30278337
+			    https://blog.csdn.net/Anckly/article/details/977406?utm_medium=distribute.pc_relevant.none-task-blog-searchFromBaidu-7.control&dist_request_id=83a7c158-8451-472e-a8bb-2f5c9f30b243&depth_1-utm_source=distribute.pc_relevant.none-task-blog-searchFromBaidu-7.control
+
+
 	TEXT
 		最大长度为65,535(2的16次方–1)字符的TEXT列。
 		Text主要是用来存放非二进制的文本
@@ -84,3 +99,8 @@ MySQL之text字段
 			！
 				数据库中定义的varchar(20)指的是20个字符。
 				字符集只能用来把字符跟二进制进行映射而已，如果找不到对应的字符映射就会报错出异常。所以到底能容纳几个字应该是跟字符集没有关系的！
+mysql 一行数据长度限制：
+	https://blog.csdn.net/weixin_35292208/article/details/113117761
+	MySQL在建表的时候有个限制：MySQL要求一个行的定义长度不能超过65535。
+	(1)单个字段如果大于65535，则转换为TEXT 。
+	(2)单行最大限制为65535，这里不包括TEXT、BLOB。
