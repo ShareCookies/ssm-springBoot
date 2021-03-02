@@ -12,22 +12,26 @@
 			内连接：是保证两个表中所有的行都要满足连接条件。
 			外连接：某些不满条件的列也会显示出来。即只限制其中一个表的行，而不限制另一个表的行。
 				分左连接、右连接、全连接三种。
-	inner join：
+http://www.ruanyifeng.com/blog/2019/01/table-join.html
+
+	inner join：内连接
 		介绍：简写join。内连接，返回左右表均有的值。
 		样例：
 			写法1：select * from client as c inner join financial_account as f on c.idcard = f.idcard 
 			写法2：select * from client  c join financial_account  f on c.idcard = f.idcard 
 		注：
 			内连接可以不加on，此时效果与笛卡尔积连接一样。！
-	left outer join：
+	外连接（outer join）：
+		?
+	left outer join：左连接（left join）
 		介绍：简写left join。左连接，左表数据全部显示，且左表有的右表没有的则显示为null。
 		样例：
-	right outer join：
+	right outer join：右连接（right join）
 		介绍：
 			简写right join。右连接，右表数据全部显示，且右表有的左表没有的则显示为null。
 			即显示左表所有内容，右边没有与之对应的内容则显示为null。
 		样例：
-	full out join：
+	full out join：全连接（full join）
 		介绍：
 			MySQL中不支持 FULL OUTER JOIN。
 			简写full join 。全连接，返回两表所有数据未匹配项用null代替。

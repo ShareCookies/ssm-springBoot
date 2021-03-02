@@ -111,7 +111,7 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 
 
 
-		2．离散型越高越好：
+		3．离散型越高越好：
 			因为离散度越高，通过索引最终确定的范围越小，最终扫面的行数也就越少。
 			？
 				我很想知道比如0，1两种索引，应该是只对存储了2个指针位吧，那先找到第一个指针位数据块，这个数据块后面又跟了下一个指针位数据块吗？
@@ -119,7 +119,7 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 				mysql中索引长度与区分度的选择：
 					https://blog.csdn.net/heyuqing32/article/details/80966301
 
-		3. 适度设置索引列
+		4. 适度设置索引列
 			设置索引时要考虑设置合适的列，不要造成“过多的索引列”。
 			原因：	
 				因为每个索引需要额外的磁盘空间，并降低写更操作的性能。
@@ -175,8 +175,8 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 			select * from users where YEAR(adddate)<2007;
 			因此我们可以改成
 		  　　 select * from users where adddate<'2007-01-01';
-			?NOW()等函数了
-			不使用NOT IN和<>操作!
+			？
+				NOW()等函数了
 		慎用NOT IN、exits、NOT exits：
 			这3个应该都是嵌套(索引)循环查询，即把外面的所有数据拿去里面走循环。
 			所以这3个仅适用与外小内大。
