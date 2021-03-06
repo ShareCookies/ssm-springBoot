@@ -2,22 +2,22 @@ select a.id fund_id ,a.name ,b.*
 from fund a left join fund_holding b on a.id=b.fundId
 order by a.id 
 ;
-##×óÁ¬½Ó½á¹û»á±È×ó±í¶à£¬ÇÒ×ó±í¼ÇÂ¼¶¼»áÓĞ¡£
-	##ÒòÎªÊÇÒÔ×ó±íÎª×¼²éÕÒµ«×ó±íµÄÄ³Ğ©¼ÇÂ¼»áÏÔÊ¾¶àÌõ³öÀ´£¬ÒòÎªÓÒ±ß¿ÉÄÜÓĞ¶àÌõ¼ÇÂ¼Óë×ó±íµÄÄ³Ò»Ìõ¼ÇÂ¼ÓĞ¹Ø¡£
-	##group by ×ó±íÄ³¼ÇÂ¼£¬¿ÉÊµÏÖÖ»ÏÔÊ¾Óë×ó±íÒ»Ñù¶àµÄ¼ÇÂ¼Êı¡£µ«Ä³Ğ©¼ÇÂ¼»á±»³åÃ»
-select a.id fund_id ,a.name ,b.* 
+##å·¦è¿æ¥ç»“æœä¼šæ¯”å·¦è¡¨å¤šï¼Œä¸”å·¦è¡¨è®°å½•éƒ½ä¼šæœ‰ã€‚
+	##å› ä¸ºæ˜¯ä»¥å·¦è¡¨ä¸ºå‡†æŸ¥æ‰¾ä½†å·¦è¡¨çš„æŸäº›è®°å½•ä¼šæ˜¾ç¤ºå¤šæ¡å‡ºæ¥ï¼Œå› ä¸ºå³è¾¹å¯èƒ½æœ‰å¤šæ¡è®°å½•ä¸å·¦è¡¨çš„æŸä¸€æ¡è®°å½•æœ‰å…³ã€‚
+	##group by å·¦è¡¨æŸè®°å½•ï¼Œå¯å®ç°åªæ˜¾ç¤ºä¸å·¦è¡¨ä¸€æ ·å¤šçš„è®°å½•æ•°ã€‚ä½†æŸäº›è®°å½•ä¼šè¢«å†²æ²¡
+select a.id fund_id ,a.name ,b.*
 from fund a left join fund_holding b on a.id=b.fundId
 group by a.name
-order by a.id 
+order by a.id
 ;
-##ÏÔÊ¾×ó±íÈ«²¿Êı¾İ£¬ÇÒ¸ù¾İ×ó±í¼ÇÂ¼Í³¼ÆÓë×ó±íÓĞ¹ØµÄÊı¾İÊı¡£
-select a.id fund_id ,a.name ,count(b.id) ÓÒ±ßÓë×ó±íÓĞ¹ØµÄÊıÁ¿,b.* 
+##æ˜¾ç¤ºå·¦è¡¨å…¨éƒ¨æ•°æ®ï¼Œä¸”æ ¹æ®å·¦è¡¨è®°å½•ç»Ÿè®¡ä¸å·¦è¡¨æœ‰å…³çš„æ•°æ®æ•°ã€‚
+select a.id fund_id ,a.name ,count(b.id) å³è¾¹ä¸å·¦è¡¨æœ‰å…³çš„æ•°é‡,b.*
 from fund a left join fund_holding b on a.id=b.fundId
 group by a.name
-order by a.id 
+order by a.id
 ;
-##ÏÔÊ¾×ó±íÈ«²¿Êı¾İ£¬ÇÒ¸ù¾İ×ó±í¼ÇÂ¼Í³¼ÆÓë×ó±íÓĞ¹ØµÄÊı¾İÊı¡£¼ÓÉÏµÚÈı±íµÄ¼ÇÂ¼¡£
-select a.id fund_id ,a.name ,count(b.id) ÓÒ±ßÓë×ó±íÓĞ¹ØµÄÊıÁ¿,b.*,c.amount 
+##æ˜¾ç¤ºå·¦è¡¨å…¨éƒ¨æ•°æ®ï¼Œä¸”æ ¹æ®å·¦è¡¨è®°å½•ç»Ÿè®¡ä¸å·¦è¡¨æœ‰å…³çš„æ•°æ®æ•°ã€‚åŠ ä¸Šç¬¬ä¸‰è¡¨çš„è®°å½•ã€‚
+select a.id fund_id ,a.name ,count(b.id) å³è¾¹ä¸å·¦è¡¨æœ‰å…³çš„æ•°é‡,b.*,c.amount
 from 
 fund a left join fund_holding b on a.id=b.fundId
 left join financial_account c on b.accId=c.id
