@@ -4,25 +4,27 @@
 		select * from(select * from test)  a
 
 表连接:
+	http://www.ruanyifeng.com/blog/2019/01/table-join.html
+
 	位置：
 		from 后 ，where 前。
 		注：表连接要与on配合，on设置连接条件
 	介绍：
-		表连接分内连接和外连接。
+		表连接分内连接、外连接。
 			内连接：是保证两个表中所有的行都要满足连接条件。
 			外连接：某些不满条件的列也会显示出来。即只限制其中一个表的行，而不限制另一个表的行。
 				分左连接、右连接、全连接三种。
-http://www.ruanyifeng.com/blog/2019/01/table-join.html
 
-	inner join：内连接
-		介绍：简写join。内连接，返回左右表均有的值。
+	inner join：内连接（join）
+		介绍：
+			简写join！
+			内连接，返回左右表均有的值。
 		样例：
-			写法1：select * from client as c inner join financial_account as f on c.idcard = f.idcard 
-			写法2：select * from client  c join financial_account  f on c.idcard = f.idcard 
+			写法1(inner join)：select * from client as c inner join financial_account as f on c.idcard = f.idcard
+			写法2(join)：select * from client  c join financial_account  f on c.idcard = f.idcard
 		注：
-			内连接可以不加on，此时效果与笛卡尔积连接一样。！
-	外连接（outer join）：
-		?
+			内连接可以不加on，结果就是笛卡儿乘积。
+			具体看goto： 笛卡尔积连接
 	left outer join：左连接（left join）
 		介绍：简写left join。左连接，左表数据全部显示，且左表有的右表没有的则显示为null。
 		样例：
@@ -33,66 +35,120 @@ http://www.ruanyifeng.com/blog/2019/01/table-join.html
 		样例：
 	full out join：全连接（full join）
 		介绍：
-			MySQL中不支持 FULL OUTER JOIN。
 			简写full join 。全连接，返回两表所有数据未匹配项用null代替。
-			即：左连接结果与右连接结果的合并。
-		mysql模拟实现全连接：
-			SELECT * FROM t1
-			LEFT JOIN t2 ON t1.id = t2.id
-			UNION
-			SELECT * FROM t1
-			RIGHT JOIN t2 ON t1.id = t2.id
-	其余连接：
-		逗号连接（笛卡尔积连接）：
-				介绍：
-					cross join 简写 ,
-					笛卡尔积连接就是第一个表的行数乘以第二个表的行数。
-				例：
-					select * from client  c , financial_account as f 
-					这样是以广义笛卡尔积查询出数据，若用where规定连接条件就等同内连接
-				注：
-					1.
-						用cross join时可使用on查询
-						逗号时不行
-				自连接:
-					样例:
-						select a.id,b.id,b.pid,b.name 
-						from test as a,test as b 
-						where a.id=b.pid
-				三表连接：
-					写法1：select * from student inner join teacher on student.id=teacher.sid inner join project on student.id=project.sid;  
-					写法2：select * from student,teacher,project where student.id=teacher.sid and student.id=project.sid;
-				，与inner join关系：
-					https://blog.csdn.net/huanghanqian/article/details/52847835
+				即：左连接结果与右连接结果的合并。
+		附：
+			MySQL中不支持 FULL OUTER JOIN，但我们可以用union模拟。
+			mysql模拟实现全连接：
+				SELECT * FROM t1
+				LEFT JOIN t2 ON t1.id = t2.id
+				UNION
+				SELECT * FROM t1
+				RIGHT JOIN t2 ON t1.id = t2.id
+			上面的 SQL 语句还可以加上where条件从句，对记录进行筛选
 
-		非等连接：？
+
+	附：
+		cross join：（笛卡尔积连接、交叉连接）
+			介绍：
+				表 A（共有 n 条记录），表 B （共有 m 条记录），两表连接后，会产生一张包含 n x m 条记录的新表。
+				附：
+					笛卡儿乘积：第一个表中的每一行被联合到第二个表中的每一行
+				附：
+					通常用于表 A 和表 B 不存在关联字段
+			例：
+				select * from client  c cross join financial_account as f
+			注：
+				cross join 和 ,  和 INNER JOIN 区别：
+					CROSS JOIN 与 INNER JOIN：
+						在MySQL中，CROSS JOIN从语法上说与INNER JOIN等同(两者可以互相替换。)
+						即CROSS JOIN 与 INNER JOIN是同一个东西。
+                        附：
+                            在标准SQL中，两者是不等同的。？
+                            INNER JOIN与ON子句同时使用，CROSS JOIN以其它方式使用。
+					逗号连接 与 inner join：
+                        https://blog.csdn.net/huanghanqian/article/details/52847835
+						INNER JOIN和，（逗号连接）功能相同(二者其实是同一个东西)，只是连接语法有些区别。
+						附：
+						论证：维基百科
+                            SQL 定义了两种不同语法方式表示"连接"：
+                                首先是"显式连接符号"：
+                                    它显式地使用关键字 JOIN
+                                其次是"隐式连接符号"：
+                                    它使用所谓的"隐式连接符号"。即表之间用逗号分隔。
+                            附：
+                                SQL 89标准只支持内部连接与交叉连接，因此只有隐式连接这种表达方式；SQL 92标准增加了对外部连接的支持，这才有了 JOIN 表达式。
+						逗号连接语法：
+                            SELECT
+                             语句的 
+                            FROM
+                             部分，并用逗号隔开。这样就构成了一个"交叉连接"，
+                            WHERE
+                             语句可能放置一些过滤谓词(过滤条件)。
+
+							注:
+								逗号连接，只能用where设置连接条件，无法使用on
+					总结：
+						CROSS JOIN 与 INNER JOIN 与 逗号连接 其实就是同一个东西，只是语法上略有区别
+						例：
+							以下语句效果都一样，且去掉连接条件结果都是笛卡儿积。
+							逗号连接：
+								select * from `user` , WRONG_IMG where user.id = WRONG_IMG.CREATOR_ID
+							inner join：
+	                            select * from `user` inner JOIN WRONG_IMG on user.id = WRONG_IMG.CREATOR_ID
+	                            select * from `user` inner JOIN WRONG_IMG where user.id = WRONG_IMG.CREATOR_ID
+                            cross JOIN：
+	                            select * from `user` cross JOIN WRONG_IMG on user.id = WRONG_IMG.CREATOR_ID
+	                            select * from `user` cross JOIN WRONG_IMG where user.id = WRONG_IMG.CREATOR_ID
+
+		部分表连接案例：
+			自连接:
+				样例:
+					select a.id,b.id,b.pid,b.name
+					from test as a,test as b
+					where a.id=b.pid
+			多表连接：
+				写法1：select * from student inner join teacher on student.id=teacher.sid inner join project on student.id=project.sid;
+				写法2：select * from student,teacher,project where student.id=teacher.sid and student.id=project.sid;
+
+
+
+
+	附：
+		USING
+			...
+
+		NATURAL连接：
+			...
+		非等连接：
 			介绍：使用等值以外的条件来匹配左、右两个表中的行 select A.c1,B.c2 from A join B on A.c3 != B.c3;
 	注：
 		关联条件on尽量有所有
 		关联时尽量有where且有索引
 mysql如何执行关联查询：高性能mysql p214
-	当前MySQL*(5.0)关联执行的策略很简单:MySQL对任何关联都执行嵌套循环关联操作，
-	即MySQL先在一个表中循环取出单条数据，然后再嵌套循环到下一个表中寻找匹配的行，依次下去，直到找到所有表中匹配的行为止。然后根据各个表匹配的行，返回查询中需要的各个列。
+	当前MySQL(5.0)关联执行的策略很简单:MySQL对任何关联都执行嵌套循环关联操作，
+		即MySQL先在一个表中循环取出单条数据，然后再嵌套循环到下一个表中寻找匹配的行，依次下去，直到找到所有表中匹配的行为止。然后根据各个表匹配的行，返回查询中需要的各个列。
 	例：
 		SELECT tbl1.col1, tbl2.col2
 		FROM tbl1 INNER J0IN tbl2 USING( col3)
 		WHERE tbl1.col1 IN(5,6);
-		1.
+		解析：
 			假设MySQL按照查询中的表顺序进行关联操作，我们则可以用下面的伪代码表示
 			MySQL将如何完成这个查询:
-				outer_iter = iterator over tbl1 where col1 IN(5,6)
+				outer_iter = iterator over tbl1 where col1 IN(5,6)//1. 找出tab1所有符合where条件数据
 				outer_row = outer_iter.next
-				while outer_row
-					inner_iter = iterator over tbl2 where col3 = outer_row.co13
+				while outer_row //2. 遍历1结果
+					inner_iter = iterator over tbl2 where col3 = outer_row.co13 //3. 关联字段通过where在tbl2中进行条件筛选
 					inner_row = inner_iter.next
-					while inner_row
+					while inner_row // 遍历输出3.结果
 						output [outer_row.col1, inner_row.col2]
 						inner_row = inner_iter.next
 					end
 					outer_row = outer_iter.next
 				end
-		2. 通过泳道图展示MySQL如何完成关联查询:
-			./关联查询泳道图.png
+		附：
+			通过泳道图展示MySQL如何完成关联查询:
+				./关联查询泳道图.png
 		附：
 			从字面来看会先遍历tab1，把tab1拿去循环tab2
 			所以where中查询的是tbl1的时候才能优化tab1查询。
