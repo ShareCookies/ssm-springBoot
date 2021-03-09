@@ -186,7 +186,7 @@ mysql如何执行关联查询：《高性能mysql》 p214
             1	SIMPLE	p		eq_ref	PRIMARY	PRIMARY	48	zjgy_real.r.FLOW_PID	1	100.00	Using where
             附：
             为什么第二个扫描行数为1：
-                是因为嵌套循环查询原因吧，p表虽然1行，但被查询了107536次。
+                是因为嵌套循环查询原因吧，p表虽然1行，但被查询了107536次。？
 
         关联，并使用有索引的筛选条件：
             SELECT * FROM EGOV_RECEIVAL r INNER JOIN FLOW_PROCESS_INSTANCE p ON r.FLOW_PID = p.ID where p.ID = 'W-4lI-SwQwQ9PF0U';
