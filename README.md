@@ -20,6 +20,8 @@
 ### [关系型数据库](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql)
 - [MySql](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql)
     - [DDL](https://github.com/yuyumyself/ssm-springBoot/blob/master/数据库/sql/DDL)
+        - 建表
+        - [索引](https://github.com/ShareCookies/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql/DDL/%E7%B4%A2%E5%BC%95)
     - [DML](https://github.com/yuyumyself/ssm-springBoot/blob/master/数据库/sql/DML)
     - [事务](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql/%E4%BA%8B%E5%8A%A1)
     - [优化（more）](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E6%95%B0%E6%8D%AE%E5%BA%93/sql/%E4%BC%98%E5%8C%96)
