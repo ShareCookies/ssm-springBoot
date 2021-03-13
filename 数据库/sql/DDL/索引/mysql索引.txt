@@ -133,21 +133,26 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 	索引使用注意事项：（优化注意事项）
 		and or：
 			and：
-				1. 用and那么会优先使用有索引的条件
+				1. 用and会优先使用有索引的搜索条件。
+				2. 用and只会使用一个索引，且mysql会自我选择使用效率最高的那个索引。
+				例：
+                    #主键ID 索引DOC_SEQUENCE
+                    EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' #type:const rows:1
+                    EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' AND DOC_SEQUENCE = '20190124'  #type:const rows:1
 			or：
 				1. 用or 那么只要or条件中有非索引的，那么还是全表检索
-			例：
-				#主键ID 索引DOC_SEQUENCE
-				EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' #type:const rows:1
-				EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' AND DOC_SEQUENCE = '20190124'  #type:const rows:1
-				or两个均索引：
-					EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' OR DOC_SEQUENCE = '20190124' #type:index_merge rows:2
-				or有一个非索引：
-					EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' OR SUBJECT = '索引性能测试' #type:ALL rows:613
+				2. or 能使用多个索引。
+				    即各自走辅助索引并把结果混合起来。
+                例：
+                    #主键ID 索引DOC_SEQUENCE
+                    or有一个非索引：
+                        EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' OR SUBJECT = '索引性能测试' #type:ALL rows:613
+                    or两个均索引：
+                        EXPLAIN SELECT * FROM EGOV_RECEIVAL WHERE id = 'XYCtqoSukpvSznD2' OR DOC_SEQUENCE = '20190124' #type:index_merge rows:2
 		LIKE使用索引:
 		  	使用LIKE时要注意，只有使用字母开头才会应用到索引。
 			like在以通配符%和_开头作查询时，MySQL不会使用索引。
-				因为mysql索引原理
+				因为goto：mysql索引原理
 			例:
 				如下句会使用索引：
 			  　　	SELECT * FROM mytable WHERE username like'admin%'
@@ -155,36 +160,59 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 			 　　 	SELECT * FROM mytable WHEREt Name like'%admin'
 				！：
 					具体b树是怎么对比的了，是先比a，在比d这些？
-		<>:
-			https://www.v2ex.com/t/425142
-			看情况慎用不等于。
-			因为：
- 				所以像> < in 这种操作，走不走索引要看本身可能的结果数量。
-		索引不会包含有NULL值的列：
-			只要列中包含有NULL值都将不会被包含在索引中。
-			复合索引中只要有一列含有 NULL值，那么这一列对于此复合索引就是无效的。？
-			！
-				所以我们在数据库设计时不要让字段的默认值为NULL。
-			例：
-				3.where status!=4 不会列出（比较）为null的
-				1.判断某字段为空	is null
-				2.某字段不为空	is not null
-			?
-				那is null这些是如何查找的了，是全表遍历
-		
 		不要在列上进行运算:
 			在列上进行运算,将在每个行上进行运算，这将导致索引失效而进行全表扫描，
-			select * from users where YEAR(adddate)<2007;
-			因此我们可以改成
-		  　　 select * from users where adddate<'2007-01-01';
-			？
+			例：
+                select * from users where YEAR(adddate)<2007;
+                因此我们可以改成
+              　　 select * from users where adddate<'2007-01-01';
+			！
 				NOW()等函数了
 		慎用NOT IN、exits、NOT exits：
 			这3个应该都是嵌套(索引)循环查询，即把外面的所有数据拿去里面走循环。
 			所以这3个仅适用与外小内大。
-			例：
+			5.7后in则没有这种限制，应该是mysql优化了。
+			具体goto：
 				/数据库/sql/DML/SQL中in、exist效率.txt
-
+        附
+		含有NULL值的列：
+		    mysql5.7：？
+                索引不会包含有NULL值的列
+                    即只要列中包含有NULL值都将不会被包含在索引中。
+                例：
+                    3.where status!=4 不会列出（比较）为null的
+                    1.判断某字段为空	is null
+                    2.某字段不为空	is not null
+                附：
+                    ？
+                        复合索引中只要有一列含有 NULL值，那么这一列对于此复合索引就是无效的。
+                    ！
+                        所以我们在数据库设计时不要让字段的默认值为NULL。
+                ?
+                    is null为什么可以走索引了：
+                        select * from WRONG_IMG_copy1 WHERE CREATOR_ID is null
+                        解析：1	SIMPLE	WRONG_IMG_copy1		ref	CREATOR_ID	CREATOR_ID	99	const	1	100.00	Using index condition
+            mysql5.8：
+                mysql应该是没索引不包含null的限制了。
+                例：
+                    where status!=4 也能找出为null的行。
+                    where status is null 也会走索引。
+        <>:
+			看情况使用不等于，通常不等于的不走索引而是在server层实现过滤。
+			注：
+			    https://www.v2ex.com/t/425142
+			    只有一个字段的话且使用了不等于，数据库优化器会判断候选结果集是否超出了全部结果的 5  %（估计），如果超过，那么就全表扫描。
+ 				附：所以像> < in 这种操作，走不走索引要看本身可能的结果数量。
+ 			例：
+ 			    场景：
+                    CREATE_TIME	CREATE_TIME	NORMAL	0	A	115			0
+                    CREATOR_ID	CREATOR_ID	NORMAL	0	A	4			0
+ 			    select * from WRONG_IMG_copy1 WHERE CREATE_TIME > '2021-01-03' AND CREATOR_ID <> 'hx'
+ 			    解析：
+ 			        1	SIMPLE	WRONG_IMG_copy1		range	CREATE_TIME,CREATOR_ID	CREATE_TIME	6		31	34.43	Using index condition; Using where
+ 			        此处解析结果中有Using where，则说明表示存储引擎返回的记录并不是所有的都满足查询条件,需要在server层进行过滤。
+ 			        所以不等于其实是在server层过滤。
+ 			        即CREATE_TIME走索引，但CREATOR_ID不走而是把数据在server层在进行过滤。
 索引的常见操作：
 	创建索引：
 		https://www.cnblogs.com/tommy-huang/p/4483684.html
@@ -223,7 +251,7 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 			即一个索引只包含单个列.
 			附：
 				一个表可以有多个单列索引：
-					多个单列索引，并不是组合索引，mysql会根据情况，决定应用那些索引。
+					附：多个单列索引，并不是组合索引，mysql会根据情况，决定应用那些索引。
 					例：
 						场景：
 							3个字段：nameno, city, age、
@@ -236,17 +264,18 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 						查询时使用了多个单列索引，最后取交集或者并集，再去主索引查：
 							select * FROM UMS_LOGIN_LOG WHERE city = 'beijing' or age = '13';
 							使用explain发现为type为index_merge,索引也应用了多个。
-                辅助索引什么时候用：!
-                    type为index_merge即应用了多个索引。
+                辅助索引什么时候用：
+                    解析type为index_merge即应用了多个索引。
                     1. 有or时会使用辅助索引来进行查找
-                    ...
+                    例：
+                        上面案例中:查询时使用了多个单列索引.
 		组合索引:
 			https://dev.mysql.com/doc/refman/5.7/en/multiple-column-indexes.html
 			一个索引包含多个列。
 
 			介绍：
 				当b+树的数据项是复合的数据结构，比如(name,age,sex)的时候，b+数是按照从左到右的顺序来建立搜索树的。
-				因此使用时以最左边的索引列为起点任何连续的索引都能匹配上，直到遇到范围查询(>、<、between、like)就会停止匹配。
+				因此组合索引被使用时以最左边的索引列为起点任何连续的索引都能匹配上，直到遇到范围查询(>、<、between、like)就会停止匹配。
 				附：
 					优化器会自动调整顺序
 						如果建立(a,b,c,d)的索引则都可以用到，a,b,c,d的顺序可以任意，因为优化器会自动调整顺序。
@@ -265,12 +294,14 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 							name = ，age = 、范围
 					3. name =，city = 、范围
 					4. name =，city = ，age  = 、范围
-			区别：
-				https://blog.csdn.net/Abysscarry/article/details/80792876
+				    附：排序也算这里头
+
 			原理：（组合索引怎么构成、如何查找）
 				https://www.cnblogs.com/lanqi/p/10282279.html
 				索引的底层是一颗B+树，那么联合索引当然还是一颗B+树，只不过联合索引的健值数量不是一个，而是多个。
 				但一颗B+树只能根据一个值来构建，因此数据库依据联合索引最左的字段来构建B+树。
+				    注：这里b树构成并不是只有最左字段，而是以最左字段+第二字段+...值一起构成b树。
+				    只是最左字段是B树节点排序的依据，因此最左字段就是查询的关键，因为只有它匹配下，才能应用后面的字段。
 				例：
 					创建一个（a,b)的联合索引，那么它的索引树是这样的:
 						./联合索引B树.png
@@ -313,6 +344,6 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 		语法：
 			Mysql: DROP INDEX <索引名> on <表名>
 			SqlServer: drop index <表名>.<索引名>
-	注：
+	附：
 		查看表上拥有的索引：
 			show index from <表名>;

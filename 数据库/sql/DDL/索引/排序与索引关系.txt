@@ -1,7 +1,7 @@
+附：
+    数据库默认排序可以符合要求的情况下尽量不要使用排序操作;
+    因为消耗性能。
 MySQL有两种方式可以生成有序的结果:
-    附：
-        数据库默认排序可以符合要求的情况下尽量不要使用排序操作;
-        因为消耗性能啊。
 	1. 通过排序操作;
 	例：
 		索引为 DRAFT_DATE
@@ -50,4 +50,23 @@ MySQL有两种方式可以生成有序的结果:
 			?
 				ORDERBY子句和查找型查询的限制是一样的:需要满足索引的最左前缀的要求;否则，
 				MySQL都需要执行排序操作，而无法利用索引排序。
+排序优化：
+    首页尽量要走索引排序。
+    当翻页较大时优化：
+        要优化的语句：
+            SELECT <cols> FROM profiles
+                  WHERE x.sex='M' ORDER BY rating LIMIT 100000, 10
+        1. 延迟索引？
+            优化这类索引的另--个比较好的策略是使用延迟关联。
+            通过使用覆盖索引查询返回需要的主键，再根据这些主键关联原表获得需要的行。
+            这可以减少MySQL扫描那些需要丢弃的行数。？
+            下面这个查询显示了如何高效地使用(sex, rating) 索引进行排序和分页:
+            mysql>
+            SELECT <cols> FROM profiles INNER J0IN (
+                SELECT <primary key cols> FROM profiles
+                WHERE x.sex='M' ORDER BY rating LIMIT 100000, 10
+                ) AS xUSING(<primary key cols>);
+             ？
+                为什么效率更高，limit不在索引上？是先把数据拿出来在limit？
+         2.反范式化、预先计算和缓存可能是解决这类查询仅有的策略？
 
