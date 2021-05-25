@@ -1,0 +1,62 @@
+
+网关要集成该配置包：
+	网关配置类:
+		启用网关，并导入自定义security配置类。
+			security配置类：
+				SecurityGatewayConfiguration.java
+				实例化(实例化过程会传入自定义的authenManage)启用自定义的用户认证过滤器类(账号登陆和token登入)、token用户认证过滤器类等。
+				
+				？
+					需要指定过滤器类顺序吗
+		例：
+			@Configuration
+			@EnableAutoConfiguration(exclude = {GatewayDiscoveryClientAutoConfiguration.class, SecurityAutoConfiguration.class})//排除默认的security网关配置？
+			@Import({AmqpConfiguration.class, SecurityGatewayConfiguration.class, RibbonClientConfiguration.class})//
+			@RestController
+			@EnableConfigurationProperties(GatewayProperties.class)//导入些自定义的yml配置
+			//@ComponentScan
+			public class GatewayConfiguration implements ApplicationRunner {
+				...
+			}
+
+
+	登入认证过程：
+		UsernamePasswordAuthenticationFilter
+			自定义过滤器拦截 login请求，
+			根据请求参数生成.AuthenticationToken，
+			调用authenticationManager进行用户认证。(与security有区别没再通过manage去查找那个provider能认证，而是直接通过manage进行认证)
+		
+	前端传递token：
+		TokenidAuthenticationFilter
+			...
+	？
+		网关调用服务不用RequestInterceptor吗
+各服务要集成该配置包：
+	微服务之间调用传token：
+		SecurityServiceConfiguration配置类：
+			RequestInterceptor、
+			RequestHeaderAuthenticationFilter
+			PreAuthenticatedAuthenticationProvider
+				！
+					AuthenticationManagerBuilder，spring的manage构建器吗
+		为feign设置token请求头：
+			RequestInterceptor：
+				Feign 支持请求拦截器，在发送请求前，可以对发送的模板进行操作，例如设置请求头等属性。
+		各服务从feign的http请求获取token信息：
+			RequestHeaderAuthenticationFilter拦截feign发起的http请求获取token信息，然后就是springSecurity的认证过程（manage判断PreAuthenticatedAuthenticationProvider能提供认证支持，就调用它进行用户认证）
+
+	
+	
+？
+	Mono?
+		响应式模式
+		https://zhuanlan.zhihu.com/p/157489510
+		
+		Mono应用了java1.8函数式编程。
+		?
+			Mono.zip()
+			.map()
+			...Mono各方法
+	Void？
+
+

@@ -26,54 +26,19 @@ https://www.cnblogs.com/demingblog/p/10874753.html
 					auth.userDetailsService(userDetailsService)
 						.passwordEncoder(passwordEncoder());// 设置密码编码器
 				}
+				附：
+					 
+					Add authentication based upon the custom {@link UserDetailsService} that is passed in.
+					根据传入的自定义{@link UserDetailsS​​ervice}添加身份验证
+					It then returns a {@link DaoAuthenticationConfigurer} to allow customization of the authentication.
+					然后，它返回一个{@link DaoAuthenticationConfigurer}以允许自定义身份验证。
+					
+					所以是那个provide会应用到该用户获取了
 	例：
 		./security/SecurityConfiguration.java
 	附：
 		security是如何实现用户登录的：
-			https://www.jianshu.com/p/e98cdf23b991
-			UsernamePasswordAuthenticationFilter从http请求中获取用户名和登录密码，封装成Authentication（UsernamePasswordAuthenticationToken）对象，
-			然后调用AuthenticationManager的验证方法，通过则登录成功，信息保存到security上下文中，失败则返回403.
-			附：
-				UsernamePasswordAuthenticationFilter：
-					UsernamePasswordAuthenticationFilter是AbstractAuthenticationProcessingFilter一种实现类，是针对使用用户名和密码进行身份验证而定制化的一个过滤器。
-					AbstractAuthenticationProcessingFilter是个抽象类，实现类有cookie，用户名密码等。抽象类在整个身份验证的流程中主要处理的工作就是所有与Web资源相关的事情，并且将其封装成Authentication对象，最后调用AuthenticationManager的验证方法。
-					所以UsernamePasswordAuthenticationFilter的工作大致也是如此，只不过在这个场景下更加明确了Authentication对象的封装数据的来源——用户名和密码。
-					如何决定用那个filter了？
-				AuthenticationManager如何完成校验工作：
-					AuthenticationManager唯一实现类ProviderMananger，根据各个AuthenticationProvider实现类的support方法询问哪个具体实现类能支持该token工作，找到后调用其authenticate进行认证判断。
-				AuthenticationProvider（验证核心的工作者）：
-					我们曾多次强调过一个设计概念：AuthenticationManager接口设计上并不是用于完成特定的身份验证工作的，而是调用其所配发的AuthenticationProvider接口去实现的。
-					AuthenticationProvider只包含两个方法声明:
-						1.supports 是否支持当前验证协议：
-							AuthenticationManager可以通过调用该方法，辨别当前AuthenticationProvider是否是完成相应验证工作的
-							boolean supports(Class<?> authentication);				
-								ProviderManager（Spring Security中唯一AuthenticationManager的实现类），（像状态模式！或策略）
-								在处理authenticate身份验证入口方法的时，首先第一个解决的问题便是：我手下哪个AuthenticationProvider能验证当前传入的Authentication。
-								为此ProviderManager便会对其所有的AuthenticationProvider做supports方法检测，直到有AuthenticationProvider能在supports方法被调用后返回true。
-							附：
-								不同的AuthenticationProvider开发初衷本就是为了支持指定的某种验证协议，所以在特定的AuthenticationProvider的视角中，他只关心当前Authentication是不是他预先设计处理的类型即可。
-								在使用用户名和密码的验证场景中，验证使用的用户名和密码被封装成了UsernamePasswordAuthenticationToken对象。Spring Security便为了向UsernamePasswordAuthenticationToken对象在核心层提供相关的验证服务便继承AuthenticationProvider开发了使用用户名和密码与UserDetailsService交互并且验证密码的DaoAuthenticationProvider。
-									附：
-										DaoAuthenticationProvider是AbstractUserDetailsAuthenticationProvide实现类。
-										DaoAuthenticationProvider针对UsernamePasswordAuthenticationToken的大部分逻辑都是通过AbstractUserDetailsAuthenticationProvider完成的。
-
-						2.authenticate 核心验证方法：
-							Authentication authenticate(Authentication authentication) throws AuthenticationException;
-							附：
-								完成了是否支持的supports验证后，ProviderMananger便会全权将验证工作交由DaoAuthenticationProvider进行处理了。
-									与ProviderMananger最不同一点是，在DaoAuthenticationProvider的视角里，当前的Authentication最起码一定是UsernamePasswordAuthenticationToken的形式了，不用和ProviderMananger一样因为匮乏信息而不知道干什么。
-								DaoAuthenticationProvider会按照预先设计一样分别从principal和credentials获取用户名和密码进行验证。
-									String username = (authentication.getPrincipal() == null) ? "NONE_PROVIDED" : authentication.getName();
-									String presentedPassword = authentication.getCredentials().toString();
-									接着便是按照我们熟悉的预先设计流程：
-										1.通过UserDetailsService使用username获取对应的UserDetails
-										2.最后通过对比密码是否一致
-											附：
-												调用密码编译器将用户提交的密码进行编译，然后在与数据库获取的用户的密码进行对比，认证通过则登入成功。
-												Spring Security  密码校验和密码加密流程：
-													./SpringSecurity密码加密与校验.txt
-										3.向PrivoderManager返回最终的身份验证结果与身份信息。这样一个特定场景使用用户名和密码的验证流程就完成了。
-
+			./security是如何实现用户登录的.txt
 	
 3.编写登入认证接口：（即如何登入然后进行认证）
     //1,2,3,4步骤都是和spring security交互的，如果完成了则登入成功。
@@ -153,10 +118,13 @@ https://www.cnblogs.com/demingblog/p/10874753.html
 								.and()
 								.apply(securityConfigurerAdapter());// 增加自定义的securityConfigurerAdapter
 						}
+					？
+						如何确保新增的filter会优先于其余filter执行了
 		3.security使用了token认证方案后要关闭的一些设置：
 			1. goto：禁用spring security 的session
 			2. .and().csrf().disable() //关闭csrf保护 （Cross-site request forgery 跨站请求伪造）
-
+			！
+				禁用原因描述
 		附：
 			使用token进行用户验证的系统流程：
 				1.客户端（react前端，IOS等）调用“登录接口”获得一个包含token的响应（通常是个JSON，如 {“token”:”abcd”,”expires”:1234567890}）
