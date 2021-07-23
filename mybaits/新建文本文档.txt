@@ -1,6 +1,28 @@
-每个基于 MyBatis 的应用都是以一个 SqlSessionFactory 的实例为核心的。
-SqlSessionFactory 的实例可以通过 SqlSessionFactoryBuilder 获得。
-而 SqlSessionFactoryBuilder 则可以从 XML 配置文件或一个预先配置的 Configuration 实例来构建出 SqlSessionFactory 实例。
+MyBatis源码解析
+	Mybatis源码也是对Jbdc的再一次封装,不管怎么进行包装,还是会有获取链接、preparedStatement、封装参数、执行这些步骤的。
+
+配置解析过程
+String resource = "mybatis-config.xml";
+//1.读取resources下面的mybatis-config.xml文件
+InputStream inputStream = Resources.getResourceAsStream(resource);
+//2.使用SqlSessionFactoryBuilder创建SqlSessionFactory
+	每个基于 MyBatis 的应用都是以一个 SqlSessionFactory 的实例为核心的。
+	SqlSessionFactory 的实例可以通过 SqlSessionFactoryBuilder 获得。
+	而 SqlSessionFactoryBuilder 则可以从 XML 配置文件或一个预先配置的 Configuration 实例来构建出 SqlSessionFactory 实例。
+SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+//3.通过sqlSessionFactory创建SqlSession
+SqlSession sqlSession = sqlSessionFactory.openSession();
+
+
+
+
+
+
+
+
+
+
+
 
 
 构建 SqlSessionFactory
