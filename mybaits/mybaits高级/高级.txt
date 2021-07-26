@@ -31,3 +31,8 @@ mapper的复用：
 			https://blog.csdn.net/u010077905/article/details/38469653	
 		拦截器实现分页：
 			https://www.cnblogs.com/aeolian/p/9229149.html
+TypeHandlers:
+	类型处理器。无论是 MyBatis 在预处理语句（PreparedStatement）中设置一个参数时，还是从结果集中取出一个值时，都会用类型处理器将获取的值转换成合适的形式。
+		即typeHandlers就是用来完成javaType和jdbcType之间的转换。
+	mybatis默认的类型处理器：
+		https://mybatis.org/mybatis-3/zh/configuration.html#typeHandlers

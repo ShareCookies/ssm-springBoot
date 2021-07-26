@@ -21,3 +21,13 @@ Text：
             <if test="contentAbstract != null">
                 CONTENT_ABSTRACT = #{contentAbstract,jdbcType=LONGVARCHAR},
             </if>	
+TypeHandler：
+	类型处理器。
+	MyBatis 在设置预处理语句（PreparedStatement）中的参数或从结果集中取出一个值时， 都会用类型处理器将获取到的值以合适的方式转换成 Java 类型。
+	使用这个属性，你可以覆盖默认的类型处理器。 这个属性值是一个类型处理器实现类的全限定名，或者是类型别名。
+	默认的类型处理器：
+		https://mybatis.org/mybatis-3/zh/configuration.html#typeHandlers
+	MyBatis自定义类型处理器 TypeHandler：
+		https://blog.csdn.net/lmb55/article/details/90380309?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.control
+	ListTypeHandler：
+		https://blog.csdn.net/u011006672/article/details/86158476
