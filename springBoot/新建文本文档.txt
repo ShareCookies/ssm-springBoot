@@ -1,0 +1,25 @@
+starter原理：
+	如果我要使用redis，我直接引入redis驱动jar包就行了，何必要引入starter包。
+	starter和普通jar包的区别在于，它能够实现自动配置，和Spring Boot无缝衔接。
+	https://www.jianshu.com/p/30ce49fc2f25
+	...
+制作一个Starter的jar包：
+1. Starter包的命名
+	官方对Starter项目的jar包定义的 artifactId 是有要求的，当然也可以不遵守。
+	Spring官方建议非官方的starter命名应遵守{name}-spring-boot-starter的格式。
+	Spring官方Starter通常命名为spring-boot-starter-{name}。
+2，Maven依赖
+    Spring starter让spring boot简单，主要是引入了自动配置，所以这里需要引入自动配置相关的依赖。
+	<dependencies>
+	    <dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-configuration-processor</artifactId>
+	        <optional>true</optional>
+	    </dependency>
+	    <dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-autoconfigure</artifactId>
+	    </dependency>
+	</dependencies>
+    其中spring-boot-configuration-processor的作用是编译时生成spring-configuration-metadata.json，此文件主要给IDE使用。
+	即当配置此jar相关配置属性在application.properties或者applicationg.yml，你可以用ctlr+鼠标左键点击属性名，IDE会跳转到你配置此属性的类中。
