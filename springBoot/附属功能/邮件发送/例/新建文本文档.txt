@@ -1,0 +1,21 @@
+spring:
+#  邮箱配置
+#  mail:
+#    host: smtp.163.com
+#    port: 25
+#    username: 
+#    password: 
+#  ssl版邮箱配置
+  mail:
+    host: smtp.163.com
+    port: 465
+#    default-encoding: UTF-8
+#    #公用的邮件服务器，发送者账号要和验证账号一样的！
+    username: 
+    password: 
+    #设置为SSL协议
+    properties:
+      mail:
+        smtp:
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
