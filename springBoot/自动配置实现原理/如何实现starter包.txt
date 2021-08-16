@@ -91,14 +91,15 @@ starter原理：
 	在application.properties 配置文件中添加配置信息：
 		example.service.enabled=true
 		starter.test=yyyy,xxx,lll,zzz
-	单元测试用例如下：
-	@Autowired
-	private StarterService starterService;
-	@Test
-	public void starterTest() {
-	    String[] splitArray = starterService.split(",");
-	    System.out.println(splitArray);
+		
+	@SpringBootApplication  
+	public class Application {  
+		public static void main(String[] args) {  
+			SpringApplication.run(Application.class, args);  
+		}  
 	}
-	    一个简单的Starter就创建完成了，从一个简单的starter创建过程，就可以看出spring boot是如何简化我们的项目开发的。
+	一个简单的Starter就创建完成了，从一个简单的starter创建过程，就可以看出spring boot是如何简化我们的项目开发的。
+	springboot是如何加载到starter包中的配置类的：
+		./
 ApplicationRunner
 	https://www.jianshu.com/p/1d32058eef48

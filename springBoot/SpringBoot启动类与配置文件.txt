@@ -2,8 +2,9 @@ springBoot启动类：
 	例：
 		./Application.java
 	@Configuration：
+		*https://blog.csdn.net/qiuz1024/article/details/100530260
 		https://www.jianshu.com/p/8268b58daa57
-		*https://www.jianshu.com/p/721c76c1529c
+		https://www.jianshu.com/p/721c76c1529c
 	@Import：
 		https://blog.csdn.net/qq_36903131/article/details/99625225
 		有两个作用：

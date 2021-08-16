@@ -1,0 +1,82 @@
+https://blog.csdn.net/zxc123e/article/details/80222967
+@SpringBootApplication是启动类上的核心注解，主要包含了下面三个注解：
+	1）@SpringBootConfiguration：表明当前类为配置类
+		@SpringBootConfiguration点开查看发现里面还是应用了@Configuration
+	3）@ComponentScan：扫描spring组件
+	2）@EnableAutoConfiguration：开启springboot的自动配置
+如果在启动类使用这个三个注解，整个SpringBoot应用依然可以与之前的启动类功能一样。但每次写这3个比较啰嗦，所以写一个@SpringBootApplication方便点。
+@Configuration和@ComponentScan对我们来说并不陌生，今天我们的主角是@EnableAutoConfiguration。
+
+@EnableAutoConfiguration可以帮助SpringBoot应用将所有符合条件的配置类(@Configuration)都加载到当前IoC容器中。
+	@EnableAutoConfiguration：
+		@Target(ElementType.TYPE)
+		@Retention(RetentionPolicy.RUNTIME)
+		@Documented
+		@Inherited
+		@AutoConfigurationPackage
+		@Import(AutoConfigurationImportSelector.class)
+		String ENABLED_OVERRIDE_PROPERTY = "spring.boot.enableautoconfiguration";
+		Class<?>[] exclude() default {};
+		String[] excludeName() default {};
+
+@EnableAutoConfiguration原理：
+	其中最关键的要属@Import(AutoConfigurationImportSelector.class)。
+	AutoConfigurationImportSelector 通过 SpringFactoriesLoader.loadFactoryNames()。
+	starter包里/META-INF/spring.factories文件中指定每一个xxxAutoConfiguration.class配置文件都加载到容器中。
+	
+	AutoConfigurationImportSelector：
+		/**
+		 * Return the auto-configuration class names that should be considered. By default
+		 * this method will load candidates using {@link SpringFactoriesLoader} with
+		 * {@link #getSpringFactoriesLoaderFactoryClass()}.
+		 * @param metadata the source metadata
+		 * @param attributes the {@link #getAttributes(AnnotationMetadata) annotation
+		 * attributes}
+		 * @return a list of candidate configurations
+		 */
+		protected List<String> getCandidateConfigurations(AnnotationMetadata metadata,
+				AnnotationAttributes attributes) {
+			List<String> configurations = SpringFactoriesLoader.loadFactoryNames(
+					getSpringFactoriesLoaderFactoryClass(), getBeanClassLoader());
+			Assert.notEmpty(configurations,
+					"No auto configuration classes found in META-INF/spring.factories. If you "
+							+ "are using a custom packaging, make sure that file is correct.");
+			return configurations;
+		}
+	SpringFactoriesLoader：
+		/**
+		 * The location to look for factories.
+		 * <p>Can be present in multiple JAR files.
+		 */
+		public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
+		/**
+		 * Load the fully qualified class names of factory implementations of the
+		 * given type from {@value #FACTORIES_RESOURCE_LOCATION}, using the given
+		 * class loader.
+		 * @param factoryClass the interface or abstract class representing the factory
+		 * @param classLoader the ClassLoader to use for loading resources; can be
+		 * {@code null} to use the default
+		 * @throws IllegalArgumentException if an error occurs while loading factory names
+		 * @see #loadFactories
+		 */
+		public static List<String> loadFactoryNames(Class<?> factoryClass, ClassLoader classLoader) {
+			String factoryClassName = factoryClass.getName();
+			try {
+				Enumeration<URL> urls = (classLoader != null ? classLoader.getResources(FACTORIES_RESOURCE_LOCATION) :
+						ClassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));
+				List<String> result = new ArrayList<String>();
+				while (urls.hasMoreElements()) {
+					URL url = urls.nextElement();
+					Properties properties = PropertiesLoaderUtils.loadProperties(new UrlResource(url));
+					String propertyValue = properties.getProperty(factoryClassName);
+					for (String factoryName : StringUtils.commaDelimitedListToStringArray(propertyValue)) {
+						result.add(factoryName.trim());
+					}
+				}
+				return result;
+			}
+			catch (IOException ex) {
+				throw new IllegalArgumentException("Unable to load factories from location [" +
+						FACTORIES_RESOURCE_LOCATION + "]", ex);
+			}
+		}
