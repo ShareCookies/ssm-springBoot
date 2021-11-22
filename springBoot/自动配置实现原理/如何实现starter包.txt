@@ -1,45 +1,63 @@
-starter原理：
-	如果我要使用redis，我直接引入redis驱动jar包就行了，何必要引入starter包。
-	starter和普通jar包的区别在于，它能够实现自动配置，和Spring Boot无缝衔接。
-	https://www.jianshu.com/p/30ce49fc2f25
-	...
+https://www.cnblogs.com/fengzheng/p/10947585.html
+starter包的使用3步骤：
+	1.  pom 文件中引入对应的start包。
+	2. 在应用配置文件(yml)中加入相应的配置，配置都是组件约定好的，需要查看官方文档或者相关说明。
+	3. 不用任何其余配置了，可以使用组件提供的相关接口来开发业务功能了。
+starter包作用：
+	1. starter包已经帮我们引入相关包
+	2. starter包能够实现自动配置。starter包能够和Spring Boot无缝衔接。
+	附：
+		如果我要使用redis，我直接引入redis驱动jar包就行了，何必要引入starter包。
+		这就是为什么用starter包原因
 制作一个Starter的jar包：
+https://www.jianshu.com/p/30ce49fc2f25
+
 1. Starter包的命名
 	官方对Starter项目的jar包定义的 artifactId 是有要求的，当然也可以不遵守。
 	Spring官方建议非官方的starter命名应遵守{name}-spring-boot-starter的格式。
 	Spring官方Starter通常命名为spring-boot-starter-{name}。
+	命名在 pom 文件里。
 2，Maven依赖
-    引入自动配置相关的依赖。
+    1. 引入自动配置相关的依赖。
+		实现 starter 主要依赖自动配置注解，所以要在 pom 中引入自动配置相关的两个 jar 包
 	    1. spring-boot-configuration-processor的作用是编译时生成spring-configuration-metadata.json，此文件主要给IDE使用。
-			即当配置此jar相关配置属性在application.properties或者applicationg.yml，你可以用ctlr+鼠标左键点击属性名，IDE会跳转到你配置此属性的类中。
-		怎么应用？
+			即当在applicationg.yml(application.properties)，你可以用ctlr+鼠标左键点击属性名，IDE会跳转到你此属性的设置类中。
+		
 		2. 2包里包含了一些自动配置的相关类
-	<dependencies>
-	    <dependency>
-	        <groupId>org.springframework.boot</groupId>
-	        <artifactId>spring-boot-configuration-processor</artifactId>
-	        <optional>true</optional>
-	    </dependency>
-	    <dependency>
-	        <groupId>org.springframework.boot</groupId>
-	        <artifactId>spring-boot-autoconfigure</artifactId>
-	    </dependency>
-	</dependencies>
+		例：
+		<dependencies>
+		    <dependency>
+		        <groupId>org.springframework.boot</groupId>
+		        <artifactId>spring-boot-configuration-processor</artifactId>
+		        <optional>true</optional>
+		    </dependency>
+		    <dependency>
+		        <groupId>org.springframework.boot</groupId>
+		        <artifactId>spring-boot-autoconfigure</artifactId>
+		    </dependency>
+		</dependencies>
+	2. 依赖的其他包当然也要引进来。
+注：
+	Starter包要实现的功能，编写自动配置类，自动配置类要能从配置文件读取指定属性，然后初始化相关bean。
 
-我们的Starter包要实现的功能，编写配置类，让其导入自定义类(Service)为bean。
-	自定义类能够将配置文件中指定属性进行分割
-5，编写AutoConfigure类(关键)
-	@Configuration
-	//当classpath下发现该类的情况下进行自动配置。
+6，创建spring.factories
+	在resources/META-INF/下创建spring.factories文件，并添加如下内容
+	(指明该start包的自动配置类，如果有多个的话，用英文逗号分隔开。)：
+		org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.example.autocinfigure.StarterAutoConfigure
+
+	//当 Spring Boot 启动的时候，会在 classpath 下寻找所有名称为 spring.factories 的文件，然后运行里面配置的指定的自动加载类，将指定类(一个或多个)中的相关 bean 初始化。
+
+5，编写自动配置类(关键)
+自动配置类是用来初始化 starter 中的相关 bean 的。可以说是实现 starter 最核心的功能。
+	//当classpath下发现该类的情况下进行自动配置。？//这只是表明这是个配置类吧
+	@Configuration 
+	//只有在 classpath 中找到 StarterService 类的情况下，才会解析此自动配置类，否则不解析。
 	@ConditionalOnClass(StarterService.class)
-	//使 应用了@ConfigurationProperties 注解的类生效。
-
-		说明：
-		如果一个配置类只配置@ConfigurationProperties注解，而没有使用@Component。
-		那么在IOC容器中是获取不到properties 配置文件转化的bean。
-		说白了 @EnableConfigurationProperties 相当于把使用 @ConfigurationProperties 的类进行了一次注入。
+	//启动配置属性类
+		//如果一个配置类只配置@ConfigurationProperties注解，而没有使用@Component。那么在IOC容器中是获取不到properties 配置文件转化的bean。
+		//@EnableConfigurationProperties 相当于把使用 @ConfigurationProperties 的类进行了一次注入。
 	@EnableConfigurationProperties({StarterTestProperties.class})
-
+	//@ConditionalOnProperty
 	public class StarterAutoConfigure {
 	    @Autowired
 	    private StarterTestProperties properties;
@@ -53,8 +71,7 @@ starter原理：
 	    }
 	}
 
-	3,编写Service类
-		自定义类能够将配置文件中指定属性进行分割
+	3 该类能够将配置文件中指定属性进行分割
 		public class StarterService {
 		    private String config;
 		    public StarterService(String config) {
@@ -65,9 +82,8 @@ starter原理：
 		    }
 		}
 	4，编写配置文件读取类
-		配置文件读取类一般命名为XxxProperties，
+		//配置文件读取类一般命名为XxxProperties，
 		配置文件读取类主要用于接收Spring boot中application.properties或者application.yml的配置项
-		例：
 		@ConfigurationProperties(prefix = "starter.test")
 		public class StarterTestProperties {
 		  private String config; 
@@ -78,28 +94,32 @@ starter原理：
 		        return config;
 		    }
 		}
-6，创建spring.factories
-	在resources/META-INF/下创建spring.factories文件，并添加如下内容：(指定start包对应的自动配置类)
-		org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.example.autocinfigure.StarterAutoConfigure
+测试：
+	7，编译jar包
+	   将maven工程编译成jar包。
 
-7，编译jar包
-   将maven工程编译成jar包。
-
-8，创建spring boot工程，引入jar包
-  	创建spring boot工程，并引入刚才生成的starter jar包。
-9，测试
-	在application.properties 配置文件中添加配置信息：
-		example.service.enabled=true
-		starter.test=yyyy,xxx,lll,zzz
-		
-	@SpringBootApplication  
-	public class Application {  
-		public static void main(String[] args) {  
-			SpringApplication.run(Application.class, args);  
-		}  
-	}
-	一个简单的Starter就创建完成了，从一个简单的starter创建过程，就可以看出spring boot是如何简化我们的项目开发的。
-	springboot是如何加载到starter包中的配置类的：
-		./
+	8，创建spring boot工程，引入jar包
+	  	创建spring boot工程，并引入刚才生成的starter jar包。
+	9，测试
+		在application.properties 配置文件中添加配置信息：
+			example.service.enabled=true
+			starter.test=yyyy,xxx,lll,zzz
+			
+		@SpringBootApplication  
+		public class Application {  
+			public static void main(String[] args) {  
+				SpringApplication.run(Application.class, args);  
+			}  
+		}
+		一个简单的Starter就创建完成了，从一个简单的starter创建过程，就可以看出spring boot是如何简化我们的项目开发的。
+		springboot是如何加载到starter包中的配置类的：
+			./
 ApplicationRunner
 	https://www.jianshu.com/p/1d32058eef48
+附：
+1. spring.provides
+	provides: spring-data-redis,lettuce-core
+	意思就是说，本项目依赖 spring-data-redis 和 lettuce-core 这两个包，并且在 pom 文件中引用了。
+	其目的就是告知使用者在引用此包的时候，不必再引用 provides 中的依赖包了。
+2. 所有spring官方 stater包 的自动注解类、属性配置类、spring.factories都放到了 spring-boot-autoconfigure 这个项目下。
+

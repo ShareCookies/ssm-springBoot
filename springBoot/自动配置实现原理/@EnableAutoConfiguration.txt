@@ -4,8 +4,13 @@ https://blog.csdn.net/zxc123e/article/details/80222967
 		@SpringBootConfiguration点开查看发现里面还是应用了@Configuration
 	3）@ComponentScan：扫描spring组件
 	2）@EnableAutoConfiguration：开启springboot的自动配置
-如果在启动类使用这个三个注解，整个SpringBoot应用依然可以与之前的启动类功能一样。但每次写这3个比较啰嗦，所以写一个@SpringBootApplication方便点。
-@Configuration和@ComponentScan对我们来说并不陌生，今天我们的主角是@EnableAutoConfiguration。
+		附：
+			也可以关闭某个自动配置的选项。
+			例：
+			@SpringBootApplication(exclude={DataSourceAutoConfiguration.class})；
+介绍：
+	如果在启动类使用这个三个注解，整个SpringBoot应用依然可以与之前的启动类功能一样。但每次写这3个比较啰嗦，所以写一个@SpringBootApplication方便点。
+	@Configuration和@ComponentScan对我们来说并不陌生，今天我们的主角是@EnableAutoConfiguration。
 
 @EnableAutoConfiguration可以帮助SpringBoot应用将所有符合条件的配置类(@Configuration)都加载到当前IoC容器中。
 	@EnableAutoConfiguration：
