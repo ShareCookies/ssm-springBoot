@@ -1,0 +1,84 @@
+追踪getProxy()看到：
+	//根据factory的设置生成一个proxy类。
+	public Object getProxy() {
+		// 调用的createAopProxy是属于基类ProxyCreatorSupport(ProxyFactory继承ProxyCreatorSupport)的，
+		// 而getProxy是属于接口AopProxy的。
+		return createAopProxy().getProxy();
+	}
+ProxyCreatorSupport类的相关方法：
+	/**
+	 * Subclasses should call this to get a new AOP proxy. They should <b>not</b>
+	 * create an AOP proxy with {@code this} as an argument.
+	 */
+	protected final synchronized AopProxy createAopProxy() {
+		if (!this.active) {
+			activate();
+		}
+		return getAopProxyFactory().createAopProxy(this);
+	}
+	/**
+	 * Return the AopProxyFactory that this ProxyConfig uses.
+	 */
+	public AopProxyFactory getAopProxyFactory() {
+		return this.aopProxyFactory;
+	}
+
+	/**
+	 * Create a new ProxyCreatorSupport instance.
+	 */
+	public ProxyCreatorSupport() {
+		this.aopProxyFactory = new DefaultAopProxyFactory();
+	}
+DefaultAopProxyFactory的createAopProxy相关代码:
+	@Override
+	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+		//根据config中参数进行判断使用代理方式。默认使用的是JDK的动态代理方式。
+		//是否isOptimize默认false；是否直接代理目标类以及任何接口；是否有指定代理接口
+		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
+			Class<?> targetClass = config.getTargetClass();
+			if (targetClass == null) {
+				throw new AopConfigException("TargetSource cannot determine target class: " +
+						"Either an interface or a target is required for proxy creation.");
+			}
+			if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
+				return new JdkDynamicAopProxy(config);
+			}
+			return new ObjenesisCglibAopProxy(config);
+		}
+		else {
+			return new JdkDynamicAopProxy(config);
+		}
+	}
+
+	/**
+	 * Determine whether the supplied {@link AdvisedSupport} has only the
+	 * {@link org.springframework.aop.SpringProxy} interface specified
+	 * (or no proxy interfaces specified at all).
+	 */
+	private boolean hasNoUserSuppliedProxyInterfaces(AdvisedSupport config) {
+		Class<?>[] ifcs = config.getProxiedInterfaces();
+		return (ifcs.length == 0 || (ifcs.length == 1 && SpringProxy.class.isAssignableFrom(ifcs[0])));
+	}
+对接口的代理时：
+	factory.setInterfaces(new Class[] { PeopleService.class });
+	AdvisedSupport:
+		/**
+		 * Set the interfaces to be proxied.
+		 */
+		public void setInterfaces(Class<?>... interfaces) {
+			Assert.notNull(interfaces, "Interfaces must not be null");
+			this.interfaces.clear();
+			for (Class<?> ifc : interfaces) {
+				addInterface(ifc);
+			}
+		}
+		@Override
+		public Class<?>[] getProxiedInterfaces() {
+			return this.interfaces.toArray(new Class<?>[this.interfaces.size()]);
+		}
+	当我们对目标对象代理时，添加了interfaces，也就是 hasNoUserSuppliedProxyInterfaces 为false，
+	而config.isOptimize()和config.isProxyTargetClass()默认false，
+	所有这时候直接走的就是return new JdkDynamicAopProxy(config);
+
+
+	//Spring可强制使用CGLIB(通过配置文件)。

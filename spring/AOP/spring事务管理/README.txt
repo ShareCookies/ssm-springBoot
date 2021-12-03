@@ -16,7 +16,8 @@ https://www.jianshu.com/p/5687e2a38fbc
 				没有数据库的事务支持，spring是无法提供事务功能的。
 				真正的数据库层的事务提交和回滚是通过binlog或者redo log实现的。
 			声明式事务优势：
-				声明式事务管理要优于编程式事务管理，这正是spring倡导的非侵入式的开发方式，使业务代码不受污染，只要加上注解就可以获得完全的事务支持。唯一不足地方是，最细粒度只能作用到方法级别，无法做到像编程式事务那样可以作用到代码块级别。
+				声明式事务管理要优于编程式事务管理，这正是spring倡导的非侵入式的开发方式，使业务代码不受污染，只要加上注解就可以获得完全的事务支持。
+				唯一不足地方是，最细粒度只能作用到方法级别，无法做到像编程式事务那样可以作用到代码块级别。
 声明式事务管理：
 	介绍：
 		声明式事务有两种方式，一种是在配置文件（xml）中做相关的事务规则声明，另一种是基于@Transactional 注解的方式。
@@ -25,19 +26,20 @@ https://www.jianshu.com/p/5687e2a38fbc
 		...
 	声明式事务之@Transactional注解：
 		*介绍：
-			使用@Transactional的相比传统的我们需要手动开启事务，然后提交事务来说。
-			它提供如下方便：
-				根据你的配置，设置是否自动开启事务
-				自动提交事务或者遇到异常自动回滚
-				
-			附：
+			@Transactional使用：
+				1. 配置文件上开启注解驱动。
+				例：@EnableTransactionManagement
+				2. 在相关的类和方法上使用注解@Transactional，即可启用事务。
+			@Transactional优势：
+				使用@Transactional的相比传统的我们需要手动开启事务，然后提交事务来说。
+				它提供如下方便：
+					根据你的配置，设置是否自动开启事务
+					自动提交事务或者遇到异常自动回滚
 			@Transactional原理：
-				配置文件开启注解驱动，在相关的类和方法上通过注解@Transactional标识。
 				spring 在启动的时候会去解析生成相关的bean，这时候会查看拥有相关注解的类和方法，并且为这些类和方法生成代理，
 				并根据@Transaction的相关参数进行相关配置注入，这样就在代理中为我们把相关的事务处理掉了（开启正常提交事务，异常回滚事务）。
-				真正的数据库层的事务提交和回滚是通过binlog或者redo log实现的。
+				
 		*@Transactional：
-			使用@Transactional，即可启用事务。
 			加在方法上:
 				表示对该方法应用事务。
 			加在类上:
@@ -46,21 +48,20 @@ https://www.jianshu.com/p/5687e2a38fbc
 				transactionManager()：事务管理器
 					https://blog.csdn.net/m0_37556444/article/details/83146804
 					介绍：
-						Spring为事务管理提供了统一的抽象,它并不做任何事务的具体实现。
+						Spring为事务提供了统一的抽象,它并不做任何事务的具体实现。
 						他只是提供了个事务管理的接口PlatformTransactionManager，具体内容由就由各个事务管理器来实现。
 					Spring提供了许多内置事务管理器实现：
 						JDBC DataSourceTransactionManager
+							介绍：JDBC中是通过Connection对象进行事务管理，通过commit方法进行提交，rollback方法进行回滚，如果不提交，则数据不会真正的插入到数据库中
 						JPA JapTransactionManager
 						Hibernate HibernateTransactionManager
+							介绍：Hibernate中是通过Transaction进行事务管理，处理方法与JDBC中类似。
 						JDO JdoTransactionManager
 						分布式事务 JtaTransactionManager
 						...
 					
 					附：		
-						部分事务管理器介绍：
-							1.JDBC中是通过Connection对象进行事务管理，通过commit方法进行提交，rollback方法进行回滚，如果不提交，则数据不会真正的插入到数据库中。
-							2.Hibernate中是通过Transaction进行事务管理，处理方法与JDBC中类似。
-							...
+						默认空？
 						事务：
 							事务是对一系列的数据库操作（比如插入多条数据）进行统一的提交或回滚操作，如果插入成功，那么一起成功，如果中间有一条出现异常，那么回滚之前的所有操作，这样可以防止出现脏数据，防止数据库数据出现问题。
 				isolation()：
@@ -77,25 +78,20 @@ https://www.jianshu.com/p/5687e2a38fbc
 					例：
 						@Transactional(rollbackFor=Exception.class)
 						https://www.cnblogs.com/clwydjgs/p/9317849.html
-						加了这个注解，那么这个类里面的方法抛出异常，就会回滚，数据库里面的数据也会回滚。
+						加了(rollbackFor=Exception.class)，那么方法抛出异常时(运行时异常、非运行时异常)才会回滚。
 						不加，只会在遇到RuntimeException的时候才会回滚。
 						附：
 							1.异常分为Error和Exception。
 							Exception分为RuntimeException（运行时异常）和非运行时异常。
-							@Transactional只会对RuntimeException进行回滚。
-							注：
-								非运行时异常：
-								如IOException、SQLException等以及用户自定义的Exception异常。
-								对于这种异常，JAVA编译器强制要求我们必需对出现的这些异常进行catch并处理，否则程序就不能编译通过。
-								所以，面对这种异常不管我们是否愿意，只能自己去写一大堆catch块去处理可能的异常。
-						
+							
 				rollbackForClassName():
 				noRollbackFor():
 				noRollbackForClassName:
 				
 					
 		*@Transactional 注意事项：
-			1. 默认情况下，如果在事务中抛出了未检查异常（继承自 RuntimeException 的异常）或者 Error，则 Spring 将回滚事务；除此之外，Spring 不会回滚事务。
+			1. 默认情况下，如果在事务中抛出了未检查异常（继承自 RuntimeException 的异常）或者 Error，则 Spring 将回滚事务；
+			除此之外，Spring 不会回滚事务。
 			你如果想要在特定的异常回滚可以考虑rollbackFor()等属性
 			2. @Transactional 只能应用到 public 方法才有效。
 				因为就是这么实现，若不是 public，就不会获取@Transactional 的属性配置信息，最终会造成不会用 TransactionInterceptor 来拦截该目标方法进行事务管理。
@@ -114,14 +110,16 @@ https://www.jianshu.com/p/5687e2a38fbc
 					若不是 public，就不会获取@Transactional 的属性配置信息，最终会造成不会用 TransactionInterceptor 来拦截该目标方法进行事务管理。
 			3. Spring 的 AOP 的自调用问题：
 				Spring的AOP代理，只有目标方法由外部调用，目标方法才由 Spring生成的代理对象来管理，这会造成自调用问题。
-				若同一类中的其他没有@Transactional注解的方法内部调用有@Transactional注解的方法，有@Transactional注解的方法的事务被忽略，不会发生回滚。
-				这个问题是Spring AOP 代理造成的。
-				另外一个问题是只能应用在public方法上。
-				1.为解决这两个问题，使用 AspectJ 取代 Spring AOP 代理。
-				2.使用自注入来解决：
+				即：类中没有@Transactional注解的方法，内部调用(例：this.)，有@Transactional注解的方法，有@Transactional注解的方法的事务被忽略，不会发生回滚。
+				这个问题就是Spring AOP 代理造成的。
+				解决方式：
+					使用自注入来解决：
 					@Autowired 
-					UserService userService; //自注入来解决
-
+					UserService userService; //自注入来解决 
+					//因为该方式获取的bean还是从spring工厂获取到的，即实际获取到的是由Spring生成的代理对象
+				？
+					另外一个问题是只能应用在public方法上。
+					1.为解决这两个问题，使用 AspectJ 取代 Spring AOP 代理。
 spring事务的传播行为：
 	https://blog.csdn.net/qq_30336433/article/details/83111675
 	spring事务的传播行为说的是，当多个事务同时存在的时候，spring如何处理这些事务的行为。
@@ -165,3 +163,7 @@ spring事务的隔离级别：
 		序列化，最高的隔离级别，完全服从ACID的隔离级别。
 		所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰。
 		也就说，该级别可以阻止脏读、不可重复读以及幻读。但是这将严重影响程序的性能。通常情况下也不会用到该级别。
+
+附：
+	spring的事务实现，其实是由具体数据库实现的，spring只是调用它们而已。
+	mysql数据库层的事务提交和回滚是通过binlog或者redo log实现的。

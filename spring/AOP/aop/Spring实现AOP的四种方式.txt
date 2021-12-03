@@ -1,0 +1,145 @@
+注：
+	前三种都是Spring经典AOP实现的变体。
+		（即前3种的实现原理都是一样的。）
+	Spring AOP构建在动态代理基础之上，因此，Spring对AOP的支持局限于方法拦截。
+
+1. 基于代理的经典Spring AOP：	
+	介绍：
+		使用ProxyFactory生成代理对象，来实现aop。
+	例：
+		./例子/SpringAOPAchieveSimply/
+		./例子/SpringAOPAchieveWithDefaultPointcutAdvisor/
+		./例子/SpringAOPAchieveWithNameMatchMethodPointcutAdvisor/
+	附：
+		Spring经典AOP编程模型，现在显得非常笨重和复杂。
+		Spring引入了简单的声明式AOP和基于注解的AOP，提供了更简洁的面向切面编程方式。
+2. 声明式AOP
+	XML中声明切面p160
+	介绍：
+		借助Spring的aop命名空间，我们可以将纯POJO转换为切面。
+			实际上，这些POJO只是提供了满足切点条件时所要调用的方法。
+		遗憾的是，这种技术需要XML配置，但这的确是声明式地将对象转换为切面的简便方式。
+	附：
+		1.
+		面向注解的切面声明有一个明显的劣势，你必须能够为通知类添加注解。为了做到这一点，必须要有源码。 
+		如果你没有源码的话，可考虑在Spring XML配置文件中声明切面。
+3. 基于注解的AOP
+	介绍：
+		Spring借鉴了AspectJ的切面，提供注解驱动的AOP，编程模型几乎与AspectJ一致。
+			注：本质上依然是Spring基于代理来实现的AOP。
+		这种AOP风格的好处在于能够不使用XML来完成功能。
+		
+	1.定义一个切面类:p148
+		类使用@Aspect标注,标明这是一个切面类。
+		通知和切点是切面的最基本元素。
+		（即包含了通知和切点的类+切面声明注解，这个类就是切面）
+		例：
+			./注解实现切面/定义切面.png	
+		附：
+			切面类只是一个Java类，只不过它通过注解表明会作为切面使用而已。
+
+	2.编写切点(编写AspectJ风格的切点)：
+		介绍：
+			在Spring AOP中，要使用AspectJ的切点表达式语言来定义切点.
+				//通过切点来选择连接点，即切点用于准确定位应该在什么地方应用切面的通知。
+		切点表达式：
+			https://blog.csdn.net/corbin_zhang/article/details/80576809
+			切点指示器：
+				切点指示器仅是构成切点表达式的一部分。
+				execution指示器是实际执行匹配的，而其他的指示器都是用来限制匹配的。
+						因此execution指示器是我们在编写切点定义时最主要使用的指示器。
+						在此基础上，我们使用其他指示器来限制所匹配的切点。
+				
+				附：
+					1.Spring AOP所支持的AspectJ切点指示器。P145
+						Spring仅支持AspectJ切点指示器( pointcut designator)的一个子集。
+						因为springAop是基于代理的，而某些切点表达式springAop无法支持。
+					2.在Spring中尝试使用AspectJ其他指示器时，将会拋出Illegal Argument-Exception异常
+					3.bean()指示器：p147
+						除了表4.1所列的指示器外，Spring还引入了一个新的bean()指示器。
+						允许我们在切点表达式中使用，bean ID或bean名称作为参数来限制切点只匹配特定的bean。
+						例：
+							execution(* concert.Performance.perform() ) and bean('woodstock')
+							在这里，我们希望在执行Performance的perform()方法时应用通知，但限定bean的ID为woodstock.
+							例2：
+								execution(* concert.Performance.perform() ) and !bean('woodstock')
+
+		例：p146					
+			例1：
+			该切点表达式能够设置当Performance的perform()方法执行时触发通知的调用：
+			
+				execution(* concert.Performance.perform(..))
+
+				我们使用execution ()指示器选择Performance的perform()方法。
+				方法表达式以*号开始，表明了我们不关心方法返回值的类型。
+				然后，我们指定了全限定类名(包名.类名)和方法名。
+				对于方法参数列表，我们使用两个点号(..)表明切点要选择任意的perform()方法，无论该方法的入参是什么。
+				./注解实现切面/AspectJ切点表达式.png
+			例2：
+			用within()指示器限制切点范围
+				execution (* concert.Performance.perform(..) )&& within ( concert.*))
+				...
+		附
+			重用切点表达式：
+				@Pointcut注解能够在一个@AspectJ切面内定义可重用的切点。
+				例：p150
+				注：
+					@Pointcut注解标注的方法并不重要，方法本身只是一个标识，供@Pointcut注解依附。
+	3.定义通知：
+		注：
+			1.通知注解都要给定了一个切点表达式作为它的参数，表明这个通知会在什么地点被调用。
+			2.使用了通知注解来表明通知方法（切面中的方法）应该在什么时候调用。
+			AspectJ提供了五个注解来定义通知：p149
+					@After 通知方法会在目标方法返回或抛出异常后调用
+					@AfterReturning 通知方法会在目标方法返回后调用
+					@AfterThrowing 通知方法会在目标方法抛出异常后调用
+					@Around 通知方法会将目标方法封装起来
+						环绕通知:p152
+							环绕通知就像在一个通知方法中同时编写前置通知和后置通知。
+					@Before 通知方法会在目标方法调用之前执行
+			3.处理通知中的参数：
+				如何在通知中访问和使用传递给被通知方法的参数。
+				例：
+					p154
+					@Before(execution (* soundsystem.CompactDisc.playTrack(int) ) && args ( trackNumber ))
+					public void countTrack(int trackNumber){
+					}
+					切点表达式中的args (trackNumber)限定符，它表明传递给playTrack()方法的int类型参数也会传递到通知中去。
+		例：
+			./注解实现切面/定义切面.png	
+											
+	4.启用自动代理：
+		介绍：
+			如果你就此止步的话，切面类只会是容器中的一个bean。
+			即便使用了AspectJ注解，但它并不会被视为切面，这些注解不会解析，spring也不会创建将切面类转换为切面的代理。
+			AspectJ自动代理会为使用@Aspect注解的bean创建一个代理，这个代理会围绕着所有该切面的切点所匹配的bean。		
+
+		JavaConfig中启用AspectJ注解的自动代理：p151
+			如果你使用JavaConfig的话，可以在配置类的类级别上通过使用@EnableAspectJAutoProxy注解启用自动代理功能。
+			例：
+				@Configuration 
+				//启用Aspectj自动代理
+				@EnableAspectJAutoProxy
+				@ComponentScan
+				public class ConcertConfig {
+					@Bean
+					public Audience audience ( ) {
+						return new Audience() ; 
+					}
+				}
+
+		xml中启用AspectJ注解的自动代理：
+			p151
+	例：
+		完整案例代码
+		./例子/SpringAspectjAnnotaion/
+	注解让切面实现引入功能：
+		p157
+4. 注入式AspectJ切面(适用于Spring各版本)：p169
+	介绍：	
+		如果你的AOP需求超过了简单的方法调用（如构造器或属性拦截）， 那么你需要考虑使用AspectJ来实现切面。
+		AspectJ提供了Spring AOP所不能支持的许多类型的切点。
+	使用：
+		？
+
+		

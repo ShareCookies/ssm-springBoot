@@ -1,0 +1,131 @@
+https://blog.csdn.net/f641385712/article/details/89607829
+接下来分析注解驱动事务的原理，
+
+1. 从@EnableTransactionManagement开始：
+	@EnableTransactionManagement
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Documented
+	@Import(TransactionManagementConfigurationSelector.class)
+	public @interface EnableTransactionManagement {
+		boolean proxyTargetClass() default false;
+		AdviceMode mode() default AdviceMode.PROXY;
+		int order() default Ordered.LOWEST_PRECEDENCE;
+	}
+
+2. TransactionManagementConfigurationSelector
+	介绍：
+		事务管理配置选择器。
+		根据配置导入不同的类(不同的代理模式)，来实现代理。
+	public class TransactionManagementConfigurationSelector extends AdviceModeImportSelector<EnableTransactionManagement> {
+		@Override
+		protected String[] selectImports(AdviceMode adviceMode) {
+			// 这里根据AdviceMode 进行不同的处理，从而向Spring容器注入了不同的Bean~~~
+			switch (adviceMode) {
+				// 这里面会导入两个类~~~。
+				case PROXY:
+					// 大多数情况下都走这里，Proxy..会被注入到Bean容器里面~~~
+					return new String[] {AutoProxyRegistrar.class.getName(),
+							ProxyTransactionManagementConfiguration.class.getName()};		
+				case ASPECTJ:
+					//绝大部分情况下，我们都不会使用AspectJ的静态代理的~~~~~~~~
+					return new String[]{"org.springframework.transaction.aspectj.AspectJTransactionManagementConfiguration"};
+				default:
+					return null;
+			}
+		}
+
+	}
+	附：
+		AdviceModeImportSelector 目前所知的三个子类是：
+			AsyncConfigurationSelector、TransactionManagementConfigurationSelector、CachingConfigurationSelector。
+		Spring的缓存体系@EnableCaching，模式也是和这个极其类似的~~~
+3. AutoProxyRegistrar:
+	介绍：
+		自动代理注册器。
+		向Spring容器注入了一个bean，InfrastructureAdvisorAutoProxyCreator 基础设施切面自动代理创建器.
+		附：
+			ImportBeanDefinitionRegistrar，可以实现自己向容器里注册Bean的定义信息
+		
+	这一步最重要的就是向Spring容器注入了一个自动代理创建器：org.springframework.aop.config.internalAutoProxyCreator，并且看看是否强制采用CGLIB。
+
+	// @since 3.1
+	public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
+
+		@Override
+		public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+			boolean candidateFound = false;
+			
+				// 这里面需要特别注意的是：这里是拿到所有的注解类型~~~而不是只拿@EnableAspectJAutoProxy这个类型的
+				// 原因：因为mode、proxyTargetClass等属性会直接影响到代理得方式，而拥有这些属性的注解至少有：
+				// @EnableTransactionManagement、@EnableAsync、@EnableCaching等~~~~
+				// 甚至还有启用AOP的注解：@EnableAspectJAutoProxy它也能设置`proxyTargetClass`这个属性的值，因此也会产生关联影响~
+			//获取类(配置类)的所有注解	
+				//importingClassMetadata是config配置类,所有配置类都会被调次这个方法
+			Set<String> annoTypes = importingClassMetadata.getAnnotationTypes();
+			for (String annoType : annoTypes) {
+				AnnotationAttributes candidate = AnnotationConfigUtils.attributesFor(importingClassMetadata, annoType);
+				if (candidate == null) {
+					continue;
+				}
+				// 拿到注解里的这两个属性
+					// 说明：如果你是比如@Configuration或者别的注解的话  他们就是null了
+				Object mode = candidate.get("mode");
+				Object proxyTargetClass = candidate.get("proxyTargetClass");
+
+					// 如果存在mode且存在proxyTargetClass 属性
+					// 并且两个属性的class类型也是对的，才会进来此处（因此其余注解相当于都挡外面了~）
+				
+				if (mode != null && proxyTargetClass != null && AdviceMode.class == mode.getClass() &&
+						Boolean.class == proxyTargetClass.getClass()) {
+			
+						// 标志：是否找到候选的注解
+					candidateFound = true;
+					if (mode == AdviceMode.PROXY) {
+							// 这一步是非常重要的~~~~又到了我们熟悉的AopConfigUtils工具类，且是熟悉的registerAutoProxyCreatorIfNecessary方法
+							// 它主要是注册了一个`internalAutoProxyCreator`，但是若出现多次的话，这里不是覆盖的形式，而是以第一次的为主
+							// 当然它内部有做等级的提升之类的，这个之前也有分析过~~~~
+						// 它主要是注册了一个bean，`internalAutoProxyCreator` //该bean作用？
+						AopConfigUtils.registerAutoProxyCreatorIfNecessary(registry);
+						
+							// 看要不要强制使用CGLIB的方式(由此可以发现  这个属性若出现多次，是会是覆盖的形式)
+						//是否强制使用非jdk代理
+						if ((Boolean) proxyTargetClass) {
+							AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
+							return;
+						}
+					}
+				}
+			}
+			
+				// 如果一个都没有找到（我在想，肿么可能呢）
+				// 其实有可能：那就是自己注入这个类，而不是使用注解去注入（但并不建议这么去做）
+			if (!candidateFound && logger.isInfoEnabled()) {
+				// 输出info日志
+			}
+		}
+
+	}
+4. InfrastructureAdvisorAutoProxyCreator：
+	介绍：
+		它主要是读取Advisor类，仅对基础bean切面进行代理创建。
+		那如何算基础切面bean，用户自定义的算吗，不算吧，仅spring事务等这些内置算吧！
+	public class InfrastructureAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCreator {
+
+		private ConfigurableListableBeanFactory beanFactory;
+
+
+		@Override
+		protected void initBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+			super.initBeanFactory(beanFactory);
+			this.beanFactory = beanFactory;
+		}
+		// 判断是否是基础bean切面
+		@Override
+		protected boolean isEligibleAdvisorBean(String beanName) {
+			return (this.beanFactory.containsBeanDefinition(beanName) &&
+					this.beanFactory.getBeanDefinition(beanName).getRole() == BeanDefinition.ROLE_INFRASTRUCTURE);
+		}
+
+	}
+	
