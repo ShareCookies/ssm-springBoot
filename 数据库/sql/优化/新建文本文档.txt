@@ -1,0 +1,19 @@
+mysql数字型排序会比字符型快吗？
+mysql数字型检索比字符型检索快：
+	记住一个原则，越小的列会越快。如果一个表只会有几列罢了(比如说字典表，配置表)，那么，我们就没有理由使用 INT 来做主键，使用MEDIUMINT, SMALLINT 或是更小的 TINYINT 会更经济一些。
+	仅是存储上优势吗？
+	
+	
+实践中如何优化MySQL
+
+	① SQL语句及索引的优化
+
+	② 数据库表结构的优化
+		效果有多大？
+		或则说什么时候才会体现出效果？
+	③ 系统配置的优化
+		？
+		调整mysql的max_length_for_sort_data等参数
+	④ 硬件的优化
+	https://blog.csdn.net/weixin_30045135/article/details/113348030?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0.searchformbaiduhighlight&spm=1001.2101.3001.4242
+	我当时是按以下四条依次回答的，他们四条从效果上第一条影响最大，后面越来越小。

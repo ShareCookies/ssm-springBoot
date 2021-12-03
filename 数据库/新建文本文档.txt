@@ -1,0 +1,11 @@
+blob数据类型
+	 BLOB (binary large object)---二进制大对象,是一个可以存储二进制文件的容器。
+	 
+mongo与solr对比
+	区别？
+	优缺点？
+	有那些是互相无法替换或实现的？
+	
+	https://www.cnblogs.com/ai464068163/archive/2013/04/18/3028786.html
+	http://technique.zhizuobiao.com/technique-19051300061/
+	https://www.cnblogs.com/usual2013blog/p/3957502.html

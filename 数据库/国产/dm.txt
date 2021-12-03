@@ -1,0 +1,13 @@
+https://blog.csdn.net/weixin_43389023/article/details/105475686
+https://www.pianshen.com/article/80461485490/
+
+达梦查看兼容模式：
+	select * from v$dm_ini where para_name = 'COMPATIBLE_MODE'
+	开了Oracle兼容参数了，Oracle中空和''是一个概念
+达梦切换兼容模式
+	sp_set_para_value(2,‘COMPATIBLE_MODE’,4);
+	重启数据库服务，service DmServiceDMSERVER restart，
+	
+	
+达梦数据库 错误号： -2508 登录失败次数超过限制
+	https://blog.csdn.net/HThuangtao4/article/details/107658827

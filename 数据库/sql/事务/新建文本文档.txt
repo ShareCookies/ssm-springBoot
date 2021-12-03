@@ -1,0 +1,7 @@
+达梦：
+	查看正在执行的会话：
+		select * from v$sessions where state = 'ACTIVE';
+	1
+	然后执行系统过程sp_close_session，杀掉相应会话：
+		--sess_id是上面查询出的结果列
+		call sp_close_session(sess_id);	

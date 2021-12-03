@@ -1,0 +1,13 @@
+
+HANDLE_USER_NO和REMIND_TIME 都是单列索引，但排序还是文件排序：
+	select HANDLE_USER_NO,REMIND_TIME from FLOW_WORK_TODO  where HANDLE_USER_NO = '1300B00081217806' ORDER BY REMIND_TIME
+
+	key
+		INDEX_HANDLE_USER_NO 
+	extra
+		Using index condition; Using filesort
+只有 联合索引才可以让排序走索引，而不走文件排序。
+
+
+Mysql学习之order by的工作原理：*
+	https://www.cnblogs.com/lamp01/p/10770172.html
