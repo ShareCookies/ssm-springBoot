@@ -3,9 +3,9 @@ https://www.jianshu.com/p/8d4aba3b972d
 
 
 https 简介：
-	HTTPS 超文本传输安全协议(HyperText Transfer Protocol Secure),https是一种通过计算机网络进行安全通信的传输协议；
-	常称为 HTTP over TLS、HTTP over SSL 或 HTTP Secure）,HTTPS 经由 HTTP 进行通信，但利用 SSL/TLS 来加密数据包。
-	HTTPS 开发的主要目的，是提供对网站服务器的身份认证，保护交换数据的隐私与完整性。
+	HTTPS 超文本传输安全协议(HyperText Transfer Protocol Secure)。
+	https是一种通过计算机网络进行安全通信的传输协议；常称为 HTTP over TLS、HTTP over SSL 或 HTTP Secure）,HTTPS 经由 HTTP 进行通信，但利用 SSL/TLS 来加密数据包。
+	HTTPS 开发的主要目的，是提供对网站服务器的身份认证，保护交换数据的隐私与完整性。？
 
 1.准备一https 证书：
 	首先我们需要有一个 https 证书，我们可以从各个云服务厂商处申请一个免费的。

@@ -103,4 +103,4 @@ Spring AOP中的动态代理主要有两种方式，JDK动态代理和CGLIB动�
 
  InvocationHandler 的 invoke(Object  proxy,Method  method,Object[] args)：proxy是最终生成的代理实例;  method 是被代理目标实例的某个具体方法;  args 是被代理目标实例某个方法的具体入参, 在方法反射调用时使用。
 	
-
+为什么aop自身调用会失效？

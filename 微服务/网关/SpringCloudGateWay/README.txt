@@ -36,7 +36,7 @@ Spring Cloud Gateway介绍：
 			1.在配置文件 yml 中配置
 			2.通过@Bean自定义 RouteLocator，在启动主类 Application 中配置
 			这两种方式是等价的，建议使用 yml 方式进配置。
-		1.通过配置实现转发功能：
+		方式1. 通过配置实现转发功能：
 			server:
 			  port: 8080
 			spring:
@@ -56,7 +56,7 @@ Spring Cloud Gateway介绍：
 			上面这段配置的意思是：
 				配置了一个 id 为 neo_route 的路由规则，
 				当访问地址 http://localhost:8080/spring-cloud时会自动转发到地址：http://www.ityouknow.com/spring-cloud。
-		2.通过代码来实现转发功能：
+		方式2. 通过代码来实现转发功能：
 			在启动类 GateWayApplication 中添加方法 customRouteLocator() 来定制转发规则。
 			@SpringBootApplication
 			public class GateWayApplication {

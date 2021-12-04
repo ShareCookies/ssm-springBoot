@@ -23,6 +23,15 @@ JavaMail解析：
 			https://mvnrepository.com/artifact/com.sun.mail/javax.mail/1.6.2
 SpringBoot整合Mail:
 	* https://blog.csdn.net/qq_37745470/article/details/89094227
+注：
+	在本地上可以实现邮件发送，在服务器上无法实现：
+	阿里云|腾讯云等禁用了tcp 25端口(即使手动开放了也不行)，
+		可通过telnet来测试是否通
+	所以改为465端口采用SSL协议传输邮件。
+	附：
+		服务器名称	服务器地址	SSL协议带端口号	非SSL协议端口号
+		SMTP	smtp.163.com	465/994		25
+
 附：
 spring:
   #邮箱配置
@@ -35,4 +44,5 @@ spring:
     password: 授权码
     properties:
       mail:
-		smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory			
+		smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
+		

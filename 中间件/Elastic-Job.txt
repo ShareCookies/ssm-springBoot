@@ -1,16 +1,20 @@
 https://shardingsphere.apache.org/elasticjob/index_zh.html
 https://github.com/dangdangdotcom/elastic-job
-https://www.cnblogs.com/wuzhenzhao/p/13299497.html
+
 介绍：
+	https://www.cnblogs.com/wuzhenzhao/p/13299497.html
 	https://zhuanlan.zhihu.com/p/87322772
-	elastic-job 分布式定时任务系统（任务调度系统、作业系统呢）是当当开源的一款非常好用的作业框架。
+	elastic-job 分布式定时任务系统（任务调度系统、作业系统）。
 		在这之前，我们开发定时任务一般都是使用quartz或者spring-task（ScheduledExecutorService），无论是使用quartz还是spring-task，我们都会至少遇到两个痛点：
 			不敢轻易跟着应用服务多节点部署，可能会重复多次执行而引发系统逻辑的错误。
 			quartz的集群仅仅只是用来HA，节点数量的增加并不能给我们的每次执行效率带来提升，即不能实现水平扩展。
-	Elastic job是当当网架构师张亮,曹昊和江树建基于Zookepper、Quartz开发并开源的一个Java分布式定时任务，解决了Quartz不支持分布式的弊端。Elastic job主要的功能有支持弹性扩容，通过Zookepper集中管理和监控job，支持失效转移等。
-	Elastic-Job 最开始只有一个 elastic-job-core 的项目，在 2.X 版本以后主要分为Elastic-Job-Lite 和 Elastic-Job-Cloud 两个子项目。
-		1.其中，Elastic-Job-Lite 定位为轻量级 无 中 心 化 解 决 方 案 ， 使 用 jar 包 的 形 式 提 供 分 布 式 任 务 的 协 调 服 务 。 
-		2.而Elastic-Job-Cloud 使用 Mesos + Docker 的解决方案，额外提供资源治理、应用分发以及进程隔离等服务（跟 Lite 的区别只是部署方式不同，他们使用相同的 API，只要开发一次）。
+	基于Zookepper、Quartz开发并开源，解决了Quartz不支持分布式的弊端。
+	Elastic job主要的功能有支持弹性扩容，通过Zookepper集中管理和监控job，支持失效转移等。
+	附：
+		Elastic-Job 最开始只有一个 elastic-job-core 的项目，在 2.X 版本以后主要分为Elastic-Job-Lite 和 Elastic-Job-Cloud 两个子项目。
+		他们区别只是部署方式不同，使用相同的 API，只要开发一次。
+		1.其中Elastic-Job-Lite 定位为轻量级 无 中 心 化 解 决 方 案 ， 使 用 jar 包 的 形 式 提 供 分 布 式 任 务 的 协 调 服 务 。 
+		2.而Elastic-Job-Cloud 使用 Mesos + Docker 的解决方案，额外提供资源治理、应用分发以及进程隔离等服务。
 		为什么说是去中心化呢：
 			因为没有统一的调度中心。集群的每个节点都是对等的，节点之间通过注册中心进行分布式协调。
 			E-Job 存在主节点的概念，但是主节点没有调度的功能，而是用于处理一些集中式任务，如分片，清理运行时信息等。

@@ -8,19 +8,16 @@ Jackson时间格式化：
 	
 	
 	@JsonFormat：
-		@JsonFormat只适合 Content-Type 为application/json的请求。
-		对参数进行序列化与反序列化的。如入参是json，则jsonformat将入参字符转为date。如果向前台返回，则jsonformat将date转为json字符串。！！！
-		hcg：
-			前台向后台输入了，会被格式化成指定日期格式的时间搓date。？
-				1.输入时间戳
-				2.输入字符串
-			向前台，时间会被转换成指定日期格式的时间字符串。
-		
+		1. 
+			@JsonFormat只适用于 1. 使用消息转换器接收的请求参数 即：1.方法参数使用了@RequestBody 2. 请求参数放body中， Content-Type 为application/json的请求。
+		2. @JsonFormat作用：
+			对参数进行序列化与反序列化的。如入参是json，则jsonformat将入参字符转为date。如果向前台返回，则jsonformat将date转为json字符串。
+			即：
+				前台向后台输入时间戳时，会被格式化成指定日期格式的时间搓Date。
+				后台向前台，时间搓Date会被转换成指定日期格式的时间字符串。
 		例:
 			@JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm")
 			private Date createTime;
-			hcg：
-				timezone我没有效果
 		不适用则：
 			对象的date属性直接通过@ResponseBody返回出去的是一个长整型时间戳。
 

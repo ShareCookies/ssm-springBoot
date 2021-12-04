@@ -1,3 +1,7 @@
+？
+	mvc每个请求都是一个线程吗？
+	bean是单例的，那么bean属性不就是是不安全的？
+
 ServletContext:
 	https://blog.csdn.net/qq_36371449/article/details/80314024
 	介绍
@@ -38,9 +42,6 @@ springMvc的控制器作用域单例的:
 			return String.valueOf(this.scopeTestInt);
 		}
 		//scopeTestInt会一直不断的增加，清浏览器缓存去除会话等影响，也是一直不断增加
-
-
-
 
 静态类方法等为什么能被多线程并发调用了？
 	看jvm原理吗

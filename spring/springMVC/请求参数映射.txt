@@ -69,7 +69,9 @@
 					附：	
 						list的多种接收方式：
 							1.@RequestParam指定List接收的参数名。
-							请求：?type=1&type=2
+							请求：
+								?type=1&type=2
+								或&tagsQuery=3333%2C1111
 							2.@PostMapping("")	(@RequestBody List<String> ids)
 								请求：["1","2"]
 							3.List<String>封装进一个对象中。
@@ -99,7 +101,7 @@
 		当使用了该注解，spring将使用消息转换器将body中请求参数转换为指定对象（控制器方法中被注解的参数对象）。
 	使用：
 		修饰方法参数。
-		@RequestBody用于接收body中请求参数（Content-Type建议为application/json），并将其转换成对应的数据类型。
+		@RequestBody仅用于接收body中请求参数（Content-Type建议为application/json），并将其转换成对应的数据类型。
 		@RequestBody只能修饰一个对象。
 			多个@RequestBody只有第一个生效：	
 				例：
