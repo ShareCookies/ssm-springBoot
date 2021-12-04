@@ -1,0 +1,106 @@
+redisObject？
+	Redis 内部使用一个 redisObject 对象来表示所有的 key 和 value。
+
+键值对：
+	Redis是键值对数据库， 可以存储键和五种不同类型的值之间的映射。
+	键的类型只能为字符串，值支持五种数据类型：字符串、列表、集合、散列表、有序集合。
+
+	键：
+		一个键可以存储redis的一个类型
+		附：
+			列出所有的key
+				redis> keys *
+			列出匹配的key
+				redis>keys apple*
+				1) apple1
+				2) apple2
+	数据类型：
+		字符串(String)：
+			string类型是Redis最基本的数据类型，一个键最大能存储512MB。
+			string类型是二进制安全的。即redis的string可以包含任何数据，比如jpg图片或者序列化的对象。
+			数据格式: 
+				key value
+			附：
+				二进制安全：
+					https://blog.csdn.net/wuliecho/article/details/72770437
+					二进制安全是指，在传输数据时，保证二进制数据的信息安全，也就是不被篡改、破译等，如果被攻击，能够及时检测出来。
+					二进制安全包含了密码学的一些东西，比如加解密、签名等。
+					?
+						那为什么可以包含任何数据了
+		哈希(Hash)
+			Redis hash 是一个 string 类型的 field 和 value 的映射表。
+			Redis 中每个 hash 可以存储 2的32次方（40多亿） - 1 键值对(key=>value)。
+			数据格式: 
+				key
+					hashkey1 value
+					hashkey2 value
+					
+					//hashkey不能重复
+					//！且有插入的先后顺序(hashkey2是第二个插入的)
+			？
+				hash 特别适合用于存储对象
+				hash数据和hash表是没有关系的吧
+		列表(List)
+			List是简单的字符串列表。
+			你可以添加一个元素到列表的头部（左边）或者尾部（右边）,从左边出栈或右边出栈。
+			也可以删除列表的指定行等
+			数据格式: 
+				key  
+					value1
+					value2
+				附：这里的1,2是指插入顺序（左边即头部，左部插入即为第1个）
+			操作：
+				lpush、rpush、lpop、rpop、Lrem、lrange（获取列表片段）...
+				https://blog.csdn.net/nangeali/article/details/81735443
+				在 key 对应 list 的头部添加字符串元素
+					格式: lpush  key  value
+				在 key 对应 list 的尾部添加字符串元素
+					格式: rpush  key  value
+				LREM listtest list的key
+				LRANGE listtest 0 0
+				...
+			附：
+				实现方式：？
+					Redis List 的实现是一个双向链表，既可以支持反向查找和遍历，更方便操作，不过带来了额外的内存开销。
+				应用场景：
+					可以用来当消息队列用...
+		集合(Set)
+			Set是string类型的无序集合，不允许重复的成员。
+			附：
+				集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)。
+			数据格式: 
+				key
+					value1
+					value2
+					附：这里的1,2并没有任何含义，只是指返回数据排序，并不固定
+			
+		有序集合(zset(sorted set))
+			zset 是 string类型元素的集合,不允许重复的成员。
+			但zset元素是有序的：
+				zset每个元素都会关联一个double类型的score,redis正是通过分数来为集合中的成员进行从小到大的排序。
+			zset的成员是唯一的,但分数(score)却可以重复。
+			数据格式: 
+				key
+					value1 score1
+					value2 score2
+				//value值重复会覆盖.
+			附：
+				实现方式：？
+					Sorted Set 的内部使用 HashMap 和跳跃表（skipList）来保证数据的存储和有序，HashMap 里放的是成员到 Score 的映射。
+					而跳跃表里存放的是所有的成员，排序依据是 HashMap 里存的 Score，使用跳跃表的结构可以获得比较高的查找效率，并且在实现上比较简单。
+
+		命名空间：？
+				https://blog.csdn.net/HeliosJ/article/details/103258441
+		附：
+			list set zset的区别：
+				数据结构	是否允许重复元素	是否有序	有序实现方式	应用场景
+				列表		是					是			索引下标		时间轴、消息队列等
+				集合		否					否			无				标签、社交等
+				有序集合	否					是			分值			排行榜系统、社交等
+			
+有效期：
+	expire(key, seconds)：
+		设置key-value的有效期为seconds秒。
+		例：
+			expire confirm 100 设置confirm这个key100秒过期
+	ttl confirm 获取confirm 这个key的有效时长

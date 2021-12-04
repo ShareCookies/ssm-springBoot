@@ -1,0 +1,133 @@
+https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/#cluster.redistemplate：
+附：
+	Working with Redis Cluster requires Redis Server version 3.0+. 
+	
+	槽的作用：
+		https://www.cnblogs.com/rjzheng/p/11430592.html
+		对于客户端请求的key，根据公式HASH_SLOT=CRC16(key) mod 16384，计算出映射到哪个分片上，然后Redis会去相应的节点进行操作！
+		？
+			这个操作在客户端就做了吗
+
+介绍：
+	Cluster support is based on the same building blocks as non-clustered communication. 
+	//集群支持基于与非集群通信相同的构建块
+	RedisClusterConnection, an extension to RedisConnection, 
+		handles the communication with the Redis Cluster and translates errors into the Spring DAO exception hierarchy. 
+	RedisClusterConnection instances are created with the RedisConnectionFactory,
+	//RedisClusterConnection实例是使用RedisConnectionFactory创建的
+	which has to be set up with the associated RedisClusterConfiguration.
+	//它必须使用关联的RedisClusterConfiguration进行设置
+1. 定义RedisClusterConfiguration
+	通过配置属性定义：
+		spring.redis.cluster.nodes: Comma-delimited list of host:port pairs.
+		spring.redis.cluster.max-redirects: Number of allowed cluster redirections.
+	通过bean定义：
+		...
+2. 使用 Redis Cluster Connection 连接集群:(Working With Redis Cluster Connection)
+原理：
+	Redis Cluster behaves differently from single-node Redis or even a Sentinel-monitored master-replica environment
+	//Redis集群的行为不同于单节点的Redis，甚至不同于被哨兵监控的主副本环境
+	This is because the automatic sharding maps a key to one of 16384 slots, which are distributed across the nodes.
+	//这是因为自动分片将一个键映射到16384个槽中的一个,插槽是跨节点分布的。
+	Therefore, commands that involve more than one key must assert all keys map to the exact same slot to avoid cross-slot errors.
+	//因此，涉及多个键的命令必须断言所有键都映射到完全相同的槽，以避免槽间错误。
+	？
+		为什么要分出插槽概念？
+		它的作用是什么了？
+		命令为什么会涉及多个键？又为什么要映射到同一个槽了？
+		
+		
+	When issued to a server in a cluster environment, it returns only the keys served by the node the request is sent to and not necessarily all keys within the cluster
+	当发送到集群环境中的服务器时，它只返回被请求的节点提供的key结果，而不一定返回集群中的所有key结果
+
+
+	While redirects for specific keys to the corresponding slot-serving node are handled by the driver libraries, higher-level functions, such as collecting information across nodes or sending commands to all nodes in the cluster, are covered by RedisClusterConnection
+	虽然将特定的键重定向到相应的槽位服务节点是由驱动程序库处理的？，但RedisClusterConnection包含更高级的功能，例如跨节点收集信息或向集群中的所有节点发送命令。
+例：
+1. 跨节点运行命令：（Sample of Running Commands Across the Cluster）
+	redis-cli@127.0.0.1:7379 > cluster nodes
+
+	6b38bb... 127.0.0.1:7379 master - 0 0 25 connected 0-5460              //1        
+	7bb78c... 127.0.0.1:7380 master - 0 1449730618304 2 connected 5461-10922  //2     
+	164888... 127.0.0.1:7381 master - 0 1449730618304 3 connected 10923-16383    //3  
+	b8b5ee... 127.0.0.1:7382 slave 6b38bb... 0 1449730618304 25 connected          //4
+	RedisClusterConnection connection = connectionFactory.getClusterConnnection();
+
+	connection.set("thing1", value);   //5 
+	connection.set("thing2", value);   //6                                         
+
+	connection.keys("*");                //7                                         
+
+	connection.keys(NODE_7379, "*");        //8                                       
+	connection.keys(NODE_7380, "*");           //9                                    
+	connection.keys(NODE_7381, "*");              //10                                 
+	connection.keys(NODE_7382, "*");                  //11                             
+	Master node serving slots 0 to 5460 replicated to replica at 7382 //1
+	Master node serving slots 5461 to 10922 //2
+	Master node serving slots 10923 to 16383 //3
+	Replica node holding replicants of the master at 7379 //4
+	Request routed to node at 7381 serving slot 12182 //5
+	Request routed to node at 7379 serving slot 5061 //6
+	Request routed to nodes at 7379, 7380, 7381 → [thing1, thing2] //7
+	Request routed to node at 7379 → [thing2] //8
+	Request routed to node at 7380 → [] //9
+	Request routed to node at 7381 → [thing1] //10
+	Request routed to node at 7382 → [thing2] //11
+
+2. 跨槽请求：（Sample of Cross-Slot Request Handling）
+介绍：
+	When all keys map to the same slot, the native driver library automatically serves cross-slot requests, such as MGET
+	//当所有key都映射到同一个slot时，原生驱动库会自动服务跨slot请求，比如MGET
+		//映射到同一个槽又是什么意思了？跨槽到底是什么意思了？
+	However, once this is not the case, RedisClusterConnection runs multiple parallel GET commands against the slot-serving nodes and again returns an accumulated result.
+	//然而，一旦情况不是这样，RedisClusterConnection就会对槽位服务节点运行多个并行GET命令，并再次返回累积的结果。	
+	This is less performant than the single-slot approach and, therefore, should be used with care
+	//这种方法的性能不如单槽方法，因此应谨慎使用
+	If in doubt, consider pinning keys to the same slot by providing a prefix in curly brackets, such as {my-prefix}.thing1 and {my-prefix}.thing2, which will both map to the same slot number.
+	//如果有疑问，可以考虑通过在花括号中提供前缀(如{my-prefix})将键固定到同一个槽。thing1和{my-prefix}。Thing2，两者都映射到相同的槽号。
+	
+例：
+	RedisClusterConnection connection = connectionFactory.getClusterConnnection();
+
+	connection.set("thing1", value);           // slot: 12182
+	connection.set("{thing1}.thing2", value);  // slot: 12182 
+	connection.set("thing2", value);           // slot:  5461
+
+	connection.mGet("thing1", "{thing1}.thing2");   //2.                               
+	connection.mGet("thing1", "thing2");  //3.                           
+	Same Configuration as in the sample before. //1. 同例1
+	Keys map to same slot → 127.0.0.1:7381 MGET thing1 {thing1}.thing2 //2
+	//键映射到同一个槽
+		//去7381 取thing1 和 thing2
+	Keys map to different slots and get split up into single slot ones routed to the according nodes //3
+	//键映射到不同的槽，并被分割成单个槽，路由到相应的节点
+		→ 127.0.0.1:7379 GET thing2
+		→ 127.0.0.1:7381 GET thing1
+		//去7379 取thing2 ，去7381取thing1 
+		
+		// 为什么分了？都放一个槽会分吗？
+	附：
+		Redis Mget 命令返回所有(一个或多个)给定 key 的值。
+	
+
+3. 使用redistemplate连接集群：
+Working with RedisTemplate and ClusterOperations：
+	RedisTemplate provides access to cluster-specific operations through the ClusterOperations interface, which can be obtained from RedisTemplate.opsForCluster()
+
+	redisttemplate通过ClusterOperations接口提供对特定于集群的操作的访问。
+	//ClusterOperations接口可以通过redisttemplate.opsforcluster()获得。
+	
+	例：
+		ClusterOperations clusterOps = redisTemplate.opsForCluster();
+		clusterOps.shutdown(NODE_7379); 
+		//Shut down node at 7379 and cross fingers there is a replica in place that can take over.
+		在7379处关闭节点，并祈祷有一个副本可以接管。
+	？
+		不通过clusterOps操作了，直接调用stringRedisTemplate操作可以吗
+	？
+		This lets you explicitly run commands on a single node within the cluster while retaining the serialization and deserialization features configured for the template
+
+		这允许您在集群中的单个节点上显式地运行命令，同时保留为模板配置的序列化和反序列化特性？
+		It also provides administrative commands (such as CLUSTER MEET) or more high-level operations (for example, resharding).
+
+		它还提供管理命令(例如CLUSTER MEET)或更高级的操作(例如重新分片)。？

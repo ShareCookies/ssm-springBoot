@@ -1,0 +1,42 @@
+1、键值相关命令
+	  keys * 取出当前所有的key
+	  exists name 查看n是否有name这个key
+	  del name 删除key name
+	...  
+	  select 0 选择到0数据库 redis默认的数据库是0~15一共16个数据库
+	  move confirm 1 将当前数据库中的key移动到其他的数据库中，这里就是把confire这个key从当前数据库中移动到1中
+	  persist confirm 移除confirm这个key的过期时间
+	  randomkey 随机返回数据库里面的一个key
+	  rename key2 key3 重命名key2 为key3
+	  type key2 返回key的数据类型
+	  
+	  	setnx(key, value)：“set if not exits”，若该key-value不存在，则成功加入缓存并且返回1，否则返回0。
+		get(key)：获得key对应的value值，若不存在则返回nil。
+		getset(key, value)：先获取key对应的value值，若不存在则返回nil，然后将旧的value更新为新的value。
+2、服务器相关命令
+		ping PONG返回响应是否连接成功
+		echo 在命令行打印一些内容
+		select 0~15 编号的数据库
+		quit  /exit 退出客户端
+		dbsize 返回当前数据库中所有key的数量
+		info 返回redis的相关信息
+		config get dir/* 实时传储收到的请求
+	 
+		redis命令行如何清空缓存:
+			1.删除当前选择数据库中的所有key
+				flushdb
+			2.清空整个redis缓存
+				flushall
+
+3. 批处理命令：
+	...
+	
+	
+	
+	pipeline，mget，mset批量操作
+
+LUA脚本：
+	...
+	
+
+	

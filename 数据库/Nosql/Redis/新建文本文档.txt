@@ -1,15 +1,16 @@
-什么是一致性哈希算法？什么是哈希槽？
-	https://www.cnblogs.com/lpfuture/p/5796398.html
-	http://www.jasontec.cn/articles/2020/04/11/1586586130767.html
-
-redis命令是单个单个执行的吗？
 
 
-redis事务：
-·	https://www.runoob.com/redis/redis-transactions.html
 
-
-RDB和AOF（
-	https://baijiahao.baidu.com/s?id=1654694618189745916&wfr=spider&for=pc
-
-pipeline，mget，mset批量操作
+？
+Redis如何做内存优化：
+	可以好好利用Hash,list,sorted set,set等集合类型数据。
+	因为通常情况下很多小的Key-Value可以用更紧凑的方式存放到一起。
+	尽可能使用散列表，所以你应该尽可能的将你的数据模型抽象到一个散列表里面。
+	例：
+		web系统中有一个用户对象，不要为这个用户的名称，姓氏，邮箱，密码设置单独的key，而是应该把这个用户的所有信息存储到一张散列表里面
+	?
+		为什么
+		
+	？
+		如果把数据都玩一个hash里存，那hash越来越大，又因为一直有操作，无法过期那不就出问题了。
+		所以聚合的对象应该要有时效性一致的特征。

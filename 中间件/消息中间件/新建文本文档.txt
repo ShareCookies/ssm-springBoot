@@ -1,2 +1,0 @@
-如何保证消息中间件全链路数据100%不丢失：
-	https://www.cnblogs.com/jajian/p/10257555.html
