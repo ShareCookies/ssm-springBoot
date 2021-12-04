@@ -25,6 +25,8 @@
 		　　　　ServletContext servletContext = ContextLoader.getCurrentWebApplicationContext().getServletContext();
 				？
 					枚举方法中获取失败
+					get方法中获取失败
+					所以改方法仅能在什么情况下使用？
 		　　3、使用spring注入自动注入
 		　　　　@Autowired
 		　　　　private ServletContext servletContext;

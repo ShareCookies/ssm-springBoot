@@ -45,3 +45,6 @@ springMvc的控制器作用域单例的:
 
 静态类方法等为什么能被多线程并发调用了？
 	看jvm原理吗
+
+HttpServletRequest 获取Body中的内容
+	https://blog.csdn.net/pengjunlee/article/details/79416687

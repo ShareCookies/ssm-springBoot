@@ -28,9 +28,11 @@ RabbitMQ：
 							Headers Exchange
 								该类型的交换器不依赖路由规则来路由消息，而是根据消息内容中的headers属性进行匹配。
 								headers类型交换器性能差，在实际中并不常用。
-					？broke我可以认为是Virtual Host吗
+
 					Queue：
 						消息队列，存储消息的队列，消息到达队列并转发给指定的
+					？
+						broke我可以认为是Virtual Host吗
 				Producer：
 					消息生产者，即生产方客户端，生产方客户端将消息发送.
 				Consumer：消息消费者，即消费方客户端，接收MQ转发的消息。

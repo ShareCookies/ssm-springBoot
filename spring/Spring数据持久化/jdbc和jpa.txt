@@ -44,7 +44,7 @@ JDBC:
 				Statement
 					Statement 对象用于执行不带参数的简单 SQL 语句；
 				PreparedStatement（它从 Statement 继承而来）
-					PreparedStatement 对象用于执行带或不带 IN 参数的预编译 SQL 语句；
+					PreparedStatement 对象用于执行带或不带 IN 参数的预编译 SQL 语句；！
 				CallableStatement（它从 PreparedStatement 继承而来）。
 					CallableStatement 对象用于执行对数据库已存在的存储过程的调用。
 			！
@@ -73,7 +73,7 @@ JDBC:
 	什么是DataSource数据源：
 		https://blog.csdn.net/qq_40910541/article/details/80771607
 		介绍：
-			JDBC2.0 提供了javax.sql.DataSource接口，它负责建立与数据库的连接，用于获取操作数据Connection对象。
+			JDBC2.0 提供了javax.sql.DataSource接口，它负责建立与数据库的连接，用于获取(操作数据的)Connection对象。
 			在应用程序中访问数据库时不必在编写连接数据库的代码，直接引用DataSource获取数据库的连接对象即可。
 		数据源与数据库连接池:
 			数据源建立多个数据库连接，这些数据库连接会保存在数据库连接池中.

@@ -32,5 +32,7 @@ https://my.oschina.net/u/4006148/blog/3171507
 			java -jar test.jar 
 		注：
 			普通jar包：jar里是一些通用的工具类（不包含main入口方法）
+		可执行jar包为什么无法被引用：
+			？
 	maven命令：
 		SHARE_CONTENT\编程常用工具笔记\maven\maven命令介绍.txt

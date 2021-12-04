@@ -3,3 +3,10 @@
 	从定义中我们可以理解：多租户是一种架构，目的是为了实现多用户环境下，使用同一套程序且保证用户间数据隔离。
 Swagger API 文档	
 	https://developer.ibm.com/zh/articles/j-using-swagger-in-a-spring-boot-project/	
+	
+线程池、spring代理原理
+spring事件：
+	//todo:这里遍历发布事件是否会有问题？
+	for (String docId : list){
+		applicationContext.publishEvent(new DocResourceDeleteEvent(this,docId));
+	}

@@ -1,6 +1,6 @@
 package com.cloud.spring.demo.service.impl;
 
-import com.cloud.spring.demo.service.RedisTestService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,8 @@ import java.util.Set;
  * @Version: 1.0
  */
 @Service
-public class StringRedisTestServiceImpl implements RedisTestService {
-    private static final Logger log = LoggerFactory.getLogger(RedisTestService.class);
+public class StringRedisTemplateTest {
+    private static final Logger log = LoggerFactory.getLogger(StringRedisTemplateTest.class);
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -32,7 +32,6 @@ public class StringRedisTestServiceImpl implements RedisTestService {
      * @param name
      * @return
      */
-    @Override
     public String findName(String name) {
         if (name==null){
             log.error("===============key为null======================================================");
@@ -46,7 +45,6 @@ public class StringRedisTestServiceImpl implements RedisTestService {
      * @param value
      * @return
      */
-    @Override
     public String setNameValue(String name, String value) {
         log.info("==================添加String类型的key-value========================================");
         redisTemplate.opsForValue().set(name,value);
@@ -58,7 +56,6 @@ public class StringRedisTestServiceImpl implements RedisTestService {
      * @param name
      * @return
      */
-    @Override
     public String delNameValue(String name) {
         redisTemplate.delete(name);
         return name;
@@ -69,7 +66,6 @@ public class StringRedisTestServiceImpl implements RedisTestService {
      * @param key
      * @return
      */
-    @Override
     public List<String> findList(String key,int start,int end) {
         log.info("=====================按照范围查询redis中List类型=======================================");
         return redisTemplate.opsForList().range(key,start,end);
@@ -81,7 +77,6 @@ public class StringRedisTestServiceImpl implements RedisTestService {
      * @param value
      * @return
      */
-    @Override
     public long setList(String key, List<String> value) {
         log.info("=========================redis List type insert ======================================");
         return redisTemplate.opsForList().rightPushAll(key, value);
@@ -92,7 +87,6 @@ public class StringRedisTestServiceImpl implements RedisTestService {
      * @param key
      * @return
      */
-    @Override
     public String findLatest(String key) {
         log.info("=============================rides List latest rigth==================================");
         return redisTemplate.opsForList().index(key,redisTemplate.opsForList().size(key)-1);
@@ -103,7 +97,6 @@ public class StringRedisTestServiceImpl implements RedisTestService {
      * @param key
      * @return
      */
-    @Override
     public Map<Object, Object> findHash(String key) {
         log.info("===================================redis hash =========================================");
         return redisTemplate.opsForHash().entries(key);
@@ -114,7 +107,6 @@ public class StringRedisTestServiceImpl implements RedisTestService {
      * @param key
      * @return
      */
-    @Override
     public Set<Object> findHashKeys(String key) {
         log.info("====================================== All keys of hash ===============================");
         return redisTemplate.opsForHash().keys(key);
@@ -125,7 +117,6 @@ public class StringRedisTestServiceImpl implements RedisTestService {
      * @param key
      * @return
      */
-    @Override
     public List<Object> findHashValues(String key) {
         log.info("===================================== All values of hash ==============================");
         return redisTemplate.opsForHash().values(key);
@@ -137,7 +128,6 @@ public class StringRedisTestServiceImpl implements RedisTestService {
      * @param map
      * @return
      */
-    @Override
     public long insertHash(String key, Map<String, Object> map) {
         log.info("====================================== insert hashes into redis ========================");
         redisTemplate.opsForHash().putAll(key,map);

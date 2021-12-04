@@ -25,7 +25,13 @@ springBoot 日志：
 			使用了这个命令就无需任何配置，因为这是直接将控制台的输出指定到指定文件。
 		日志级别
 			Log4j根据日志信息的重要程度，Log4j建议只使用四个级别 ERROR、WARN、INFO、DEBUG
-		日志范围：
+		日志范围：???
 			https://blog.csdn.net/woyaoyonghanzizhuce/article/details/82852426?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.compare&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.compare
 			root: debug 这是是所有模块都输出debug级别日志
 			com.rongji.egov.doc.business: debug 这是对应包下才输出debug级别日志
+			举例：
+
+				logging.level.com.dudu=DEBUG：com.dudu包下所有class以DEBUG级别输出
+				logging.level.root=WARN：root日志以WARN级别输出
+@Slf4j
+	https://blog.csdn.net/weixin_41291538/article/details/100694346
