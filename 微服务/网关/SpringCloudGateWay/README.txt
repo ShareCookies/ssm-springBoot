@@ -3,25 +3,118 @@ https://cloud.spring.io/spring-cloud-gateway/reference/html/
 Spring Cloud Gateway介绍：
 	Spring Cloud Gateway 是 Spring Cloud 的一个全新项目，目标是替代 Netflix Zuul，
 	其不仅提供统一的路由方式，并且基于 Filter 链的方式提供了网关基本的功能，例如：安全，监控/指标，和限流。
-		Spring Cloud Gateway基于 Spring 5.0，Spring Boot 2.0 和 Project Reactor 等技术开发的网关，
-		Spring Cloud Gateway 是使用 netty+webflux 实现
+		Spring Cloud Gateway 基于 Spring 5.0，Spring Boot 2.0 和 Project Reactor 等技术开发，使用 netty+webflux 实现
+	
 相关概念:
 	Route（路由）：
-		这是网关的基本构建块。
-		它由一个 ID，一个目标 URI，一组断言和一组过滤器定义。
-		Predicate（断言）：
-			基于 Java 8 的 Predicate。我们可以使用它来匹配来自 HTTP 请求的任何内容，例如 headers 或参数。
-			在 Spring Cloud Gateway 中 Spring 利用 Predicate 的特性实现了各种路由匹配规则。
-				如通过 Header、请求参数等不同的条件来进行作为条件匹配到对应的路由。（如果断言为真，则路由匹配。）
-			附：
-				Predicate 介绍
-					Predicate 是 Java 8 中引入的一个函数，Predicate 接受一个输入参数，返回一个布尔值结果。
-						该接口包含多种默认方法来将 Predicate 组合成其他复杂的逻辑（比如：与，或，非）。
-						可以用于接口请求参数校验、判断新老数据是否有变化需要进行更新操作。
-				网上有一张图总结了 Spring Cloud 内置的几种 Predicate 的实现。
-				
-		Filter（过滤器）：
-			这是org.springframework.cloud.gateway.filter.GatewayFilter的实例，我们可以使用它修改请求和响应。
+		The basic building block of the gateway. 
+			这是网关的基本构建块。
+		It is defined by an ID, a destination URI, a collection of predicates, and a collection of filters. 
+			它由一个 ID，一个目标 URI，一组断言和一组过滤器定义。
+		A route is matched if the aggregate predicate is true.	
+			如果断言为真则路由匹配
+	Predicate（断言）：
+		This is a Java 8 Function Predicate. The input type is a Spring Framework ServerWebExchange.
+		This lets you match on anything from the HTTP request, such as headers or parameters.
+		
+		Predicate就是指 Java 8 的 Predicate。
+		在 Spring Cloud Gateway 中 Spring 利用 Predicate 的特性实现了各种路由匹配规则。
+			如通过 Header、请求参数等不同的条件来进行作为条件匹配到对应的路由。（如果断言为真，则路由匹配。）
+		附：
+			Predicate 介绍
+				Predicate 是 Java 8 中引入的一个内置函数接口，Predicate 接受一个输入参数，返回一个布尔值结果。
+					
+			网上有一张图总结了 Spring Cloud 内置的几种 Predicate 的实现：
+				...
+			
+	Filter（过滤器）：
+		These are instances of Spring Framework GatewayFilter that have been constructed with a specific factory. 
+		Here, you can modify requests and responses before or after sending the downstream request.
+		
+		Filter可以修改请求和响应。
+网关工作原理：
+	网关工作原理图：
+		spring_cloud_gateway_diagram.png
+	介绍：
+		Clients make requests to Spring Cloud Gateway. 
+		If the Gateway Handler Mapping determines that a request matches a route, it is sent to the Gateway Web Handler. 
+		This handler runs the request through a filter chain that is specific to the request. 
+		The reason the filters are divided by the dotted line is that filters can run logic both before and after the proxy request is sent.
+			过滤器由虚线分隔的原因是,过滤器可以在发送代理请求之前和之后运行逻辑。
+		All “pre” filter logic is executed. Then the proxy request is made. After the proxy request is made, the “post” filter logic is run.
+			？
+				“post” filter 被执行，在代理请求被建立后，
+				就是指修改response吗？
+				还是指代理请求被建立？
+				还是指代理请求被执行完？
+路由：
+	附：
+		URIs defined in routes without a port get default port values of 80 and 443 for the HTTP and HTTPS URIs, respectively.
+4. Configuring Route Predicate Factories and Gateway Filter Factories
+
+	There are two ways to configure predicates and filters: shortcuts and fully expanded arguments. Most examples below use the shortcut way.
+		快捷方式和全扩展参数
+	The name and argument names will be listed as code in the first sentance or two of the each section. The arguments are typically listed in the order that would be needed for the shortcut configuration.
+	4.1Shortcut Configuration：
+		application.yml
+		
+		spring:
+		  cloud:
+			gateway:
+			  routes:
+			  - id: after_route
+				uri: https://example.org
+				predicates:
+				- Cookie=mycookie,mycookievalue
+	4.2. Fully Expanded Arguments
+		Fully expanded arguments appear more like standard yaml configuration with name/value pairs. 
+		Typically, there will be a name key and an args key.
+		The args key is a map of key value pairs to configure the predicate or filter.
+			args键是用于配置谓词或过滤器的键值对的映射。
+			？
+				to 介词，这里前面应该是名词(还是句子了)
+		例：
+			application.yml
+			spring:
+			  cloud:
+				gateway:
+				  routes:
+				  - id: after_route
+					uri: https://example.org
+					predicates:
+					- name: Cookie
+					  args:
+						name: mycookie
+						regexp: mycookievalue
+	
+			这是上面显示的Cookie谓词的快捷方式配置的完整配置。
+			This is the full configuration of the shortcut configuration of the Cookie predicate shown above.
+7.1. Combined Global Filter and GatewayFilter Ordering
+When a request matches a route, the filtering web handler adds all instances of GlobalFilter and all route-specific instances of GatewayFilter to a filter chain. 
+This combined filter chain is sorted by the org.springframework.core.Ordered interface, which you can set by implementing the getOrder() method.
+
+As Spring Cloud Gateway distinguishes between “pre” and “post” phases for filter logic execution (see How it Works), the filter with the highest precedence is the first in the “pre”-phase and the last in the “post”-phase.
+	由于Spring Cloud Gateway区分了执行过滤器逻辑的“前”阶段和“后”阶段（请参见工作原理），因此具有最高优先级的过滤器在“前”阶段中是第一个，在“后”阶段中是最后一个， 阶段。
+The following listing configures a filter chain:			
+Example 53. ExampleConfiguration.java
+	@Bean
+	public GlobalFilter customFilter() {
+		return new CustomGlobalFilter();
+	}
+
+	public class CustomGlobalFilter implements GlobalFilter, Ordered {
+
+		@Override
+		public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+			log.info("custom global filter");
+			return chain.filter(exchange);
+		}
+
+		@Override
+		public int getOrder() {
+			return -1;
+		}
+	}
 
 
 快速上手：
@@ -365,3 +458,6 @@ getway微服务化：（getway与网关结合使用）
 		https://www.cnblogs.com/Lyn4ever/p/12702331.html
 	zuul网关整合security
 		https://blog.csdn.net/Grain_Rain_tx/article/details/105875025
+	RouteDefinition
+		https://www.jianshu.com/p/b02c7495eb5e
+		RouteDefinition路由定义，Spring-Cloud-Gateway通过RouteDefinition来转换生成具体的路由信息。

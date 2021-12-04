@@ -12,8 +12,13 @@ Filter(过滤器):
 
 		filter作用：
 			调用目标资源之前，让一段代码执行。
+			例：
+				filterChain.doFilter(request, response);
 			是否调用目标资源（即是否让用户访问web资源）。
+			？
 			调用目标资源之后，让一段代码执行。
+			例：
+				？
 		附：
 			1.Servlet主要负责处理请求，而Filter主要负责对请求的拦截和放行。
 			2.filter能对返回的资源再次处理:
@@ -74,10 +79,34 @@ Filter链：
 	1.java类实现Filter接口，实现其doFilter方法。
 	2.配置过滤器：
 		1.注解法：
+			https://www.cnblogs.com/ooo0/p/10360952.html
 			例：
 				@WebFilter(filterName="myfilter",urlPatterns={"*.action","/websocket"})
-			注解法控制执行顺序：
-				https://blog.csdn.net/yiranblade/article/details/80639342
+			
+			附：
+				@WebFilter 的属性
+					以下所有属性均为可选属性，但是 value、urlPatterns、servletNames 三者必需至少包含一个，且 value 和 urlPatterns 不能共存，如果同时指定，通常忽略 value 的取值 
+					
+					属性名	类型	描述
+					filterName	String	指定过滤器的 name 属性，等价于 <filter-name>
+					value	String[]	该属性等价于 urlPatterns 属性。但是两者不应该同时使用。
+					urlPatterns	String[]	指定一组过滤器的 URL 匹配模式。等价于 <url-pattern> 标签。
+						https://www.cnblogs.com/canger/p/6084846.html
+					servletNames	String[]	指定过滤器将应用于哪些 Servlet。取值是 @WebServlet 中的 name 属性的取值，或者是 web.xml 中 <servlet-name> 的取值。
+					dispatcherTypes	DispatcherType	指定过滤器的转发模式。具体取值包括： ASYNC、ERROR、FORWARD、INCLUDE、REQUEST。
+					initParams	WebInitParam[]	指定一组过滤器初始化参数，等价于 <init-param> 标签。
+					asyncSupported	boolean	声明过滤器是否支持异步操作模式，等价于 <async-supported> 标签。
+					description	String	该过滤器的描述信息，等价于 <description> 标签。
+					displayName	String	该过滤器的显示名，通常配合工具使用，等价于 <display-name> 标签。
+				注解法控制执行顺序：
+					https://www.cnblogs.com/ooo0/p/10360952.html
+			注：
+				Spring Boot中使用@WebFilter的Filter不起作用解决方案
+					https://blog.csdn.net/mytobaby00/article/details/79824753
+					
+					？
+						是如何研究出来的了
+
 		2.web.xml配置法：
 			例：
 				<filter>

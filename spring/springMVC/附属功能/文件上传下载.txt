@@ -170,3 +170,39 @@ tomcat文件上传为什么要创建临时文件夹：
 	https://ask.csdn.net/questions/191012?locationNum=10
 	https://www.zhihu.com/question/388798903
 	https://tieba.baidu.com/p/5116764090?red_tag=3276246636
+	
+文件流是什么：
+	就是还是http，只是请求体是二进制(文件流)
+	https://blog.csdn.net/qq_38491310/article/details/100580812?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-1.control
+？
+	@RequestParam("multipartFile") MultipartFile multipartFile,
+	为什么能接收数据，
+	接收的是什么类型前端数据
+	
+前端传参：
+		//js 文件对象
+        uploadFile (fileObj) {
+            const fileForm = new FormData(); // FormData 对象
+            fileForm.append('file', fileObj, fileObj.name); // 文件对象
+            fileForm.append('moduleId', this.module);
+            fileForm.append('docId', this.form.id);
+            fileForm.append('type', 'main_doc');
+            if (typeof fileObj != 'undefined') {
+                this.$utils
+                    .ajax({
+                        url: '/egovAtt/uploadEgovAttFiles',
+                        method: 'post',
+                        data: fileForm
+                    })
+                    .then((res) => {
+                        if (res) this.$message.success('上传成功');
+                        this.$refs.mainBody.getAllAttFile();
+                        this.$refs.mainBody.attChangeCallback();
+                        this.isAutoSetForm = true;
+                    })
+                    .catch((err) => {
+                        this.$message.error(err);
+                    });
+            }
+            document.getElementById('docUploadFile').value = '';
+        },

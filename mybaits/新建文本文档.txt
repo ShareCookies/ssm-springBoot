@@ -16,48 +16,48 @@
 	
 
 
-通过SqlSessionFactoryBuilder创建SqlSessionFactory：
-	创建SqlSessionFactory
-		//SqlSessionFactoryBuilder是一个建造者模式
-		public SqlSessionFactory build(InputStream inputStream) {
-			return build(inputStream, null, null);
-		}
-		
-		public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
+创建SqlSessionFactory：
+	通过SqlSessionFactoryBuilder的build方法创建SqlSessionFactory
+	//SqlSessionFactoryBuilder是一个建造者模式？
+	public SqlSessionFactory build(InputStream inputStream) {
+		return build(inputStream, null, null);
+	}
+	
+	public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
+		try {
+			XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
+			//其中parser.parse()负责解析配置文件xml，并生成返回Configuration对象。
+			//build(configuration)创建SqlSessionFactory
+			return build(parser.parse());
+		} catch (Exception e) {
+			throw ExceptionFactory.wrapException("Error building SqlSession.", e);
+		} finally {
+			ErrorContext.instance().reset();
 			try {
-				//其中parser.parse()负责解析xml
-				//build(configuration)创建SqlSessionFactory
-				XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
-				return build(parser.parse());
-			} catch (Exception e) {
-				throw ExceptionFactory.wrapException("Error building SqlSession.", e);
-			} finally {
-				ErrorContext.instance().reset();
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					// Intentionally ignore. Prefer previous error.
-				}
+				inputStream.close();
+			} catch (IOException e) {
+				// Intentionally ignore. Prefer previous error.
 			}
 		}
-		//XMLConfigBuilder也是建造者模式
-		//接下来进入XMLConfigBuilder构造函数
-		public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
-			this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
-		}
-		//初始化Configuration
-		private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
-			super(new Configuration());
-			ErrorContext.instance().resource("SQL Mapper Configuration");
-			this.configuration.setVariables(props);
-			this.parsed = false;
-			this.environment = environment;
-			this.parser = parser;
-		}
+	}
+	//初始化Configuration
+	//XMLConfigBuilder也是建造者模式
+	public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
+		this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
+	}
+	private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
+		super(new Configuration());
+		ErrorContext.instance().resource("SQL Mapper Configuration");
+		this.configuration.setVariables(props);
+		this.parsed = false;
+		this.environment = environment;
+		this.parser = parser;
+	}
 
 
 	parser.parse()解析xml
-		通过解析configuration.xml文件,获取其中的Environment、Setting,重要的是将下的所有解析出来之后添加到Configuration,Configuration类似于配置中心,所有的配置信息都在这里。
+		通过解析configuration.xml文件,获取其中的Environment、Setting,
+		重要的是将下的所有解析出来之后添加到Configuration,Configuration类似于配置中心,所有的配置信息都在这里。
 		public Configuration parse() {
 			//判断是否重复解析
 			if (parsed) {

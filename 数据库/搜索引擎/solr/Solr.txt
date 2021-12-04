@@ -1,7 +1,76 @@
 什么是Solr https://blog.csdn.net/luo609630199/article/details/82494708
 solr项目实战  ？
-solr基本查询语法：
+solr查询：
 	https://www.cnblogs.com/cuihongyu3503319/p/9391513.html
-	
+	solr的查询解析：
+		solr的查询解析?是通过queryParser来配置的（solrconfig.xml），一般我们用默认的即可。
+		其各参数含义与用法简单解释如下：
+			q：查询输入，必须。可以使用运算符
+			fq：过滤查询。可以使用运算符
+			sort：排序的字段，格式为field score，多个字段之间用逗号隔开，比如sum(x_f, y_f) desc, price asc，默认是score desc
+			start：从哪一行开始
+			rows：获取多少行
+			fl：查询要输出的字段，字段之间用逗号隔开，比如title,price,seller，星号代表所有，默认就是星号。
+			df:定义查询时默认的查询field。
+			wt：返回的数据类型，可以是JSON、XML、python、ruby、php、csv等格式。
+			indent：true/false，返回的XML格式是否需要缩进(格式化展示)，默认为false
+			debugQuery：调试查询，会输出查询过程的一些参数。
+	solr基本查询语法:
+		1、最基本的字段查询：
+			例：
+			TITLE:中国人  
+				即查询 字段是TITLE 值包含“中国人”的所有结果集。
+			注：
+				solr在查询时，会对传入的值分词，中国人有可能会被分成“中国”，“国人”，“中国人”。包含着三个短语的语句都会被搜到。
+				强制要求solr不分词，可以给短语加上双引号
+				例：
+				TITLE:"中国人"  
+					这样就只返回值包含“中国人”这个词语的。中国和 国人就不会返回。
+		2、多字段或关系 OR
+			例：
+			TITLE:("中国人" AND "美国人" AND "英国人")  
+		3.多字段不包含的关系 NOT
+			例：
+			TITLE:(* NOT "上网费用高" NOT "宽带收费不合理" )  
+		4.查询一个范围 BETWEEN
+			例：
+				1. NUM:[-90 TO 360 ] OR CREATED_AT:[" + date1 + " TO " + date2 + "]  
+			注：适用于数字和日期类型
+
+			附：
+				日期转换上， date 要用 iso格式
+				String date1 = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(c.getStartTime().getTime())  
+				来转换，而不是惯用的 yyyy-MM-dd HH:mm:ss
+ 
+ 
 	例子：
-	http://:6001/solr/空间名/select?fq=S_module:URGER&q=R_readers:U000001+AND+S_systemNo:ZJGY+AND+NOT+id:(Xpmm_oSuDQHVH9Ej%20ADN%20XprlroSuDQHVH-Dv)+AND+S_flowStatus:9+AND+S_draftTime:[*+TO+*]+AND+
+		http://:6001/solr/空间名/select?fq=S_module:URGER&q=R_readers:U000001+AND+S_systemNo:ZJGY+AND+NOT+id:(Xpmm_oSuDQHVH9Ej%20ADN%20XprlroSuDQHVH-Dv)+AND+S_flowStatus:9+AND+S_draftTime:[*+TO+*]
+	
+	
+solr基础概念：
+	...
+使用SolrJ管理索引库:
+	使用SolrJ可以实现索引库的增删改查操作。
+	3.1 添加文档
+	第一步：把solrJ的jar包添加到工程中。
+	第二步：创建一个SolrServer，通常使用HttpSolrServer创建该对象。
+	第三步：创建一个文档对象SolrInputDocument对象。
+	第四步：向文档中添加域。必须有id域，域的名称必须在schema.xml中定义。
+	第五步：把文档添加到索引库中。
+	第六步：提交。
+例：
+	public voidtestSolrJAdd() throws SolrServerException, IOException {
+	// 创建一个SolrServer对象。创建一个HttpSolrServer对象
+	// 需要指定solr服务的url
+	SolrServer solrServer = newHttpSolrServer( "http://101.132.69.111:8080/solr/collection1");
+	// 创建一个文档对象SolrInputDocument
+	SolrInputDocument document= newSolrInputDocument();
+	// 向文档中添加域，必须有id域，域的名称必须在schema.xml中定义
+	document.addField( "id", "123");
+	document.addField( "item_title", "红米手机");
+	document.addField( "item_price", 1000);
+	// 把文档对象写入索引库
+	solrServer.add( document);
+	// 提交
+	solrServer.commit();
+	}

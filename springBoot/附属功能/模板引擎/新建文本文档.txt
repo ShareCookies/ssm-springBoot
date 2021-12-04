@@ -1,0 +1,6 @@
+https://blog.csdn.net/weixin_36310141/article/details/114040459
+java模板引擎比较
+
+Velocity
+	https://www.cnblogs.com/xiang--liu/p/9710205.html
+	https://blog.csdn.net/erlian1992/article/details/80792386

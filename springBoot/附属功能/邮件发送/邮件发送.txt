@@ -23,15 +23,21 @@ JavaMail解析：
 			https://mvnrepository.com/artifact/com.sun.mail/javax.mail/1.6.2
 SpringBoot整合Mail:
 	* https://blog.csdn.net/qq_37745470/article/details/89094227
-注：
-	在本地上可以实现邮件发送，在服务器上无法实现：
-	阿里云|腾讯云等禁用了tcp 25端口(即使手动开放了也不行)，
-		可通过telnet来测试是否通
-	所以改为465端口采用SSL协议传输邮件。
-	附：
-		服务器名称	服务器地址	SSL协议带端口号	非SSL协议端口号
-		SMTP	smtp.163.com	465/994		25
+	邮件内容构造：
+		简单邮件可以通过SimpleMailMessage来构造。
+		而复杂的邮件（例如添加附件）可以借助MimeMessageHelper来构建MimeMessage。
+	邮件发送：
+		JavaMailSender和JavaMailSenderImpl是Spring官方提供的集成邮件服务的接口和实现类，以简单高效的设计著称，目前是Java后端发送邮件和集成邮件服务的主流工具。
+		作用：
+			即使用javaMailSender.send(.)来发送邮件。
+		JavaMailSenderImpl(复杂邮件内容)
+			https://www.php.cn/manual/view/22279.html
+			
 
+			附：
+				MimeMessageHelper发送MIMe类型（html）邮件无法正常解析：
+					https://blog.csdn.net/ZY_201803/article/details/105061995
+	
 附：
 spring:
   #邮箱配置
@@ -45,4 +51,11 @@ spring:
     properties:
       mail:
 		smtp.socketFactory.class: javax.net.ssl.SSLSocketFactory
-		
+注：
+	在本地上可以实现邮件发送，在服务器上无法实现：
+	阿里云|腾讯云等禁用了tcp 25端口(即使手动开放了也不行)，
+		可通过telnet来测试是否通
+	所以改为465端口采用SSL协议传输邮件。
+	附：
+		服务器名称	服务器地址	SSL协议带端口号	非SSL协议端口号
+		SMTP	smtp.163.com	465/994		25

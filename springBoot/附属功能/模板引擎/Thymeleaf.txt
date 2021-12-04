@@ -1,0 +1,37 @@
+https://www.thymeleaf.org/documentation.html
+spring boot 下获取thymeleaf 渲染后的html字符串
+	https://www.jianshu.com/p/5cfc99b64d6c
+	例：
+		src\main\resources\templates\test.html
+			<!DOCTYPE html>
+			<html lang="en" xmlns:th="http://www.thymeleaf.org">
+			<head>
+				<meta charset="UTF-8"/>
+				<title>spring boot-thymeleaf test</title>
+			</head>
+
+			<body>
+			<p th:text="'hello, ' + ${name} + '!'"></p>
+			</body>
+			</html>
+		测试
+			@SpringBootTest
+			class JzApplicationTests {
+				@Autowired
+				private TemplateEngine templateEngine;
+
+				@Test
+				void thymeleaf() {
+					Context context = new Context();
+					context.setVariable("name", "xxxxxxxxx");
+					String result = templateEngine.process("test", context);
+					System.out.println(result);
+				}
+			}
+SpringBoot与Thymeleaf整合:
+	https://www.cnblogs.com/msi-chen/p/10974009.html
+
+thymeleaf标签：
+	th:utext="${task}"
+		Thymeleaf添加html元素
+		https://codingdict.com/questions/42206

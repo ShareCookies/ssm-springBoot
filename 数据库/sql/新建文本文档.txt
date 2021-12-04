@@ -17,3 +17,28 @@ var与非var...
 可以一看的文章：
 	https://www.zuimoban.com/jiaocheng/mysql/2654.html
 	https://blog.csdn.net/AxingM/article/details/108372387
+	
+	
+sql 把特定数据排在最前面
+	https://blog.csdn.net/u012613251/article/details/79378956
+	第一法】
+	select * from table where name='D'
+	UNION ALL
+	select * from table where name<>'D'
+
+	第二法】
+
+	SELECT  CASE  WHEN [name]='D' THEN 0  ELSE  1  END   FLAG ,* FROM TABLE
+	order by  flag  asc
+	或
+        order by
+        CASE BUSINESS_PRIORITY
+        WHEN '普通' THEN 1
+        WHEN '平急' THEN 2
+        WHEN '急件' THEN 3
+        WHEN '加急' THEN 4
+        WHEN '紧急' THEN 4
+        WHEN '特急' THEN 5
+        WHEN '特提' THEN 6
+        ELSE  0 END
+        DESC,CREATE_TIME DESC

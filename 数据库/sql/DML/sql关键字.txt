@@ -38,8 +38,9 @@ mysql sql注意事项：
 			例：
 			SELECT * FROM financial_account UNION SELECT * FROM financial_account;
 			注:
-			1.UNION 结果集中的列名总是等于 UNION 中第一个 SELECT 语句中的列名。
+			1.UNION 结果集中的列名要总是等于 UNION 中第一个 SELECT 语句中的列名。
 			2.默认UNION 操作符选取不同的值,如果允许重复的值，请使用 UNION ALL。
+			3. 不推荐使用union，优先union all
 		Oracle：
 			Oracle用union连接时报字符集不匹配异常：
 			解决方案：
@@ -164,7 +165,26 @@ mysql sql注意事项：
 	CASE WHEN :(条件语句，类似if else)
 		./sql详细/CASE WHEN.txt
 		？
-			case when 索引效率
+		case when then效率：
+			where前使用影响不大:
+				写在结果列表或者常量的转换,对性能影响不大
+				注：但如果同时有对then排序则很影响性能。
+				？
+					其原因可能是先对所有符合数据进行case计算然后在排序(那不是要两边全局遍历？不应该速度很慢？)（猜测错误率很高）
+					select *,CASE  BUSINESS_PRIORITY WHEN  '普通' THEN 0  ELSE  1  END   FLAG   from FLOW_WORK_TODO  order by  FLAG   LIMIT 100000,100 ;
+					80W耗时:2.3
+					select *,CASE  BUSINESS_PRIORITY WHEN  '普通' THEN 0  ELSE  1  END   FLAG   from FLOW_WORK_TODO  order by  IS_SHOW   LIMIT 100000,100 ;
+					80W耗时：3s
+					为什么1还会比2快？
+			where后使用影响稍微大
+				如果写在where的字段判断，相当于使用了函数
+			总结：关键是WHERE筛选后的数据量，如果数据量小则无所谓了
+			？
+				case具体原理是什么了：可能是解析器根据根据不同的位置等会以不同的策略和方式来执行吧
+				case when 能走索引吗
+					select *,CASE  BUSINESS_PRIORITY WHEN  '普通' THEN 0  ELSE  1  END   FLAG   from FLOW_WORK_TODO  order by  FLAG   LIMIT 10000,100 ;
+					对BUSINESS_PRIORITY加了索引，并不会提高效率还是文件排序
+
 	LIKE：
 		模糊查询：
 		% 	表示多个字值。
@@ -208,5 +228,6 @@ mysql sql注意事项：
 		1.先降序排序在limit可获取最新记录
 	group by:分组
 		./sql详细/分组group by
-
+HAVING
+	...
 
