@@ -1,0 +1,139 @@
+文件排序与索引排序:
+	1. 文件排序;
+	 Using filesort仅仅表示没有使用索引的排序，并不意味着一定在硬盘上排序
+	例：
+		索引为 DRAFT_DATE
+		explain select * from EGOV_RECEIVAL   ORDER BY DRAFT_DATE asc
+		1	SIMPLE	EGOV_RECEIVAL		ALL					107536	100.00	Using filesort
+		附：
+			扩展中有Using filesort就是文件排序操作了。
+			
+	2. 索引排序：
+		介绍：
+			MySQL可以使用同一个索引既实现查找行，又满足排序。
+				附：因此，如果可能，设计索引时应该尽可能地同时满足这两种任务，这样是最好的。
+			附：
+				如果EXPLAIN出来...则说明MySQL使用了索引来做排序。
+		使用：
+			1.筛选条件+ORDER BY子句符合最左前缀原则，则MySQL才能够使用索引来对结果做排序
+			例：
+                场景：
+                    test多列索引2	DRAFT_USER_NO, DRAFT_DATE	NORMAL
+                    testOrder	DRAFT_DATE	NORMAL
+                    testFLOW_DONE_USER	FLOW_DONE_USER	NORMAL
+				sql：
+					select * from EGOV_RECEIVAL where `DRAFT_USER_NO` = '1300' ORDER BY DRAFT_DATE (desc也行)
+				解析结果：
+					1	SIMPLE	EGOV_RECEIVAL		ref	test多列索引2	test多列索引2	195	const	8	100.00	Using index condition
+					EXPLAIN中可以看到没有出现文件排序(filesort) 操作，而是而是仅应用了索引就实现了查询+排序
+
+			附：
+				如果筛选条件没有应用索引，则排序会应用文件排序操作。
+				因为筛选没索引就只能全表遍历了。？
+				例：
+					场景如上。
+					sql：
+						select * from EGOV_RECEIVAL where `FLOW_DONE_USER` = '1300B00160001125' ORDER BY DRAFT_USER_NO,DRAFT_DATE
+					解析结果：
+						1	SIMPLE	EGOV_RECEIVAL		ref	testFLOW_DONE_USER	testFLOW_DONE_USER	195	const	1597	100.00	Using index condition; Using filesort
+
+			附：？
+				(看自高性能mysql，但以下的暂未测试出来)
+				1. 只有当索引的列顺序和ORDER BY子句的顺序完全一致，并且所有列的排序方向(倒序或正序)都一样时，MySQL才能够使用索引来对结果做排序?
+					？
+						select * from EGOV_RECEIVAL ORDER BY DRAFT_USER_NO,DRAFT_DATE
+						select * from EGOV_RECEIVAL ORDER BY DRAFT_USER_NO,DRAFT_DATE desc
+						两个解析了都是文件排序啊
+
+				2. 如果查询需要关联多张表，则只有当ORDER BY子句引用的字段全部为第一个表时，才能使用索引做排序。?
+				?
+					ORDERBY子句和查找型查询的限制是一样的:需要满足索引的最左前缀的要求;否则，
+					MySQL都需要执行排序操作，而无法利用索引排序。
+
+	附：
+		数据库默认排序可以符合要求的情况下尽量不要使用排序操作;
+		因为消耗性能。
+
+filesort的过程：
+	1、根据表的索引或者全表扫描，读取所有满足条件的记录。
+    2、
+		对与满足条件记录的每一行，存储一对值到缓冲区（排序列，行记录指针）。
+			一个是排序的索引列的值，即order by用到的列值。
+			和指向该行数据的行指针。
+			元数据值的组成形式：
+				第一种：
+					对需要排序的记录生成<sort_key,rowid>的元数据进行排序，该元数据仅包含排序字段和rowid。
+					排序完成后只有按字段排序的rowid，因此还需要通过rowid进行回表操作获取所需要的列的值，可能会导致大量的随机IO读消耗；
+
+				第二种：
+					对需要排序的记录生成<sort_key,additional_fields>的元数据，该元数据包含排序字段和需要返回的所有列。
+					排序完后不需要回表，但是元数据要比第一种方法长得多，需要更多的空间用于排序。
+				max_length_for_sort_data：
+					参数max_length_for_sort_data字段用于控制filesort使用的排序方法，
+					当所有需要排序记录的字段数量总和小于max_length_for_sort_data时使用第二种算法，否则会用第一种算法。
+					该值的默认值为1024。
+					例：
+						mysql> show global variables like 'max_length_for_sort_data';
+						+--------------------------+-------+
+						| Variable_name            | Value |
+						+--------------------------+-------+
+						| max_length_for_sort_data | 1024  |
+						+--------------------------+-------+
+
+						mysql> set global max_length_for_sort_data = 1024;
+
+
+		缓冲区的大小为sort_buffer_size大小。
+			其中filesort可以使用的内存空间大小为参数sort_buffer_size的值，默认为2M。
+		
+			sort_buffer_size：
+				mysql> show global variables like 'sort_buffer_size';
+				+------------------+--------+
+				| Variable_name    | Value  |
+				+------------------+--------+
+				| sort_buffer_size | 262144 |
+				+------------------+--------+
+				Sort_merge_passe
+					Sort_merge_passes表示filesort执行过的文件分块合并次数的总和，如果该值比较大，建议增大sort_buffer_size的值。
+
+					mysql> show global status like '%sort%';
+					+-------------------+---------+
+					| Variable_name     | Value   |
+					+-------------------+---------+
+					| Sort_merge_passes | 226     |
+					| Sort_range        | 0       |
+					| Sort_rows         | 1384911 |
+					| Sort_scan         | 6       |
+					+-------------------+---------+	
+	3、
+	当缓冲区满后，运行一个快速排序（qsort）来将缓冲区中数据排序，并将排序完的数据存储到一个临时文件，并保存一个存储块的指针。
+	当然如果缓冲区不满，则不会重建临时文件了。
+
+    4、重复以上步骤，直到将所有行读完，并建立相应的有序的临时文件。
+	5、对块级进行排序，这个类似与归并排序算法，只通过两个临时文件的指针来不断交换数据，最终达到两个文件，都是有序的。
+
+    6、重复5直到所有的数据都排序完毕。
+
+    7、采取顺序读的方式，将排序好的每行数据读入内存，并取出数据传到客户端。
+	附：
+		这里读取数据时并不是一行一行读，读如缓存大小由read_rnd_buffer_size来指定。
+
+
+？
+    当翻页较大时优化：
+        要优化的语句：
+            SELECT <cols> FROM profiles
+                  WHERE x.sex='M' ORDER BY rating LIMIT 100000, 10
+        1. 延迟索引？
+            优化这类索引的另--个比较好的策略是使用延迟关联。
+            通过使用覆盖索引查询返回需要的主键，再根据这些主键关联原表获得需要的行。
+            这可以减少MySQL扫描那些需要丢弃的行数。？
+            下面这个查询显示了如何高效地使用(sex, rating) 索引进行排序和分页:
+            mysql>
+            SELECT <cols> FROM profiles INNER J0IN (
+                SELECT <primary key cols> FROM profiles
+                WHERE x.sex='M' ORDER BY rating LIMIT 100000, 10
+                ) AS xUSING(<primary key cols>);
+             ？
+                为什么效率更高，limit不在索引上？是先把数据拿出来在limit？
+         2.反范式化、预先计算和缓存可能是解决这类查询仅有的策略？
