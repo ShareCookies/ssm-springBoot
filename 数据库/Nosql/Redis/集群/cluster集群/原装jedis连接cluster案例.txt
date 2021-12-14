@@ -1,0 +1,155 @@
+https://blog.csdn.net/u010199866/article/details/80705797?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-6&spm=1001.2101.3001.4242
+推荐：
+	https://blog.csdn.net/guying4875/article/details/79045345
+	这个更好点更简洁清晰
+1. pom文件增加依赖：
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-redis</artifactId>
+	</dependency>
+
+	<dependency>
+		<groupId>redis.clients</groupId>
+		<artifactId>jedis</artifactId>
+		<version>2.9.0</version>
+	</dependency>
+
+2. 配置application.yml：
+	spring:
+		redis:
+		   cache.clusterNodes: 127.0.0.1:6379,127.0.0.1:6380,127.0.0.1:6381,127.0.0.1:6382,127.0.0.1:6383,127.0.0.1:6384
+		   cache.commandTimeout: 5000
+		   
+redis配置装载类
+
+	import org.springframework.boot.context.properties.ConfigurationProperties;
+	import org.springframework.stereotype.Component;
+
+	/**
+	 * @Author: nanjunyu
+	 * @Description:读取redis配置信息并装载
+	 * @Date: Create in  2018/6/14 16:16
+	 */
+	@Component
+	@ConfigurationProperties(prefix = "spring.redis.cache")
+	public class RedisProperties {
+		private int expireSeconds;
+		private String clusterNodes;
+		private int commandTimeout;
+
+		public int getExpireSeconds() {
+			return expireSeconds;
+		}
+
+		public void setExpireSeconds(int expireSeconds) {
+			this.expireSeconds = expireSeconds;
+		}
+
+		public String getClusterNodes() {
+			return clusterNodes;
+		}
+
+		public void setClusterNodes(String clusterNodes) {
+			this.clusterNodes = clusterNodes;
+		}
+
+		public int getCommandTimeout() {
+			return commandTimeout;
+		}
+
+		public void setCommandTimeout(int commandTimeout) {
+			this.commandTimeout = commandTimeout;
+		}
+	}
+3. 获取JedisCluster类
+	//JedisCluster是jedis提供的集群操作类，通过它就可操作redis cluster。？
+	import org.springframework.beans.factory.annotation.Autowired;
+	import org.springframework.context.annotation.Configuration;
+	import redis.clients.jedis.HostAndPort;
+	import redis.clients.jedis.JedisCluster;
+
+	import java.util.HashSet;
+	import java.util.Set;
+
+	@Configuration
+	public class JedisClusterConfig {
+		@Autowired
+		private RedisProperties redisProperties;
+
+		// 读取redis配置信息，创建JedisCluster类
+		public JedisCluster getJedisCluster(){
+			String [] serverArray=redisProperties.getClusterNodes().split(",");
+			Set<HostAndPort> nodes=new HashSet<>();
+
+			for (String ipPort:serverArray){
+				String [] ipPortPair=ipPort.split(":");
+				nodes.add(new HostAndPort(ipPortPair[0].trim(),Integer.valueOf(ipPortPair[1].trim())));
+
+			}
+			return  new JedisCluster(nodes,redisProperties.getCommandTimeout());
+		}
+	}
+4. 测试
+外观类：
+	创建RedisClientTemplate类，对redis操作进行了在一层封装，便于使用。
+	这里简单写了两个set,get测试方法，自行修改
+
+	import org.slf4j.Logger;
+	import org.slf4j.LoggerFactory;
+	import org.springframework.beans.factory.annotation.Autowired;
+	import org.springframework.stereotype.Service;
+
+
+	@Service
+	public class RedisClientTemplate {
+		private static final Logger log=LoggerFactory.getLogger(RedisClientTemplate.class);
+
+		@Autowired
+		private JedisClusterConfig jedisClusterConfig;
+
+		public boolean setToRedis(String key,Object value){
+			try {
+			String str=jedisClusterConfig.getJedisCluster().set(key, String.valueOf(value));
+			if("OK".equals(str))
+				return true;
+			}catch (Exception ex){
+				log.error("setToRedis:{Key:"+key+",value"+value+"}",ex);
+			}
+			return false;
+		}
+
+		public Object getRedis(String key){
+			String str=null;
+			try {
+				 str=jedisClusterConfig.getJedisCluster().get(key);
+			}catch (Exception ex){
+				log.error("getRedis:{Key:"+key+"}",ex);
+			}
+			return str;
+		}
+		
+	}
+创建一个controller测试：
+
+
+	import com.springboot.buying.snapup.utils.redis.RedisClientTemplate;
+	import org.springframework.beans.factory.annotation.Autowired;
+	import org.springframework.web.bind.annotation.GetMapping;
+	import org.springframework.web.bind.annotation.RequestMapping;
+	import org.springframework.web.bind.annotation.RestController;
+
+	@RestController
+	@RequestMapping(value = "/test")
+	public class TestController {
+
+		@Autowired
+		RedisClientTemplate redisClientTemplate;
+
+		@GetMapping(value = "/testSet")
+		public Object testSet(){
+			redisClientTemplate.setToRedis("Frank","Frank测试redis");
+			System.out.println(redisClientTemplate.getRedis("Frank"));
+			return null;
+		}
+
+	}

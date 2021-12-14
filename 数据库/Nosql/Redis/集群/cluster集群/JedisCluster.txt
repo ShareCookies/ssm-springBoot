@@ -1,0 +1,34 @@
+https://www.jianshu.com/p/5ca98b5a336b
+JedisCluster介绍
+	JedisCluster是针对RedisCluster的java客户端，它封装了java访问redis集群的各种操作，包括初始化连接、请求重定向等。
+	
+	
+	
+	JedisCluster初始化时，所有的集群连接信息都是封装在JedisClusterInfoCache里，
+	由于jedis本身不是线程安全的，所以使用对象池JedisPool来保证线程安全，
+	在JedisClusterInfoCache中，除了要保存节点和槽的一一对应关系，还要为每个节点建立一个对象池JedisPool，并保存在map。
+		？所以redis cluster动态扩展的话，客户端配置不是也得改吗
+	这个类主要用于保存集群的配置信息，并且是JedisCluster初始化部分的核心所在。
+	
+	JedisClusterConnectionHandler是cache类的一个窗口，cache类似数据管理层，而Handler就类似于操控数据提供服务的Service层。
+
+
+原理：
+	Jedis建立集群的过程
+		传入节点信息，通过其中一个节点从redis服务器拿到整个集群的信息，包括槽位对应关系，主从节点的信息，将这些信息保存在JedisClusterInfoCache中。
+		？
+			那本地配置cluster ip的作用是什么了
+			
+			
+			
+	
+	jedis请求过程
+		在发送请求时，JedisCluster对象先从初始化得到的集群map中获取key对应的节点连接，即一个可用的Jedis对象。然后通过这个对象发送get key 命令。
+    	
+		通常，根据key计算槽位得到的节点不会报错。
+		所以如果发生connectionException,或者MovedDataException,说明初始化得到的槽位与节点的对应关系有问题，即与实际的对应关系不符，应当重置map。 
+		如果出现ASK异常，说明数据正在迁移，需要临时使用返回消息指定的地址，重新发送命令。
+		在这里，Jedis通过异常反馈，智能地同步了客户端与服务端的集群信息。
+		？
+			所以是可以只配置一个cluster的一个ip的吧
+源码：

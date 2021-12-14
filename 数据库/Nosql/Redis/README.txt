@@ -55,19 +55,28 @@ redis介绍：
 		可持久化
 			可以将内存中数据保存在磁盘中，重启时加载。
 		
-		
+		支持lua脚本：
+			Lua 是一种轻量小巧的脚本语言，用标准C语言编写并以源代码形式开放， 其设计目的是为了嵌入应用程序中，从而为应用程序提供灵活的扩展和定制功能。
 	附：
-		Redis的三个客户端框架比较：
-			Jedis,Redisson,Lettuce
-			Jedis：
-				是 Redis 官方首选的 Java 客户端开发包。
-			...
 		redis用途：
 			可以用作缓存、消息中间件等
 redis基础概念：
 	./教程/redis基础概念.txt
 redis安装：
 	./linux安装redis.txt
+redis客户端：
+	Redis 支持的 Java 客户端都有哪些：
+		Redisson、Jedis、lettuce 等等
+		官方推荐使用 Redisson。
+
+	Redisson：
+		Redisson是一个高级的分布式协调 Redis 客服端，能帮助用户在分布式环境中轻松实现一些Java 的对象 (Bloom filter, BitSet, Set, SetMultimap, ScoredSortedSet, SortedSet, Map, ConcurrentMap, List, ListMultimap, Queue, BlockingQueue, Deque, BlockingDeque, Semaphore, Lock, ReadWriteLock, AtomicLong, CountDownLatch, Publish / Subscribe, HyperLogLog) 。
+
+	Jedis 与 Redisson 对比：
+		Jedis 是 Redis 的 Java 实现的客户端，其 API 提供了比较全面的 Redis 命令的支持；
+
+		Redisson 实现了分布式和可扩展的 Java 数据结构，和 Jedis 相比，功能较为简单，不支持字符串操作，不支持排序、事务、管道、分区等 Redis 特性。
+		Redisson 的宗旨是促进使用者对 Redis 的关注分离，从而让使用者能够将精力更集中地放在处理业务逻辑上。
 Spring Boot 使用 Redis:
 	./spring/
 Redis集群：
@@ -78,18 +87,9 @@ redis持久化：
 	./教程/redis持久化.txt
 redis事务：
 	./教程/
-
-pipeline：?
-		redis的pipeline可以一次性发送多个命令去执行，在执行大量命令时，可以减少网络通信次数提高效率。
-		redis集群使用pipeline：
-			jedisCluster（redis的集群连接api）并不支持pipeline语法（只是不提供相应的方法而已）。
-			不过只要稍稍看下jedis的源码，就可以发现虽然没有现成的轮子，但是却很好造。
-			造轮子：
-				https://blog.csdn.net/weixin_30765577/article/details/97804057?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~aggregatepage~first_rank_v2~rank_v29-1-97804057.nonecase&utm_term=redis%E9%9B%86%E7%BE%A4%E4%BD%BF%E7%94%A8pipeline&spm=1000.2123.3001.4430
-				https://my.oschina.net/u/4554374/blog/4306457
 注1：
 	Redis常用命令：
-		
+		./教程/redis常用命令.txt
 	redis的应用场景：
 		./redis应用.txt
 

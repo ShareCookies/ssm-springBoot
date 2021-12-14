@@ -28,15 +28,162 @@
 			2.清空整个redis缓存
 				flushall
 
-3. 批处理命令：
-	...
-	
-	
-	
-	pipeline，mget，mset批量操作
+3. redis批量操作介绍：
+	https://www.jianshu.com/p/75137d23ae4a
+	Redis主要提供了以下几种批量操作方式：
+		批量get/set(multi get/set)
+		管道(pipelining)
+		事务(transaction)
+		基于事务的管道(transaction in pipelining)
+	1 批量命令
+		介绍：
+			一个redis指令中操作多个key
+			//严格来说上述命令不属于批量操作，而是在一个指令中处理多个key。
+		命令：
+			mget(适用于string类型)
+			mset(适用于string类型)
+			hmget(适用于hash类型)
+			hmset(适用于hash类型)
+			例：
+				Jedis jedis = pool.getResource();
+				try{
+					jedis.mget(keys);
+				}finally {
+					if(jedis!=null) jedis.close();
+				}
+			?
+				mget .怎么取返回值
+				mset hmset怎么使用
+		优缺点：
+			优势：
+				性能优异，因为是单条指令操作，因此性能略优于其他批量操作指令。
+			缺点：
+				批量命令不保证原子性，存在部分成功部分失败的情况，需要应用程序解析返回的结果并做相应处理。
+				批量命令在key数目巨大时存在RRT与key数目成比例放大的性能衰减，会导致单实例响应性能(RRT)严重下降。
+					rtt下降分析：
+						https://www.jianshu.com/p/172b39244c85
+						...
+		集群行为 
+			Cluster场景下，mget仅支持单个slot内批量执行，否则将会获得一个错误信息。
+				?
+					cluster集群时支持mget命令，但其中的key要对都对应到一个槽中，否则会报错吗
+				？
+					使用案例。
+			附：
+				客户端分片场景下，Jedis不支持客户端mget拆分，需要在业务代码中根据分片规则自行拆分并发送到对应得redis实例，会导致业务逻辑代码中夹杂着jedis分片逻辑.
+				中间件分片场景下，Codis等中间件分片服务中，会将mget/mset的多个key拆分成多个命令发往不同得redis实例，事实上已经丧失了mget强大的聚合执行能力。
+	2 管道(pipelining)
+		介绍：
+			管道(pipelining)方式意味着客户端可以在一次请求中发送多个命令。
+			例：
+				一次将多个命令传给redis，redis将在一个round trip(请求/响应)中完成多命令并依次返回结果。
 
-LUA脚本：
-	...
-	
+				$ printf "incr x\r\nincr x\r\nincr x\r\n" | nc localhost 6379
+				:1
+				:2
+				:3
+				$ printf "get x\r\ndel x\r\n" | nc localhost 6379
+				$1
+				3
+				:1
+				在上面的例子中，首先通过管道执行了三次incr x指令，第二次通过管道执行了get x和del x两个指令。
+		代码示例：
+			List<Object> resp;
+			Jedis jedis = pool.getResource();
+			try{
+				Pipeline p = jedis.pipelined();
+				try {
+					// TODO
+					// p.get("XXX");
+					// p.get("XXX");
+					resp = p.syncAndReturnAll();//同步执行命令，一次性返回结果。
+				} finally {
+					p.close();
+				}
+			} catch (Exception e) {
+				// TODO
+			}finally { if(jedis!=null) jedis.close(); }
+			？
+				没明白怎么使用
+		优缺点：
+			优势：
+				通过管道，可以将多个redis指令聚合到一个redis请求中批量执行
+				可以使用各种redis命令，使用更灵活
+				客户端一般会将命令打包，并控制每个包的大小，在执行大量命令的场景中，可以有效提升运行效率。
+					比如在采用jedis客户端时，每个包大小大约为8K
+					大量命令会被分为多个包，以包为单位逐批发送到redis服务器执行
+				由于所有命令被分批次发送到服务器端执行，因此相比较事务类型的操作先逐批发送，再一次执行（或取消），管道拥有微弱的性能优势。
+			缺点：
+				没有任何事务保证，其他client的命令可能会在本pipeline的中间被执行。
+		集群行为：
+			
+			Cluster场景下,目前原生jedis不支持集群下的pipeline。
+				
+			Cluster使用pipeline：？
+				如果一定要使用pipeline，可以根据client端缓存的hashslots <-> ip:port(node)，对所有key进行分组，并将属于同一节点的命令打包通过jedis对象执行
+				如果发生了resharding(rebalance)，会导致slot变动，则打包好的管道中的部分命令可能会收到MOVED或ASK错误，需要在代码中处理。一般而言，遇到MOVED需要触发一次映射刷新，遇到ASK则需要一次ASKING操作。
+				在Jedis标准cluster操作中，JedisCluster整合了对JedisRedirectionException的处理，如果要使用pipeline，需要自己封装相应接口，并通过Jedis对象进行pipeline操作，处理相应的重定向错误，并对发生重定向的 部分 子命令进行重试，复杂度将会明显上升。
+				造轮子：
+					https://blog.csdn.net/weixin_30765577/article/details/97804057?utm_medium=distribute.pc_aggpage_search_result.none-task-blog-2~aggregatepage~first_rank_v2~rank_v29-1-97804057.nonecase&utm_term=redis%E9%9B%86%E7%BE%A4%E4%BD%BF%E7%94%A8pipeline&spm=1000.2123.3001.4430
+					https://my.oschina.net/u/4554374/blog/4306457
+
+			附：
+				客户端分片，需要由应用程序或client对命令按分片拆分并通过多个管道发送到不同的分片redis服务器执行
+				中间件分片，一般由中间件对管道进行拆分和结果合并
+	3 事务操作
+		事务(Transactions)操作允许在一步中执行一组redis操作，并对这一组redis命令有如下保证：
+			1. 同一个事务中的所有命令会被串行地逐一执行。不可能出现有任何来自其他client的命令在这组命令中间被执行。
+			2. 单个事务的所有命令，或者被全部执行，或者一个也不会被执行。
+			因此事务保证了redis操作的原子性
+			附：
+				命令EXEC触发事务中所有命令的执行，因此如果一个client在事务上下文中丢失了连接，那么不会有任何一条命令被执行；
+				相反如果client已经调用了EXEC，那么所有命令都会被执行。
+			附：
+				当使用append-only文件时，Redis保证仅使用一个write(2)系统调用来将事务结果写入磁盘。
+				然而如果Redis server崩溃或者被系统管理员使用hard方式kill了进程，那么还是有可能只写入了部分操作。
+				Redis在重启时可以检测到这一问题，并以error退出。这时，可以使用redis-check-aof工具来对append-only文件进行修复，它将会删除部分写入的事务这样server就可以启动了。
+
+
+		事务操作相关命令：
+			MULTI
+				标记一个事务段(transaction block)的开始。之后的所有命令都将被入队列直到EXEC命令发起执行
+			WATCH？
+				监控所有紧跟的keys，之后的事务段(transaction block)根据这些keys是否在监控期间被改变而有条件执行。
+				WATCH使用了一种check-and-set的乐观锁机制。
+			UNWATCH
+				清楚本事务中之前所有被监控的keys。
+				如果调用了EXEC或DISCARD，那就没有必要通过UNWATCH手动清除被监控的keys了。
+			EXEC
+				执行本事务中之前的所有命令，并将连接状态回复为normal。
+				当使用了WATCH时，EXEC只有在所有被watch的keys都没有修改时才会执行所有命令。
+			DISCARD
+				清除本事务的所有被缓存(入列/QUEUED)的命令，并恢复当前连接的状态为normal。
+				如果使用了WATCH，那么DISCARD之后所有被watch的keys会自动被unwatch。
+		例：
+			？
+		优缺点：
+			优势
+				事务的执行具备原子性，即全部被执行或全部不执行，并且在持久化时也具备原子性。
+				可以使用WATCH提供的乐观锁机制保证命令执行的排他性。
+			缺点
+				事务的所有命令会分批发送给redis实例，redis返回+QUEUED，表示命令已入列，但是不会执行任何命令。在收到EXEC命令时，一次执行本事务的所有命令。因此事务的性能略低于pipeline，但是相差不多。
+				在keys竞争激烈时，WATCH提供的乐观锁由于竞争过多而性能低下，应该尽量避免。
+		集群行为:？
+			Redis Cluster支持transaction，但是前提是transaction涉及的所有key都属于同一hash slot。
+			在resharding和rebalance时，因为可能存在key部分迁移的中间态，需要注意批量命令的执行结果，可能出现部分需要重新通过ASK方式执行的情况。
+			代码示例：
+				？
+			附：
+				客户端分片和中间件分片均不支持transaction。因为transaction提供了原子级的执行保证，在instance之外是无法提供的。
+
+	4 基于管道的事务
+		在Redis中，管道是通过RESP，即redis协议来实现的，它允许在一个消息包中按照指定格式传递多个命令。？
+		而事务是通过命令实现的，因此管道和事务之间并不冲突，事务可以承载与管道之上。
+		在某些场景，需要在一次请求处理中发起多次事务的场景下，通过引入管道，可以获得略高于单独执行多次事务的性能，但是两者的差距非常小，小到可以忽略。
+		例：
+	压测用例分析
+		...
+		从上述测试结果中可以看出，不同的处理方式，最终性能曲线基本一致。
+
 
 	
