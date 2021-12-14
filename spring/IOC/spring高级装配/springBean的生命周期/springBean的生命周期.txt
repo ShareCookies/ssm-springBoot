@@ -1,18 +1,47 @@
-bean工厂（容器）执行以下若干步骤来创建bean：
-	1. 实例化bean:（Spring容器对bean进行实例化）
+springBean的生命周期：
+	附：
+		图展示了bean装载到Spring应用上下文中的一个典型的生命周期过程。
+		./springBean的生命周期.png
+	1. 实例化bean：（Spring容器对bean进行实例化）
+		介绍：
+			所有的bean都是通过容器获取的，web应用的容器就是ApplicationContext(WebApplicationContext)。
 		BeanFactory容器：
 			对于BeanFactory容器，当客户向容器请求一个尚未初始化的bean时，或初始化bean的时候需要注入另一个尚未初始化的依赖时，容器就会调用createBean进行实例化。
 		ApplicationContext容器:
 			对于ApplicationContext容器，当容器启动结束后，通过获取BeanDefinition对象中的信息，实例化所有的bean。
-			
 		附：
-			此时bean的实例化就是指通过构造器方法进行实例化
+			此时bean的实例化就是指通过构造器方法进行实例化			
 		附：
-			goto：spring bean的加载顺序。
-	2. 设置对象属性:（Spring将值和bean的引用注入到bean对应的属性中）
-		设置对象属性：
-			实例化后的对象被封装在BeanWrapper对象中，紧接着Spring根据BeanDefinition中的信息 以及 通过BeanWrapper提供的设置属性的接口完成依赖注入。？
+			spring bean的加载顺序：
+				bean的属性是使用构造方法进行注入时，那么springBean的创建是有顺序的。
+					注：但使用其它类型的注入时，bean的创建是没有顺序的。因为其他方式是在需要时才会被注入，而不是上下文加载时就被注入。
+				Spring上下文在加载所有的bean时，他会尝试按照他们关联关系的顺序进行创建。
+					
+				例：
+					Bean A → Bean B → Bean C
+					Spring会先创建Bean C，再创建Bean B（并将Bean C注入到Bean B中），最后再创建Bean A(并将Bean B注入到Bean A中)。
+				注：
+					1.如果bean构造器存在循环依赖，Spring上下文不知道应该先创建哪个Bean,因为它们依赖于彼此。Spring会在加载上下文时，就会抛出一个BeanCurrentlyInCreationException。
+					附：
+						./spring中的循环依赖解决方案
 		
+	2. 容器自动为对象属性赋值：
+		容器如何设置对象属性：
+			实例化后的对象被封装在BeanWrapper对象中，紧接着Spring根据BeanDefinition中的信息 以及 通过BeanWrapper提供的设置属性的接口完成依赖注入。
+		附：
+			spring在向bean中注入Bean的时候，有三种注入方式：
+				https://blog.csdn.net/a745233700/article/details/89307518
+				属性注入
+				构造器注入
+				工厂方法注入
+		？
+			这一步对单例bean来说，其实是没走到吧，因为属性只有在被调用时才会开始被注入吧。
+				？我在aware接口中调用属性了，可能会发现bean还会创建，然后去创建吧，
+				没互相依赖，那很正常的走吧。
+				如果有依赖当前那么是不是就会报异常了，因为当前在等你创建好啊。
+			但是一些代理可以被注入。
+
+
 	3-8:（处理一些接口方法-》bean被成功创建放入容器）
 		处理Aware接口：
 			3.如果bean实现 了BeanNameAware接口，
@@ -38,7 +67,8 @@ bean工厂（容器）执行以下若干步骤来创建bean：
 		./springBean的生命周期.png
 	例：
 		https://www.cnblogs.com/wangjiming/p/11669091.html
-		./例/
+		声明周期案例：
+			./例/
 附：
 	spring bean的加载顺序：
 		属性是使用构造方法进行注入时，那么spring bean的创建是有顺序的。

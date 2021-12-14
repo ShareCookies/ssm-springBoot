@@ -1,0 +1,39 @@
+spring中的循环依赖解决方案：	
+	https://www.jianshu.com/p/b65c57f4d45d
+	解决方法：
+		方式1：重新设计：
+			当你有一个循环依赖，很可能你的各责任没有得到很好的分离。
+			有很多种方法来应对Spring的循环依赖，但首先你应该考虑重新设计你的bean，它们通常意味着是一种可以被提高的设计症状。
+		方式2：使用 @Lazy
+			使用 @Lazy对一个Bean进行延时加载。
+			即这个Bean并没有完全的初始化完，实际上他注入的是一个代理，只有当他首次被使用的时候才会被完全的初始化。
+			例：
+				@Component
+				public class CircularDependencyA {
+					private CircularDependencyB circB;
+					@Autowired
+					public CircularDependencyA(@Lazy CircularDependencyB circB) {
+						this.circB = circB;
+					}
+				}
+		方式3：使用 Setter/Field 注入
+			其中最流行的解决方法，就是Spring文档中建议，使用setter注入。
+			例：
+				private CircularDependencyA circA;
+				@Autowired
+				public void setCircA(CircularDependencyA circA) {
+					this.circA = circA;
+				}
+			注：
+				1.使用该方式创建Bean，实际上它的依赖并没有被注入，只有在你须要的时候他才会被注入进来。
+				2.可无需set，直接在属性上使用@Autowired注解即可。
+		方式4：使用 @PostConstruct
+		方式5：实现ApplicationContextAware and InitializingBean接口
+	注：
+		用了setter注入，还是出现了循环依赖。
+		因为使用了@Async
+			为什么了？可能是因为spring是先创建@Async的bean，此时bean里又有循环依赖，就异常了，
+			加了@Lazy就先不创建@Async的bean吗.
+		解决方案：
+			@Lazy注入代理
+		https://www.jianshu.com/p/13908d468921
