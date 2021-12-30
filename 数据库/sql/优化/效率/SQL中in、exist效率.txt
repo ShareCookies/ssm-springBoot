@@ -1,37 +1,50 @@
 SQL中in、exist效率：
 	exits效率如何：
 		介绍：
-			外表大，那么很不友好。
-			可用于外小内大，或根本不用。
-		分析：
-			遍历外表所有值，然后把外表值一一代入到子查询语句中，进行子查询。即嵌套循环查询
-			例：
-				测试环境 mysql5.7 UMS_LOGIN_LOG 百万 test 3条
-				外大内小
-			
+			遍历外表所有值，然后把外表值一一代入到子查询语句中，进行子查询。
+				原理：嵌套查询
+			适用于：
+				外表大，那么很不友好。
+				可用于外小内大，或根本不用。
+
+		例：
+			测试环境 mysql5.7 UMS_LOGIN_LOG 百万 test 3条
+			1. 外大内小：
+				附：
 					只查UMS_LOGIN_LOG：
 						如果子查询没有条件，那么其实就是单纯查询外表而已，exists 没起作用。
 						select * FROM UMS_LOGIN_LOG WHERE  EXISTS (SELECT USER_NO2 FROM test) 
 						耗时7s
-					使用EXISTS进行子查询
-						select * FROM UMS_LOGIN_LOG WHERE  EXISTS (SELECT USER_NO2 FROM test WHERE UMS_LOGIN_LOG.USER_NO = test.USER_NO2)
-						耗时14s
-						原理：
-						常规嵌套查询，
-							1	PRIMARY	UMS_LOGIN_LOG		ALL					1404345	100.00	Using where
-							2	DEPENDENT SUBQUERY	test		ref	t	t	768	zjgy_real.UMS_LOGIN_LOG.USER_NO	1	100.00	Using where; Using index
-							附：
-								耗时过程分析：查询百万数据耗时7s，在把每条拿去子查询中进行查询，百万数据又被调用一次耗时7s然后调过去进行查询因为走索引这里就没什么耗时了可忽略。
-				外小内大：
-					select * FROM test WHERE  EXISTS (SELECT USER_NO2 FROM UMS_LOGIN_LOG WHERE UMS_LOGIN_LOG.USER_NO = test.USER_NO2)
-					耗时0.03s
+				使用EXISTS进行子查询
+					select * FROM UMS_LOGIN_LOG WHERE  EXISTS (SELECT USER_NO2 FROM test WHERE UMS_LOGIN_LOG.USER_NO = test.USER_NO2)
+					耗时14s
+					分析：
+					常规嵌套查询，
+						id：1	type：PRIMARY	table：UMS_LOGIN_LOG		type：ALL					rows：1404345
+						id：2	type：DEPENDENT SUBQUERY	table：test		type：ref 	ref：zjgy_real.UMS_LOGIN_LOG.USER_NO	rows：1	
+						
+						其实就是嵌套循环查询。
+						表1作为驱动表：
+							type：ALL rows：1404345
+						表2作为被驱动表：
+							ref：zjgy_real.UMS_LOGIN_LOG.USER_NO
+								如果是连接查询,被驱动表的执行计划这里会显示驱动表的关联字段.
+					附：耗时过程分析：
+						查询百万数据耗时7s。
+						在把每条拿去子查询中进行查询，百万数据又被调用一次耗时7s然后调过去进行查询。
+			2. 外小内大：
+				select * FROM test WHERE  EXISTS (SELECT USER_NO2 FROM UMS_LOGIN_LOG WHERE UMS_LOGIN_LOG.USER_NO = test.USER_NO2)
+				耗时0.03s
 	in效率如何：
-		网上常见的言论为均为不用in或有选择的用in(如外大内小用in)。
-		但这些言论并不是很准确的，in 的效率如何，要看具体数据库的实现即看数据库版本。
+		介绍：
+			适用于：
+				内小外大、内大外小。建议内大外小
+				附：
+					网上常见的言论为均为不用in或有选择的用in(如外大内小用in)。
+					但这些言论并不是很准确的，in 的效率如何，要看具体数据库的实现即看数据库版本。
 
-		in原理：
-			in原理各版本数据库有差，暂时也没找到哪里有讲mysql7以上原理的。
-			mysql5.5：
+		例：
+			mysql5.5：？
 				《高性能mysql》讲mysql5.5版本会把in子查询会被执行器优化为exist查询(将相关的外层表压到子查询中)。
 				总之就是反向优化，并不是我们所想的先把in里头的查询出来。
 				例：
@@ -44,63 +57,84 @@ SQL中in、exist效率：
 				实测：
 					测试环境 mysql5.7 UMS_LOGIN_LOG 百万 test 3条
 					内小外大：
-						select * FROM UMS_LOGIN_LOG WHERE USER_NO IN ("111")
 						select * FROM UMS_LOGIN_LOG WHERE USER_NO IN (SELECT USER_NO2 FROM test)
-						!原理
-							应该是5.7进行优化了，因为in里小所以把in里的拿到大的走索引。
-							1	SIMPLE	test		index	t	t	768		2	100.00	Using where; Using index; LooseScan
-							1	SIMPLE	UMS_LOGIN_LOG		ref	userNoTest	userNoTest	51	zjgy_real.test.USER_NO2	92	100.00	Using index condition
+						原理：
+							
+							id：1	type：SIMPLE	table：test  LooseScan
+							id：1	type：SIMPLE	table：UMS_LOGIN_LOG ref：zjgy_real.test.USER_NO2
+							分析：
+								很明显是把小表test作为驱动表，拿到大表UMS_LOGIN_LOG里进行嵌套循环查询。
+								应该是5.7对子查询进行优化了，自动把小表作为驱动表。
 					内大外小：
 						select * FROM test WHERE USER_NO IN (select USER_NO FROM UMS_LOGIN_LOG)
-						select * FROM test WHERE USER_NO IN ('111')
 						原理：
-							常规嵌套查询，外头的走索引查出来，然后拿到里头走索引
-							1	SIMPLE	test		index	PRIMARY	t	768		2	100.00	Using index
-							1	SIMPLE	UMS_LOGIN_LOG		ref	userNoTest	userNoTest	51	zjgy_real.test.USER_NO	92	100.00	Using where; Using index; FirstMatch(test)
+							
+							id：1	type：SIMPLE	table：test 
+							id：1	type：SIMPLE	table：UMS_LOGIN_LOG ref：zjgy_real.test.USER_NO extra：FirstMatch(test)
+							分析：
+								嵌套查询，外头的走索引查出来，然后拿到里头走索引
 					耗时均为0.3毫秒左右，无差
 					均大：
 						select * FROM UMS_LOGIN_LOG WHERE USER_NO IN (SELECT USER_NO FROM UMS_LOGIN_LOG)
 						耗时16s
 				附：
 					虽然5.7IN的效率较好，但还是推荐in的结果在应用提前算好然后传入mysql进行查询，毕竟这样做能降低数据库压力等。
+					例：
+						select * FROM UMS_LOGIN_LOG WHERE USER_NO IN ("111")
 
 NOT EXISTS
-	测试环境 mysql5.7 UMS_LOGIN_LOG 百万 test 3条
-	外大内小
-		select * FROM UMS_LOGIN_LOG WHERE not EXISTS (SELECT USER_NO2 FROM test WHERE UMS_LOGIN_LOG.USER_NO = test.USER_NO2)
-		？为什么耗时28s.
-		从explain中我也看不出原因....
-	外小内大：
-		select * FROM test WHERE not EXISTS (SELECT USER_NO2 FROM UMS_LOGIN_LOG WHERE UMS_LOGIN_LOG.USER_NO = test.USER_NO2)
-		耗时0.07s
-		原理：
-			常规嵌套查询
+	介绍：
+		适用于外小内大
+	例：
+		测试环境 mysql5.7 UMS_LOGIN_LOG 百万 test 3条
+		外大内小
+			select * FROM UMS_LOGIN_LOG WHERE not EXISTS (SELECT USER_NO2 FROM test WHERE UMS_LOGIN_LOG.USER_NO = test.USER_NO2)
+			耗时28s.
+			分析：
+				id：1	table：UMS_LOGIN_LOG	rows：1404393 
+				id：2	table：test		ref：zjgy_real.UMS_LOGIN_LOG.USER_NO rows：2
+				嵌套查询,大表(驱动表)嵌套小表所以慢
+		外小内大：
+			select * FROM test WHERE not EXISTS (SELECT USER_NO2 FROM UMS_LOGIN_LOG WHERE UMS_LOGIN_LOG.USER_NO = test.USER_NO2)
+			耗时0.07s
+			分析：
+				id：1	table：test	 type：ALL	rows：4	100	Using where
+				id：2	table：UMS_LOGIN_LOG type：ref ref：zjgy_real.test.USER_NO2	rows：92
+							
+				常规嵌套查询，小表循环大表
 NOT IN
+	介绍：
+		适用于外小内大
 	mysql5.7：
-		实测：
 		测试环境 mysql5.7 UMS_LOGIN_LOG 百万 test 3条
 		内小外大：
 			select * FROM UMS_LOGIN_LOG WHERE USER_NO  not IN (SELECT USER_NO2 FROM test)
 			耗时9-15.7s 13s
 			原理：
-				常规嵌套查询,in里头的应该是会被走索引的。
-				1	PRIMARY	UMS_LOGIN_LOG		ALL					1404345	100.00	Using where
-				2	SUBQUERY	test		index	t	t	768		2	100.00	Using index
-			？
-				与下面对比
-					select * FROM UMS_LOGIN_LOG WHERE  EXISTS (SELECT USER_NO2 FROM test WHERE UMS_LOGIN_LOG.USER_NO = test.USER_NO2)15s
-					select * FROM UMS_LOGIN_LOG WHERE USER_NO  not IN (SELECT USER_NO2 FROM test)
-					这两个应该都嵌套查询，会什么时间会有差？
-					not in 耗时浮动为什么这么大？
+				
+				id：1	table：UMS_LOGIN_LOG row：1404345
+				id：2	table：test	 row：2
+				分析：
+					嵌套查询,大表(驱动表)嵌套小表所以慢
+					
+			附：？
+				这两个应该都嵌套查询，会什么时间会有差？
+				not in 耗时浮动为什么这么大？
+				select * FROM UMS_LOGIN_LOG WHERE  EXISTS (SELECT USER_NO2 FROM test WHERE UMS_LOGIN_LOG.USER_NO = test.USER_NO2)15s
+				
+				select * FROM UMS_LOGIN_LOG WHERE USER_NO  not IN (SELECT USER_NO2 FROM test)
+					
 		内大外小：
 			select * FROM test WHERE USER_NO not IN (select USER_NO FROM UMS_LOGIN_LOG)
 			耗时0.06
 			原理：
-				常规嵌套查询
+				id：1	table：test rows：4
+				id：2	table：UMS_LOGIN_LOG  key：userNoTest ref：func rows：184
+				常规嵌套查询，小表循环大表
 总结：
 	mysql5.7
 		not in，exits、NOT EXISTS仅用于外小(内大)。
 			因为以上三个是使用了嵌套(索引)循环查询。
-			嵌套(索引)循环查询：先查外表所有结果，然后把外表值代入到子查询中，进行索引查询。
+			嵌套(索引)循环查询：查外表所有结果，然后把外表值代入到子查询中，进行索引查询。
 		in内外有一个小表就可使用，但推荐提前算好in结果。
-			5.7后in优化了，应该是把小的表拿到大的去走索引。
+			5.7后in优化了，把小的表拿到大的去走索引。
