@@ -7,91 +7,91 @@ RabbitMQ：
 	RabbitMQ的工作原理:
 		RabbitMQ组成：
 			生产者、消费者和RabbitMQ服务端。
-		RabbitMQ基本结构:
+		RabbitMQ服务端:组成部分说明
 			./RabbitMQ基本结构.png
-			组成部分说明：
-				Broker：
-					消息队列服务进程，此进程包括两个部分：Exchange和Queue
-					Exchange：
-						消息队列交换机，按一定的规则将消息路由转发到某个队列，对消息进行过虑。
-						交换器类型:
-							RabbitMQ常用的交换器类型有direct、topic、fanout、headers四种。
-							Direct Exchange
-								该类型的交换器将所有发送到该交换器的消息被转发到RoutingKey指定的队列中，也就是说路由到BindingKey和RoutingKey完全匹配的队列中。
-							Topic Exchange
-								该类型的交换器将所有发送到该交换器的消息被转发到所有RoutingKey中指定的Topic的队列上面。
+			附录：
+				Connection：
+					tcp连接
+				channel 信道：
+					信道是建立在TCP连接上的虚拟连接。
+					为什么需要信道:
+						在使用rabbitmq时不管是消费还是生产都需要创建信道（channel） 和connection（连接）。
+						我们完全可以直接使用Connection就能完成信道的工作，为什么还要引入信道呢，
+						试想这样一个场景，一个应用有多个线程需要从rabbitmq中消费，或是生产消息，那么必然会建立很多个connection ,也就是多个tcp连接，对操作系统而言，建立和销毁tcp连接是很昂贵的开销，如果遇到使用高峰，性能瓶颈也随之显现，rabbitmq采用类似nio的做法，连接tcp连接复用，不仅可以减少性能开销，同时也便于管理。
+						每个线程都把持一个信道，所以信道复用了TCP连接。同时rabbitmq可以确保每个线程的私密性，就像拥有独立的连接一样。当每个信道的流量不是很大时，复用单一的connection可以再产生性能瓶颈的情况下有效地节省tcp连接资源，但是当信道本身的流量很大时，这时候多个信道复用一个connection就会产生性能瓶颈，进而是整体的流量被限制了。此时就需要开辟多个connection，将这些信道均摊到这些connection中，至于这些相关调优策略需要根据业务自身的实际情况进行调节。 
+					信道原理：
+						?
+			Broker：
+				Broker消息队列服务进程，此进程包括两个部分：Exchange和Queue
+				Exchange：消息队列交换机
+					消息队列交换机，按一定的规则将消息路由转发到某个队列。
+					交换器类型:
+						RabbitMQ常用的交换器类型有direct、topic、fanout、headers四种。
+						Direct Exchange：
+							该类型的交换器,将所有发送到该交换器的消息被转发到RoutingKey指定的队列中.
+							详：	
+								goto：绑定
+						Topic Exchange：
+							介绍：
+								topic类型的Exchange路由会把消息路由到binding key与routing key相匹配的Queue中。
+							匹配规则：？
 								Exchange将RoutingKey和某Topic进行模糊匹配，其中“”用来匹配一个词，“#”用于匹配一个或者多个词。
-									例如“com.#”能匹配到“com.rabbitmq.oa”和“com.rabbitmq”；而"login."只能匹配到“com.rabbitmq”。
-							Fanout Exchange
-								该类型的交换器不处理路由键，会把所有发送到交换器的消息路由到所有绑定的队列中。
-								优点是转发消息最快，性能最好。
-							Headers Exchange
-								该类型的交换器不依赖路由规则来路由消息，而是根据消息内容中的headers属性进行匹配。
-								headers类型交换器性能差，在实际中并不常用。
+							例：
+								如“com.#”能匹配到“com.rabbitmq.oa”和“com.rabbitmq”；而"login."只能匹配到“com.rabbitmq”。
+						Fanout Exchange：
+							该类型的交换器不处理路由键，会把所有发送到交换器的消息路由到所有绑定的队列中。
+							优点是转发消息最快，性能最好。
+						Headers Exchange：
+							该类型的交换器不依赖路由规则来路由消息，而是根据消息内容中的headers属性进行匹配。
+							headers类型交换器性能差，在实际中并不常用。
+					绑定：Binding、Binding Key
+						介绍：
+							RabbitMQ中通过Binding将Exchange与Queue关联起来，这样RabbitMQ就知道如何正确地将消息路由到指定的Queue了。
+						附：
+							Binding Key：
+								在绑定（Binding）Exchange与Queue的同时，一般会指定一个binding key；
+								消费者将消息发送给Exchange时，一般会指定一个routing key；
+								当binding key与routing key相匹配时，消息将会被路由到对应的Queue中。
 
-					Queue：
-						消息队列，存储消息的队列，消息到达队列并转发给指定的
-					？
-						broke我可以认为是Virtual Host吗
-				Producer：
-					消息生产者，即生产方客户端，生产方客户端将消息发送.
-				Consumer：消息消费者，即消费方客户端，接收MQ转发的消息。
-				附：
-					生产者发送消息流程：
-						1、生产者和Broker建立TCP连接。
-						2、生产者和Broker建立通道。
-						3、生产者通过通道消息发送给Broker，由Exchange将消息进行转发。
-						4、Exchange将消息转发到指定的Queue（队列）
-					消费者接收消息流程：
-						1、消费者和Broker建立TCP连接
-						2、消费者和Broker建立通道
-						3、消费者监听指定的Queue（队列）
-						4、当有消息到达Queue时Broker默认将消息推送给消费者。
-						5、消费者接收到消息。
-						6、ack回复
-					？
-						发送者消息会丢失吗？
-						rabbitMq停机会导致消息丢失吗？
-						rabbitMq高可用？
-	六种消息模型
-		* https://blog.csdn.net/kavito/article/details/91403659?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
-		基本消息模型：(PRODUCER-COMSUMER)
-			1生产者P，1消费者C，1队列Q。
-			P：生产者，也就是要发送消息的程序
-			C：消费者：消息的接受者，会一直等待消息到来。
-				？是一直去轮询，还是queue主动推
-			queue：消息队列，缓存消息。生产者向其中投递消息，消费者从其中取出消息。 
-			？
-				队列中有两条消息，有一次消费就都没了？
-				@RabbitListener具体用法？
-		work消息模型：
-			工作队列(或叫竞争消费者模式)。
-			work queues与入门程序相比，多了一个消费端，两个消费端共同消费同一个队列中的消息，但是一个消息只能被一个消费者获取。
-		Publish/subscribe（发布订阅模式）
-			交换机类型 Fanout， 也称为广播
-			...
-		Routing 路由模型
-			P：生产者，向Exchange发送消息，发送消息时，会指定一个routing key。
-			X：Exchange（交换机），接收生产者的消息，然后把消息递交给 与routing key完全匹配的队列
-			C1：消费者，其所在队列指定了需要routing key 为 error 的消息
-			C2：消费者，其所在队列指定了需要routing key 为 info、error、warning 的消息交换机类型：direct
-			...
-		Topics 通配符模式（交换机类型：topics）
-			Topics模型示意图：
-				...
+							绑定多个队列：
+								在绑定多个Queue到同一个Exchange的时候，这些Binding允许使用相同的binding key。
+							Binding Key生效：
+								binding key 并不是在所有情况下都生效，它依赖于Exchange Type
+								比如：
+									fanout类型的Exchange就会无视binding key，而是将消息路由到所有绑定到该Exchange的Queue。	
+						附：
+							交换没绑定队列 生产者连接发布会如何：
+								不会怎样 消息发出去无效而已 不会有报错
 
 
-			介绍：
-			 	每个消费者监听自己的队列，并且设置带统配符的routingkey。
-				生产者将消息发给broker，由交换机根据routingkey来转发消息到指定的队列。
-				带统配符的routingkey:
-					Routingkey一般都是有一个或者多个单词组成，多个单词之间以“.”分割，例如：inform.sms
 
-					通配符规则：
-						#：匹配一个或多个词
-						*：匹配不多不少恰好1个词
-		RPC:
-			...
+				Queue：
+					消息队列，存储消息的队列.
+					消息到达队列,转发给指定的消费者。
+					
+		Producer：
+			消息生产者(生产方客户端)，生产方客户端将消息发送到MQ(Broker).
+			附：
+				生产者发送消息流程：
+					1、生产者和Broker建立TCP连接。
+					2、生产者和Broker建立信道。
+					3、生产者通过通道，将消息发送给Broker，由Exchange将消息进行转发。
+					4、Exchange将消息转发到指定的Queue
+		Consumer：
+			消息消费者(消费方客户端)，接收MQ(Broker)转发的消息。
+			附：
+				消费者接收消息流程：
+					1、消费者和Broker建立TCP连接
+					2、消费者和Broker建立信道
+					3、消费者监听指定的Queue（队列）
+						？消费者只能绑定一个队列
+					附4、当有消息到达Queue时Broker默认将消息推送给消费者。
+					5、消费者接收到消息。
+					和对接收的消息进行处理
+					6、ack回复
+
+
+	
 安装rabbitmq：
 	http://blog.didispace.com/spring-boot-rabbitmq/
 	RabbitMq管理：
@@ -99,71 +99,73 @@ RabbitMQ：
 		http://localhost:15672/
 		默认用户及密码：guest guest
 		...
-spring使用rabbitmq：
-	http://blog.didispace.com/spring-boot-rabbitmq/
-	依赖：
-		<!--用于支持RabbitMQ。 -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-amqp</artifactId>
-		</dependency>
-	配置文件：
-		application.properties：
-			#配置关于RabbitMQ的连接和用户信息
-			spring.rabbitmq.host=localhost
-			spring.rabbitmq.port=5672
-			spring.rabbitmq.username=spring
-			spring.rabbitmq.password=123456
-	例：
-		./例/
-		基本消息模型:
-			简易使用,只有1个生产者1个消费者1个队列。
-		创建消息生产者Sender
-			通过注入AmqpTemplate接口的实例来实现消息的发送，
-				AmqpTemplate接口定义了一套针对AMQP协议的基础操作。
-			在Spring Boot中会根据配置来注入其具体实现。
-			@Component
-			public class Sender {
-				@Autowired
-				private AmqpTemplate rabbitTemplate;
-				//在该生产者，我们会产生一个字符串，并发送到名为hello的队列中。
-				public void send() {
-					String context = "hello " + new Date();
-					System.out.println("Sender : " + context);
-					this.rabbitTemplate.convertAndSend("hello", context);
-				}
-			}
-		创建消息消费者Receiver
-			@Component
-			//通过@RabbitListener注解定义该类对hello队列的监听
-			@RabbitListener(queues = "hello")
-			public class Receiver {
-				//用@RabbitHandler注解来指定对消息的处理方法。
-				@RabbitHandler
-				public void process(String hello) {
-					System.out.println("Receiver : " + hello);
-				}
-			}
-		创建RabbitMQ的配置类RabbitConfig
-			用来配置队列、交换器、路由等高级信息。
-			这里我们以入门为主，先以最小化的配置来定义，以完成一个基本的生产和消费过程。
-			@Configuration
-			public class RabbitConfig {
-				//配置队列
-				@Bean
-				public Queue helloQueue() {
-					return new Queue("hello");
-				}
-			}
-		单元测试：
-			创建单元测试类，用来调用消息生产：
-			@RunWith(SpringJUnit4ClassRunner.class)
-			@SpringApplicationConfiguration(classes = HelloApplication.class)
-			public class HelloApplicationTests {
-				@Autowired
-				private Sender sender;
-				@Test
-				public void hello() throws Exception {
-					sender.send();
-				}
-			}
+	？
+		rabbitMq高可用...
+RabbitMQ使用:
+	./RabbitMQ使用.txt
+附:
+	消息丢失
+	https://www.cnblogs.com/flyrock/p/8859203.html 
+	...
+		接收者消息会丢失吗
+			不会ack吗
+		rabbitMq停机会导致消息丢失吗：
+			消息持久化
+				RabbitMQ 的消息默认存放在内存上面，如果不特别声明设置，消息不会持久化保存到硬盘上面的，如果节点重启或者意外crash掉，消息就会丢失。
+				消息持久化：
+					要想做到消息持久化，必须满足以下三个条件，缺一不可。
+					1） Exchange 设置持久化
+					2）Queue 设置持久化
+					3）Message持久化发送：发送消息设置发送模式deliveryMode=2，代表持久化消息
+			?这样就可以成功保证发送到服务器的消息 就不会丢失吗
+		发送者如何确保消息不会丢失：
+			https://blog.csdn.net/u013738122/article/details/104538987
+			ConfirmCallback：
+				?
+				
+				
+				
+六种消息模型
+	https://blog.csdn.net/kavito/article/details/91403659?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
+	介绍：
+		消息模型可以当作使用场景或方式。
+		即这里说了6种mq的使用场景或方式。
+	PRODUCER-COMSUMER消息模型：（基本消息模型）
+		1生产者P，1消费者C，1队列Q。
+		P：生产者，也就是要发送消息的程序
+		C：消费者：消息的接受者，会一直等待消息到来。
+		
+		queue：消息队列，缓存消息。生产者向其中投递消息，消费者从其中取出消息。 
+			
+	work消息模型：(工作队列或竞争消费者模式)。
+		work queues与入门程序相比，多了一个消费端，两个消费端共同消费同一个队列中的消息，但是一个消息只能被一个消费者获取。
+		？
+			rabbitmq消息只能被消费1次？
+			多个监听一个，如何确保这个另一个还未消费了？
+	Publish/subscribe（发布订阅模式）
+		交换机类型 Fanout， 也称为广播
+	Routing 路由模型：
+		P：生产者，向Exchange发送消息，发送消息时，会指定一个routing key。
+		X：Exchange（交换机）（交换机类型：direct），
+		接收生产者的消息，然后把消息递交给 与routing key完全匹配的队列
+		C1：消费者1，其所在队列指定了需要routing key 为 error 的消息
+		C2：消费者2，其所在队列指定了需要routing key 为 info、error、warning 的消息
+	Topics 通配符模式
+		交换机：
+			（交换机类型：topics）
+			
+		消费者：？
+			每个消费者监听自己的队列，并且设置带统配符的routingkey。
+		生产者：
+			生产者将消息发给broker，由交换机根据routingkey来转发消息到指定的队列。
+			
+			？带统配符的routingkey:
+				Routingkey一般都是有一个或者多个单词组成，多个单词之间以“.”分割，例如：inform.sms
+
+				通配符规则：
+					#：匹配一个或多个词
+					*：匹配不多不少恰好1个词
+	RPC:
+		？
+？
+	如何保证消息不被重复消费

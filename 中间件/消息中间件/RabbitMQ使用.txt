@@ -1,0 +1,72 @@
+java使用rabbitmq：
+	./例/mq/
+spring使用rabbitmq：
+	http://blog.didispace.com/spring-boot-rabbitmq/
+	例：
+		./例/simplemessagemodelforspringboot/
+	依赖：
+		<!--用于支持RabbitMQ。 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+	配置文件：
+		application.properties：
+			#配置关于RabbitMQ的连接和用户信息
+			spring.rabbitmq.host=localhost
+			spring.rabbitmq.port=5672
+			spring.rabbitmq.username=guest
+			spring.rabbitmq.password=guest
+	例：
+		./例/
+		基本消息模型:
+			简易使用,只有1个生产者1个消费者1个队列。
+		创建消息生产者Sender
+			通过注入AmqpTemplate接口的实例来实现消息的发送，
+				AmqpTemplate接口定义了一套针对AMQP协议的基础操作。
+			在Spring Boot中会根据配置来注入其具体实现。
+			@Component
+			public class Sender {
+				@Autowired
+				private AmqpTemplate rabbitTemplate;
+				//在该生产者，我们会产生一个字符串，并发送到名为hello的队列中。
+				public void send() {
+					String context = "hello " + new Date();
+					System.out.println("Sender : " + context);
+					this.rabbitTemplate.convertAndSend("hello", context);
+				}
+			}
+		创建消息消费者Receiver
+			@Component
+			//通过@RabbitListener注解定义该类对hello队列的监听
+			@RabbitListener(queues = "hello")
+			public class Receiver {
+				//用@RabbitHandler注解来指定对消息的处理方法。
+				@RabbitHandler
+				public void process(String hello) {
+					System.out.println("Receiver : " + hello);
+				}
+			}
+		创建RabbitMQ的配置类RabbitConfig
+			用来配置队列、交换器、路由等高级信息。
+			这里我们以入门为主，先以最小化的配置来定义，以完成一个基本的生产和消费过程。
+			@Configuration
+			public class RabbitConfig {
+				//配置队列
+				@Bean
+				public Queue helloQueue() {
+					return new Queue("hello");
+				}
+			}
+		单元测试：
+			创建单元测试类，用来调用消息生产：
+			@RunWith(SpringJUnit4ClassRunner.class)
+			@SpringApplicationConfiguration(classes = HelloApplication.class)
+			public class HelloApplicationTests {
+				@Autowired
+				private Sender sender;
+				@Test
+				public void hello() throws Exception {
+					sender.send();
+				}
+			}
