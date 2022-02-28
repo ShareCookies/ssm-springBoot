@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+https://www.cnblogs.com/MyYJ/p/10778874.html
  * @Package: com.cloud.spring.demo.service.impl
  * @ClassName: RedisTestServiceImpl
  * @Author: zhougaoyang

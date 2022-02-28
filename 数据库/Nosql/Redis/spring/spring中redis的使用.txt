@@ -1,4 +1,4 @@
-springBoot集成redis：
+springBoot中使用模板来操作redis,集成案例：
 	1.引入依赖
 		<dependency>
             <groupId>org.springframework.boot</groupId>
@@ -14,43 +14,140 @@ springBoot集成redis：
 		password: 	
 	3.单元测试	
 		./例/TestRedis.java
+
+springBoot中使用模板来操作redis：
+	介绍：
+		spring提供了2中模板来操作redis。
+	StringRedisTemplate和RedisTemplate的区别：
+		1. 两者的数据是不共通的。
+			即：
+				RedisTemplate只能管理RedisTemplate的数据。
+				StringRedisTemplate只能管理StringRedisTemplate的数据。
+		附：为什么他们只能管理各自的数据了，因为两者之间的区别主要在于他们使用的序列化类不同:
+				RedisTemplate使用的是JdkSerializationRedisSerializer：
+					存入数据会将数据先序列化成字节，然后在存入Redis数据库。
+				StringRedisTemplate使用的是StringRedisSerializer：
+					存入数据会将数据先序列化成字符串，然后在存入Redis数据库。
+				例：
+					所以使用2种模板都存入.set("maxSortNum","test");你会发现他们的值是不一样的
 		附：
-			StringRedisTemplate和RedisTemplate的区别：
-				https://www.cnblogs.com/MyYJ/p/10778874.html
-				介绍：
-					StringRedisTemplate继承了RedisTemplate,
-					所以两者对Redis的操作方法具有相同之处,
-					但两者的数据是不共通的。即：RedisTemplate只能管理RedisTemplate中的数据。
-					两者之间的区别主要在于他们使用的序列化类:
-						RedisTemplate使用的是JdkSerializationRedisSerializer：
-							存入数据会将数据先序列化成字节数组然后在存入Redis数据库。
-						StringRedisTemplate使用的是StringRedisSerializer：
-				使用时注意事项：
-			　　	存取字符串类型数据，建议使用StringRedisTemplate。
-						用法：
-							./例/StringRedisTestServiceImpl.java
-			　　	存取数据是复杂的对象类型，建议使用RedisTemplate。
-						因为redisTemplate中存取数据都是字节数组，可以直接从Redis里面取出一个对象，且无需任何的数据转换。
-					注：
-						当redis中存入的数据是可读形式而非字节数组时，
-						使用redisTemplate取值的时候会无法获取导出数据，获得的值为null。
-						可以使用 StringRedisTemplate 试试。
+			1. StringRedisTemplate继承了RedisTemplate,所以两者对Redis的操作方法大部分是相同的。
+			2. 使用建议：
+		　　	存取字符串类型数据，建议使用StringRedisTemplate。
+		　　	存取数据是复杂的对象类型，建议使用RedisTemplate。
+					因为redisTemplate中存取数据都是字节数组，可以直接从Redis里面取出一个对象，且无需任何的数据转换。
+				附：
+					当redis中存入的数据是可读形式而非字节数组时，
+					使用redisTemplate取值的时候会无法获取导出数据，获得的值为null。
+					可以使用 StringRedisTemplate 试试。
+	StringRedisTemplate常用操作：
+		1 StringRedisTemplate.opsForValue().* //操作String字符串类型
+			.get(name);
+			.set(name,value);
+		2 StringRedisTemplate.delete(key/collection) //根据key/keys删除
+		3 StringRedisTemplate.opsForList().*  //操作List类型
+			.range(key,start,end);//根据key获取list类型的value(范围)
+			.rightPushAll(key, value);//尾部添加
+			.index(key,redisTemplate.opsForList().size(key)-1);//获取最新值
+		4 StringRedisTemplate.opsForHash().*  //操作Hash类型
+			.entries(key);//获取整个hash
+			.keys(key);//获取整个hash所有的key
+			.values(key);//查询hash中所有的value
+			.putAll(key,map);//往hash中追加一个hash
+		5 StringRedisTemplate.opsForSet().*  //操作set类型
+			...
+		6 StringRedisTemplate.opsForZSet().*  //操作有序set
+			...
+		
+		例：
+			./例子/StringRedisTemplateTest.java
 
 
-springBoot中使用redis进行缓存：	
+springBoot中使用redis来实现缓存：	
+？
 	1.@EnableCaching开启缓存
-	2.@Cacheable(cacheNames="")
-		根据方法的请求参数对其结果进行缓存
-	
+		
 	注：
-		spring缓存流程：
+		spring缓存流程：？
 			先执行@Cacheable注解中的getCache(String name)方法,根据name判断ConcurrentMap中是否有此缓存，
 			如果没有缓存那么创建缓存并保存数据，另外service层的方法也会执行。
 			如果有缓存不再创建缓存，另外service层的方法也不会执行。
-	附：
+	附：？
 		CacheManager源码：
 			https://blog.csdn.net/m0_37335176/article/details/89917880
 		在SpringBoot中配置多个cache，实现多个cacheManager灵活切换
 			https://blog.csdn.net/s674334235/article/details/82593899
-springboot使用redis做缓存：
-	https://www.jianshu.com/p/8b026187dc62
+	？springboot使用redis做缓存：
+		https://www.jianshu.com/p/8b026187dc62
+		
+springBoot中使用redis来实现缓存，集成案例：
+	1、添加依赖
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-redis</artifactId>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-cache</artifactId>
+			</dependency>
+	2、添加redis配置
+	spring:
+	  redis:
+		database: 2 
+		host: 127.0.0.1
+		port: 6379
+		password: abcd123
+	#？
+		jedis:
+		  pool:
+			max-active: 8
+			max-wait: -1ms
+			max-idle: 8
+			min-idle: 0
+		timeout: 300s
+	3、注入CacheManager ？
+		既然是用redis，当然要注入RedisCacheManager (redis缓存管理器)。
+		
+		@Configuration
+		public class RedisConfig extends CachingConfigurerSupport {
+
+			@Bean
+			public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
+				return RedisCacheManager.create(factory);
+			}
+			//？
+			@Bean
+			public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
+				RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+				redisTemplate.setConnectionFactory(factory);
+				return redisTemplate;
+			}
+		}
+	4、具体使用
+		简单来说，主要有三个注解
+		1. @Cacheable
+			根据方法的请求参数对其结果进行缓存。
+			即：
+				1. redis有与请求参数对应的key那么则直接使用该key值
+				2. 没有，则调用方法，并将将返回结果缓存到redis
+			例：
+				@Cacheable(value = "dict", key = "#p0")
+			
+				“#p0”表示取第一个参数
+					如果参数为对象，则可以通过#p0.id获取对象的id
+				所以key值为dict::第一个参数
+		2. @CacheEvict表示删除该缓存数据
+
+		3.@CachePut表示修改该缓存数据
+	5、单元测试
+		调用2次以下方法，返回结果如下：
+			1.结果被缓存到redis
+			2.第二次请求时候没有输出“开始获取id为【58ce515474cd454fb6266f49a01833c0】的字典”，因为此时数据已从redis获取
+
+		@Cacheable(value = "dict", key = "#p0")
+		public ResultModel<PtDict> getById(@RequestParam("id") String id) {
+			System.out.println("开始获取id为【" + id + "】的字典");
+			return new ResultModel<>(ResultStatus.SUCCESS, dictService.selectById(id));
+		}		
+			
+		
