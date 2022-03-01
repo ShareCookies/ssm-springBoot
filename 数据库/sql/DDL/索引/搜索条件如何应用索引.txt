@@ -1,4 +1,3 @@
-
 索引使用注意事项：（优化注意事项）
 	MySQL只对<，<=，=，>，>=，BETWEEN？，IN，以及某些时候的LIKE才会使用索引。
 	and or：
@@ -44,12 +43,14 @@
 			
 
 	附
-	含有NULL值的列：？？？
+	含有NULL值的列：
 		mysql5.7：？
 			索引不会包含有NULL值的列
 				即只要列中包含有NULL值都将不会被包含在索引中。
 			例：
 				3.where status!=4 不会列出（比较）为null的
+				
+			附：
 				1.判断某字段为空	is null
 				2.某字段不为空	is not null
 			附：
@@ -66,12 +67,9 @@
 			例：
 				where status!=4 也能找出为null的行。
 				where status is null 也会走索引。
-	<>:？？？
-		看情况使用不等于，通常不等于 不走索引而是在server层实现过滤。
-		注：
-			https://www.v2ex.com/t/425142
-			只有一个字段的话且使用了不等于，数据库优化器会判断候选结果集是否超出了全部结果的 5  %（估计），如果超过，那么就全表扫描。
-			附：所以像> < in 这种操作，走不走索引要看本身可能的结果数量。
+	<>:
+		通常不等于 不走索引而是在server层实现过滤。
+		
 		例：
 			场景：
 				CREATE_TIME	CREATE_TIME	NORMAL	0	A	115			0
@@ -82,7 +80,11 @@
 				此处解析结果中有Using where，则说明表示存储引擎返回的记录并不是所有的都满足查询条件,需要在server层进行过滤。
 				所以不等于其实是在server层过滤。
 				即CREATE_TIME走索引，但CREATOR_ID不走而是把数据在server层在进行过滤。
-				
+		注：
+		什么时候不等于，走索引了
+			https://www.v2ex.com/t/425142
+			只有一个字段的话且使用了不等于，数据库优化器会判断候选结果集是否超出了全部结果的 5  %（估计），如果超过，那么就全表扫描。
+			附：所以像> < in 这种操作，走不走索引要看本身可能的结果数量。		
 最左前缀匹配原则：
 	最左匹配原则是针对联合索引来说的。
 	应用：
@@ -105,3 +107,21 @@
 			a>1 and b=2，a字段可以匹配上索引，但b值不可以.
 			因为a的值是一个范围，在这个范围中b是无序的。
 			此处a找完后，b因为无序所以后续节点只能遍历，b其实就没用上索引，所以为什么叫遇上范围查询就会停止。
+		？
+			虽然是停止匹配但，应该任遍历后续所有索引节点进行对比操作吧，所以任比但索引快吧
+			例：
+				1.
+				索引：ODRAPT_DATE ASC,DRAPT_USER_10 ASC
+				sql：select DRAFT_USER_NO from EGOV_RECEIVAL where  DRAFT_DATE > '2000' and DRAFT_USER_NO = 'test'
+				耗时：50ms
+				分析：
+					1	SIMPLE	EGOV_RECEIVAL		type：index	 test多列索引2	test多列索引2	199		108114	3.33	Using where; Using index
+				2. 
+				索引：ODRAPT_DATE ASC
+				sql：select DRAFT_USER_NO from EGOV_RECEIVAL where  DRAFT_DATE > '2000' and DRAFT_USER_NO = 'test'
+				耗时：100ms
+				分析：
+					1	SIMPLE	EGOV_RECEIVAL		type：ALL	test多列索引2				108114	3.33	Using where
+			总结：
+				通过type应该可以证明，这个思路是对的。
+				index:常见于使用索引列就可以处理不需要读取数据文件的查询。

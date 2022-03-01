@@ -17,3 +17,63 @@ mysql数字型检索比字符型检索快：
 	④ 硬件的优化
 	https://blog.csdn.net/weixin_30045135/article/details/113348030?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0.searchformbaiduhighlight&spm=1001.2101.3001.4242
 	我当时是按以下四条依次回答的，他们四条从效果上第一条影响最大，后面越来越小。
+	
+	
+	
+？
+select count(*)
+FROM (
+         SELECT todo.*, process.DRAFT_SYSTEM_NO
+         FROM (
+                  SELECT ID,
+                         SENDER_USER_NAME,
+                         BUSINESS_SUBJECT,
+                         STATUS,
+                         BUSINESS_DOC_ID,
+                         BUSINESS_NO,
+                         BUSINESS_NAME,
+                         BUSINESS_PRIORITY,
+                         BUSINESS_ORG_NAME,
+                         CREATE_TIME,
+                         PROCESS_ID,
+                         BUSINESS_CATE,
+                         '0' FILE_CATE
+                  FROM FLOW_WORK_TODO
+                  #HANDLE_USER_NO,IS_SHOW,BUSINESS_NO
+                  #rows: 16357   Extra :Using index condition ?为什么索引加了STATUS explain会更好,row从2000变1600 少了using where
+
+                  WHERE STATUS IN ('1', '9', '99', '1') 
+                    AND BUSINESS_NO IN ('DISPATCH ', 'RECEIVAL', 'MEETING', 'URGER')
+                    AND IS_SHOW = '1' and HANDLE_USER_NO = 'test') todo
+                  JOIN FLOW_PROCESS_INSTANCE process
+                       ON todo.PROCESS_ID = process.ID
+         UNION  all
+         SELECT toread.*, process.DRAFT_SYSTEM_NO
+         FROM (
+                  SELECT ID,
+                         SENDER_USER_NAME,
+                         BUSINESS_SUBJECT,
+                         STATUS,
+                         BUSINESS_DOC_ID,
+                         BUSINESS_NO,
+                         BUSINESS_NAME,
+                         BUSINESS_PRIORITY,
+                         BUSINESS_ORG_NAME,
+                         CREATE_TIME,
+                         PROCESS_ID,
+                         ''  BUSINESS_CATE,
+                         '1' FILE_CATE
+                  FROM FLOW_WORK_TOREAD
+                  WHERE (HANDLE_USER_NO = 'test' OR HANDLE_USER_NO = null)
+                    AND STATUS IN ('1', '0')
+                    AND BUSINESS_NO IN ('DISPATCH ', 'RECEIVAL', 'MEETING', 'URGER')) toread
+                  JOIN FLOW_PROCESS_INSTANCE process
+                       ON toread.PROCESS_ID = process.ID
+         #排序很耗时，不排15ms，排500ms
+         #？？？如果我把排序在各个连接前就排了，优化效率会更好吗
+         #？fetching为什么会差这么多。
+         #但500 rows retrieved starting from 1 in 263 ms (execution: 10 ms, fetching: 253 ms)
+         #但500 rows retrieved starting from 1 in 526 ms (execution: 509 ms, fetching: 17 ms)
+         ORDER BY CREATE_TIME DESC
+    ) count_table_;
+

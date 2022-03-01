@@ -130,7 +130,9 @@ NOT IN
 			原理：
 				id：1	table：test rows：4
 				id：2	table：UMS_LOGIN_LOG  key：userNoTest ref：func rows：184
-				常规嵌套查询，小表循环大表
+				嵌套查询，小表循环大表
+			？？？
+				notin也是嵌套循环吧，但ref为什么不显示驱动表的关联字段，而是func，是不是证明not in 效率不是最好。
 总结：
 	mysql5.7
 		not in，exits、NOT EXISTS仅用于外小(内大)。

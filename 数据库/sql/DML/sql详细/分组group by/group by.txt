@@ -1,25 +1,27 @@
 group by：
 	介绍：
-		分组,把数据分组并显示同组数据的第一行。
-		group可以多字段，a字段 b字段 都同 才会被分配到一个组里
+		1. 分组,把数据分组并显示同组数据的第一行。
+		2. group可以多字段，a字段 b字段 都同 才会被分配到一个组里
 		附：		
 			通常结合聚合函数使用。
-			注：
 				常用聚合函数：
 					count() 计数
+						count 统计一组内某字段有几个
 					sum() 求和
 					avg() 平均数
 					max() 最大值
 					min() 最小值
-	位置：
-		from 后 order前
+			位置：
+				from 后 order前
 	例子：
 		1.select a.name ,count(a.name)  
 		from fund a group by a.name
-		注：
-			group by 分组后数据并未消失，只是不可见
-
-		count 统计一组内某字段的值有几个
+		
+		附：
+			group by 后为什么能用函数：
+				纯分组且有索引，mysql可以用索引就可实现分组。
+				但如果有函数，那么mysql就是用索引分组，然后把所有的数据提取到业务层进行统计。
+		
 		2.获取每组中时间最大的数据：
 			由于分组后只显示同组数据的第一行，
 			所以可先把数据排序，
@@ -29,14 +31,56 @@ group by：
 		注：
 			直接查询的表默认是以 ID 进行顺序排序的。
 		3.mysql中group by 后order by 排序的是已经从分组中取出的数据。
+	分析：
+		分析1：(应该能用索引，且减少扫描行数)
+			select DRAFT_USER_NO from EGOV_RECEIVAL  group by DRAFT_USER_NO
+			分析：
+			type:range	key:testGroup	rows:1600	filtered:100	extra:Using index for group-by
+			
+			1. 从key会得到分组能应用索引。
+			2. 从type、rows、filtered等，都可明确分组在索引上就完成了，无需把所有数据取到业务层。
+		分析2：(使用函数，那么就要获取所有数据在业务层过滤了)
+			select DRAFT_USER_NO,max(id) from EGOV_RECEIVAL  group by DRAFT_USER_NO
+			分析：
+				type：index	key：testGroup	rows：108114	filtered：100	extra：Using index
+
+				使用函数那么就要获取所有数据在业务层过滤了
+
+		分析3：(有where，那么就要获取所有数据在业务层过滤了)
+			select DRAFT_USER_NO from EGOV_RECEIVAL where DRAFT_DATE > '2000' group by DRAFT_USER_NO
+			耗时420ms
+			分析：
+			type:index	key:testGroup	rows:108114	filtered:33.33	extra:Using where
+			1. type、key表明了全索引扫描实现分组
+			2. filtered和extra，表明where 条件的过滤是在业务层进行的。
+		分析4：testGroup索引上新增DRAFT_DATE
+			select DRAFT_USER_NO from EGOV_RECEIVAL where DRAFT_DATE > '2000' group by DRAFT_USER_NO
+			耗时20ms
+			分析：
+				分析内容和分析2一样。
+				那为什么耗时会减这么多了，难道真正上没有业务层过滤，索引就实现了筛选吗？
 having：
-	分组筛选
-	https://www.cnblogs.com/fanguangdexiaoyuer/p/6268211.html
+	介绍：
+		分组筛选，即赛选后在分组。
+		注：
+			只有分组字段，才能应用分组筛选。
+			因为分组筛选和分组，均可以只使用索引实现，无需数据库业务层介入。
+			附：
+				where筛选则无分组字段限制，可以任意字段。
+				因为其是在数据库业务层进行筛选实现的。
+
+	例：
+		select DRAFT_USER_NO from EGOV_RECEIVAL group by DRAFT_USER_NO having DRAFT_USER_NO = test
+	分析：
+		type：range	key：testGroup rows：1600 extra：Using index for group-by
+		
+		rows和extra都证明了只使用了索引就实现了数据的筛选和获取。
 附：
 
-MySQL-this is incompatible with sql_mode=only_full_group_by：
-	https://blog.csdn.net/Peacock__/article/details/90608246
-	https://blog.csdn.net/qq_42175986/article/details/82384160
-	尝试用一下any_value()函数
-SQL多字段的查询重复记录
-	select * from table1 t where (select count(*) from table1 where column1=t.column1 AND column2=t.column2 and column3=t.column3)>1
+	MySQL-this is incompatible with sql_mode=only_full_group_by：
+		https://blog.csdn.net/Peacock__/article/details/90608246
+		https://blog.csdn.net/qq_42175986/article/details/82384160
+		尝试用一下any_value()函数
+附2：
+	SQL多字段的查询重复记录
+		select * from table1 t where (select count(*) from table1 where column1=t.column1 AND column2=t.column2 and column3=t.column3)>1
