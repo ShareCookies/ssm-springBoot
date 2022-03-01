@@ -31,7 +31,7 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 			mysql索引组合应用原理：
 				./索引原理/单列索引、联合索引.txt
 索引优化：
-	./索引优化.txt
+	./索引优化/索引优化.txt
 索引的常见操作：
 	创建索引：
 		https://www.cnblogs.com/tommy-huang/p/4483684.html
