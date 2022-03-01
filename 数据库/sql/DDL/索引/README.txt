@@ -3,14 +3,15 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 	介绍：
 		附：
 			索引的简易理解：
-				索引可以简单的理解为一张表，该表保存索引字段，并指向实体表的记录。
-				数据查找过程：
-					数据库管理系统，执行一个在Student表上根据指定的Sno，查找该学生信息的语句。
-					没有索引：
-						如果没有索引，则数据库管理系统需要从Student表的第一行开始，并逐行检索指定的Sno值。
-					有索引：
-						数据库管理系统发现查找条件中有索引项，
-						然后在索引表查找Sno，找到sno后根据其对应的数据的存储位置，直接检索出需要的信息。
+				索引可以简单的理解为字典目录
+					索引，索引保存索引字段值，并指向实体表的记录。
+			数据查找过程简易理解：
+				数据库管理系统，执行一个在Student表上根据指定的Sno，查找该学生信息的语句。
+				没有索引：
+					如果没有索引，则数据库管理系统需要从Student表的第一行开始，并逐行检索指定的Sno值。
+				有索引：
+					数据库管理系统发现查找条件中有索引项，
+					然后在索引表查找Sno，找到sno后根据其对应的数据的存储位置，直接检索出需要的信息。
 		索引优缺点:
 		　	优点：索引可以极大的提高数据的查询速度。 
 			缺点：
@@ -18,14 +19,19 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 				建立索引会创建占用磁盘空间的索引文件。
 
 		mysql索引原理：	
-			索引的存储结构：
-				./聚簇与非聚簇索引.txt
-			mysql单列索引原理：
-				./mysql索引原理.txt
-			mysql联合索引原理：
-				./单列索引、联合索引.txt
+			索引的数据结构：
+				数据结构：
+					MySQL索引使用的数据结构主要有BTree索引 和 哈希索引
+				BTree索引 存储方式：
+					其中BTree索引两种主流存储引擎的数据存储方式又是不同的。
+				详：
+					./聚簇与非聚簇索引.txt
+			mysql索引原理：(mysql单列索引原理)
+				./索引原理/mysql索引原理.txt
+			mysql索引组合应用原理：
+				./索引原理/单列索引、联合索引.txt
 索引优化：
-	
+	./索引优化.txt
 索引的常见操作：
 	创建索引：
 		https://www.cnblogs.com/tommy-huang/p/4483684.html
@@ -45,7 +51,7 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 					SPATIAL？
 					注：
 						索引的类别应由索引对应字段内容特性来决定。
-				单列索引、联合索引：
+				列名 [,...n]：
 					./单列索引、联合索引.txt
 				length：
 					可以指定索引长度
@@ -64,7 +70,6 @@ https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 					ALTER TABLE tbl_name ADD INDEX index_name (column_list): 添加普通索引，索引值可出现多次。
 					ALTER TABLE tbl_name ADD FULLTEXT index_name (column_list):该语句指定了索引为 FULLTEXT ，用于全文索引。
 		
-					
 	删除索引：
 		语法：
 			Mysql: DROP INDEX <索引名> on <表名>
