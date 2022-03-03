@@ -69,7 +69,6 @@ SQL可分为两个部分：
 	mysql日志：
 		./优化/诊断.txt goto:MySQL的日志
 附2：
-
 	mysql数据备份：
 		https://www.runoob.com/mysql/mysql-database-export.html
 		navicat导出数据库:

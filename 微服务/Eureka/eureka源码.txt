@@ -1,0 +1,169 @@
+附：
+	springCloud原理：
+		spring-cloud-commons：
+			spring-cloud-commons 模块是 spring 在分布式领域上(服务发现，服务注册，断路器，负载均衡)的规范定义。
+		spring-cloud-netflix...：
+			spring-cloud-netflix... 是基于此规范的具体实现。
+			例：
+				spring-cloud-netflix-eureka-client 干的事情就是实现了 Spring Cloud Common 规范，然后在实现上包装了(调用了) netflix 。
+
+Spring Cloud Netflix Eureka 服务注册发现 实现原理：
+	1. Spring Cloud common 中提供了用于服务发现的两个关键类：DiscoveryClient 接口 和 @EnableDiscoveryClient 注解。
+	2. 这里以 Eureka 中的服务发现为例，来具体讲下是如何实现的。
+
+DiscoveryClient 接口：
+	/**
+	 * DiscoveryClient表示服务发现常用的读取操作
+	 */
+	public interface DiscoveryClient {
+		/**
+		 * 实现描述
+		 * @return the description
+		 */
+		String description();
+
+		/**
+		 * 获取与特定serviceId关联的所有ServiceInstances。
+		 * 实例里主要是包含服务的服务器地址吗？
+		 */
+		List<ServiceInstance> getInstances(String serviceId);
+
+		/**
+		 * 返回所有已知的服务ID。？
+		 */
+		List<String> getServices();
+	}
+	EurekaDiscoveryClient：
+		介绍：
+			在 spring-cloud-netflix-eureka-client 中对 Spring Cloud Common 中的 DiscoveryClient 接口进行了实现，实现类是 EurekaDiscoveryClient 。
+		
+			附：？但是 EurekaDiscoveryClient 自身没有实现如何与服务端交互的逻辑，而是通过 com.netflix.DiscoveryClient 类来完成。
+	
+@EnableDiscoveryClient：
+	介绍：
+		启用服务注册与发现。
+		注册：
+			添加@EnableDiscoveryClient注解后，此时这个项目就会被注册到eureka服务中心。
+	源码：
+
+		@Target({ElementType.TYPE})
+		@Retention(RetentionPolicy.RUNTIME)
+		@Documented
+		@Inherited
+		@Import({EnableDiscoveryClientImportSelector.class})
+		public @interface EnableDiscoveryClient {
+			boolean autoRegister() default true;
+		}
+		EnableDiscoveryClientImportSelector：？
+			将会从 META-INF/spring.factories 里找出 key 为org.springframework.cloud.client.discovery.EnableDiscoveryClient 的类。
+
+		对于 autoRegister ：
+
+			?如果自动注册属性为true，会在找出的这些类里再加上一个类：AutoServiceRegistrationConfiguration，
+				AutoServiceRegistrationConfiguration 使用@EnableConfigurationProperties(AutoServiceRegistrationProperties.class) 触发构造AutoServiceRegistrationProperties 这个 bean。
+				
+				像eureka，nacos，它们的自动化配置类里都使用了@ConditionalOnBean(AutoServiceRegistrationProperties.class) 来确保存在AutoServiceRegistrationProperties 这个 bean 存在的时候才会构造 AutoServiceRegistration 进行注册。
+			如果自动注册属性为 false， eureka 就不会注册。
+				在Environment 里加一个 PropertySource，内部的配置项是spring.cloud.service-registry.auto-registration.enabled，值是false(代表不构造AutoServiceRegistrationProperties.class)。
+		附：？
+			spring-cloud-netflix-eureka-client 也提供了一个注解 EnableEurekaClient，其作用与这个注解一模一样
+
+
+
+
+
+
+
+服务发现：
+	拉取注册信息的整个过程:？
+		上图为拉取注册信息的整个过程。对于黄色贴条上的条件，如果满足其中一个，则都会进行全量拉取；否则进行增量拉取。
+		...
+		LookopService
+			public interface LookupService<T> {
+				// 根据服务实例注册的appName 来获取 Application
+				Application getApplication(String appName);
+				// 返回当前注册表中所有的服务实例信息
+				Applications getApplications();
+				// 根据服务实例Id获取服务实例信息
+				List<InstanceInfo> getInstancesById(String id);
+				/**
+				 * 获取下一个可能的服务器，以处理来自从eureka接收到的注册表信息的请求。
+				 * @virtualHostname 与服务器关联的虚拟主机名。
+				 * @secure 指示是HTTP还是HTTPS请求
+				 *
+				 */
+				InstanceInfo getNextServerFromEureka(String virtualHostname, boolean secure);
+			}
+			LookupService 接口的作用就是用于查找活动服务实例；总共提供了四个方法，很好理解。每个方法的作用见注释。
+
+		EurekaClient
+			EurekaClient 也是一个接口，集成并且扩展了 LookupService。
+			This interface does NOT try to clean up the current client interface for eureka 1.x. Rather it tries
+			to provide an easier transition path from eureka 1.x to eureka 2.x.
+			从这来看，EurekaClient 的存在是为了给 Eureka1.x 向 Eureka 2.x 升级提供容错能力。
+
+			EurekaClient 在 LookupService 基础上扩展了很多方法，如下：
+				public interface EurekaClient extends LookupService {
+					// 省去@Deprecated方法和获取服务实例信息的接口方法
+						// 注册健康检查处理器
+					public void registerHealthCheck(HealthCheckHandler healthCheckHandler);
+						// 监听client服务信息的更新
+					public void registerEventListener(EurekaEventListener eventListener);
+					// 取消监听
+					public boolean unregisterEventListener(EurekaEventListener eventListener);
+						// 获取当前健康检查处理器
+					public HealthCheckHandler getHealthCheckHandler();
+						// 关闭 eureka 客户端。还向eureka服务器发送撤销注册请求。
+					public void shutdown();
+					// EurekaClientConfig
+					public EurekaClientConfig getEurekaClientConfig();
+						// ApplicationInfoManager
+					public ApplicationInfoManager getApplicationInfoManager();
+				}
+
+		DiscoveryClient
+			com.netflix.discovery.DiscoveryClient，这个类会在构造函数中完成一系列重要的操作，如：拉取注册表信息，服务注册，初始化心跳机制，缓存刷新，按需注册定时任务等等。
+
+			 DiscoveryClient(ApplicationInfoManager applicationInfoManager, 
+											 EurekaClientConfig config, 
+							 AbstractDiscoveryClientOptionalArgs args,
+							 Provider<BackupRegistry> backupRegistryProvider) {
+			 // ... 
+			 }
+			几个参数的释义如下：
+				applicationInfoManager ：应用信息管理器
+				config ：client 与 server 交互的配置信息
+				args ：客户端提供的过滤器类型(支持jersey1和jersey2)，后面用来构建 EurekaTransport
+				backupRegistryProvider ： 备份注册中心
+		服务发现
+			下面代码片段也是在 DiscoveryClient 的构造函数里面的，这里就是拉取注册服务信息的逻辑：
+
+			if (clientConfig.shouldFetchRegistry() && !fetchRegistry(false)) {
+				fetchRegistryFromBackup();
+			}
+
+			clientConfig.shouldFetchRegistry() 这个方法拿到的就是配置文件中 eureka.client.fetch-registry 的值，默认为true，
+			表示从 eureka server 拉取注册表信息。
+
+
+			fetchRegistry(boolean)是从 eureka server 拉取注册信息的方法，
+			参数用于表示是否是强制拉取全量的注册信息；此方法除非在协调eureka服务器和客户端注册表信息方面存在问题，否则此方法只尝试在第一次进行全量获取，后面均是增量获取。
+
+			fetchRegistryFromBackup() 如果 eureka server 服务不可用，则采用的备用方案。
+
+
+		底层通信实现 EurekaTransport
+			EurekaTransport 是 DiscoveryClient 的内部类，EurekaTransport 封装了具体的基于 jersey 的底层通信实现。
+
+
+
+	全量拉取
+		...
+	增量拉取
+		...
+服务注册
+	...
+心跳机制
+	...
+服务下线
+	...

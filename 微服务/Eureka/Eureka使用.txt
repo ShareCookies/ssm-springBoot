@@ -1,7 +1,8 @@
 springCloud eureka 服务端的使用：
 	http://www.ityouknow.com/springcloud/2017/05/10/springcloud-eureka.html
-
-	Eureka Server 服务中心，提供服务注册和发现
+	介绍：
+		Eureka Server 服务中心主要提供服务注册和功能。
+		所以这里我们要启用一个注册中心应用，便于其他服务将他们自身注册到注册中心。
 	1、pom中添加依赖
 		<dependencies>
 			<dependency>
@@ -57,6 +58,8 @@ springCloud eureka 服务端的使用：
 springCloud eureka 客户端的使用：
 	http://www.ityouknow.com/springcloud/2017/05/12/eureka-provider-constomer.html
 	服务提供：
+		介绍：
+			各服务需要引入eureka client 组件 ，以便将自身服务注册到注册中心。
 		1.引入client依赖：
 			<dependencies>
 				<dependency>
@@ -77,12 +80,18 @@ springCloud eureka 客户端的使用：
 			附：
 			@EnableDiscoveryClient：
 				启用服务注册与发现。
-				添加@EnableDiscoveryClient注解后，此时这个项目就会被注册到eureka服务中心，客户端就可以访问到改项目中所有的controller了。
-				！：
-				那如果我有controller不想被别人调用了。通过security吧。
+				添加@EnableDiscoveryClient注解后，此时这个项目就会被注册到eureka服务中心。
+				
+				？：
+					如果注册中心有网关，那么客户端就可以通过网关访问到注册中心所有服务的controller了。
+					那如果我有controller不想被别人调用了。通过security吧。
 			
 	服务调用：
+		介绍：
+			./Feign.txt
 		1.引入client依赖。
+		？
+			client依赖已经集成了feign吗
 		2.配置与Eureka Server交互的地址
 		3.启动类添加@EnableDiscoveryClient和@EnableFeignClients注解。
 		附：
@@ -113,21 +122,15 @@ springCloud eureka 客户端的使用：
 			方法(){
 				return HelloRemote.hello("test");
 			}
+总结：
+	依次启动spring-cloud-eureka、spring-cloud-producer、spring-cloud-consumer三个项目，即可进行一个微服务框架应用的测试。
 
 
 附：
-	依次启动spring-cloud-eureka、spring-cloud-producer、spring-cloud-consumer三个项目，即可进行一个微服务框架应用的测试。
-
-	Eureka概念原理：
-		https://www.jianshu.com/p/2fa691d4a00a
-		./eureka如何管理服务调用.png
-	Springcloud中的region和zone的使用
+	Springcloud中的region和zone的使用：
 		https://www.cnblogs.com/nxzblogs/p/11681929.html
 		Spring cloud实现FeignClient指定Zone调用
 			https://blog.csdn.net/zhxdick/article/details/91868730?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
 			eureka.instance.metadata-map.zone设置不同实例所属的zone，zone之间不互相调用，只有zone内部调用（其实这里用zone做了集群隔离，实际上集群肯定是跨可用区的，这里的eureka中的zone在我们项目里面并不是可用区的概念）。
-	Feign与Ribbon...
-	
-		Ribbon是一个基于 HTTP 和 TCP 客户端 的负载均衡的工具。它可以 在客户端 配置RibbonServerList（服务端列表），使用 HttpClient 或 RestTemplate 模拟http请求，步骤相当繁琐。
 
-​ Feign 是在 Ribbon的基础上进行了一次改进，是一个使用起来更加方便的 HTTP 客户端。采用接口的方式， 只需要创建一个接口，然后在上面添加注解即可 ，将需要调用的其他服务的方法定义成抽象方法即可， 不需要自己构建http请求。然后就像是调用自身工程的方法调用，而感觉不到是调用远程方法，使得编写客户端变得非常容易
+		原理：？

@@ -2,37 +2,41 @@ Spring Cloud学习资料：
 	大部分内容是对该博客的学习笔记：http://www.ityouknow.com/spring-cloud.html
 	学习资料汇总：http://www.ityouknow.com/springcloud/2016/12/30/springcloud-collect.html
 	spring cloud中文官网：https://www.springcloud.cc/
-
+微服务：
+	微服务与微服务架构
+		微服务架构是一种架构模式(风格)， 
+		它提倡将单一应用程序划分成一组小的服务, 
+		服务之间互相协调、互相配合,为用户提供最终价值
+		。
+			即：每个服务运行在其独立的进程中，服务与服务间采用轻量级的通信机制互相协作。
+	微服务的优缺点
+		优点：扩容方便、服务高内聚 代码松耦合...
+		缺点：
+			运维更复杂、分布式系统使开发更复杂了点、服务间通信成本
+		
 Spring Cloud介绍：
-	Spring Cloud是一系列框架的有序集合。
-		Spring并没有重复制造轮子，它只是将目前各家公司开发的比较成熟的服务框架组合起来，
-		通过Spring Boot进行再封装屏蔽掉了复杂的配置和实现原理，
-		最终给开发者留出了一套简单易懂、易部署和易维护的分布式系统开发工具包。
+	Spring Cloud就是一微服务框架，它是一系列框架的有序集合。
+		Spring cloud制定了微服务框架规范，然后它将目前各家公司开发的比较成熟的服务框架组合起来，
+		并通过Spring Boot进行再封装屏蔽掉了复杂的配置和实现原理，
+		最终给开发者留出了一套简单易懂微服务框架。
 	使用springCloud可以便利的搭建出一个微服务框架，来管理一系列的微服务项目。
 		微服务:
 			微服务是可以独立部署、水平扩展、独立访问（或者有独立的数据库）的服务单元。
 Spring Cloud微服务框架的搭建：
-	搭建微服务框架至少需要一下几个模块：
-		Eureka 用于服务的注册于发现
+	搭建微服务框架至少需要以下几个模块：
+		Eureka：用于服务的注册于发现
 			./Eureka/README.txt
-			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/Eureka
-		Feign 用于支持服务对服务的调用以及均衡负载。
-			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/Eureka
-		Spring Cloud Zuul（或Spring Cloud Gateway）  api网关负责与第三方（或前端）的调用端通信。
+		Feign：用于支持服务对服务的调用以及均衡负载。
+			./Eureka/Eureka使用.txt > springCloud eureka 客户端的使用 > 服务调用
+		Spring Cloud Zuul（或Spring Cloud Gateway）  api网关负责与第三方（或前端）调用端的通信。
 			./网关/README.txt
-			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E7%BD%91%E5%85%B3
 		结合以上模块就可搭建一个微服务框架。
 	附：
-		Hystrix 处理服务的熔断防止故障扩散。
-			./Eureka/Hystrix熔断器.txt
-			https://github.com/yuyumyself/ssm-springBoot/blob/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/Eureka/Hystrix%E7%86%94%E6%96%AD%E5%99%A8.txt
 		Spring Cloud Config 服务集群配置中心。
 			./配置中心/README.txt
-			https://github.com/yuyumyself/ssm-springBoot/tree/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83
 
 		Spring Cloud Bus 集群中传播状态的变化（通常配置变化事件）。
 			./配置中心/SpringCloudBus.txt
-			https://github.com/yuyumyself/ssm-springBoot/blob/master/%E5%BE%AE%E6%9C%8D%E5%8A%A1/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/SpringCloudBus.txt
 Spring Cloud附：
 	Spring Cloud 各依赖模块简要介绍：
 		Spring Cloud和Spring Boot 是什么关系
@@ -45,22 +49,13 @@ Spring Cloud附：
 			Eureka 是一个基于 REST 的服务，主要用来 定位服务来进行中间层服务器的负载均衡和故障转移。
 			解释：
 				这个可是springcloud最牛鼻的小弟，服务中心，任何小弟需要其它小弟支持什么都需要从这里来拿，同样的你有什么独门武功的都赶紧过报道，方便以后其它小弟来调用；它的好处是你不需要直接找各种什么小弟支持，只需要到服务中心来领取，也不需要知道提供支持的其它小弟在哪里，还是几个小弟来支持的，反正拿来用就行，服务中心来保证稳定性和质量。
-
-		Netflix Hystrix
-			熔断器，
-			容错管理工具，旨在通过熔断机制控制服务和第三方库的节点,从而对延迟和故障提供更强大的容错能力。
-			解释：
-				比如突然某个小弟生病了，但是你还需要它的支持，然后调用之后它半天没有响应，你却不知道，一直在等等这个响应；有可能别的小弟也正在调用你的武功绝技，那么当请求多之后，就会发生严重的阻塞影响老大的整体计划。这个时候Hystrix就派上用场了，当Hystrix发现某个小弟不在状态不稳定立马马上让它下线，让其它小弟来顶上来，或者给你说不用等了这个小弟今天肯定不行，该干嘛赶紧干嘛去别在这排队了。
-		Ribbon：客户端负载均衡服务调用组件
-			ribbon提供了客户端负载均衡调用服务功能。但eureka本身就有提供负载均衡功能了，所以可无需ribbon。
-
-			例：
-				Eureka 实现微服务负载均衡
-					Eureka,resttemplate负载均衡。
-					？
-						eureka提供地址表，实际访问是有客户端来的，那是怎么实现负债均衡的了？					
-				Zuul + Ribbon 脱离Eureka完成负载均衡+重试机制
-					https://www.cnblogs.com/deepSleeping/p/11777768.html
+		Feign：
+			一个声明式WebService调用客户端。
+			且其已经集成了Ribbon， Hystrix。
+			Netflix Hystrix
+				熔断器			
+			Netflix Ribbon：
+				客户端负载均衡服务调用组件
 		Netflix Zuul
 			Zuul 是在云平台上提供动态路由,监控,弹性,安全等边缘服务的框架。
 			Zuul 相当于是设备和 Netflix 流应用的 Web 网站后端所有请求的前门。当其它门派来找大哥办事的时候一定要先经过zuul,看下有没有带刀子什么的给拦截回去，或者是需要找那个小弟的直接给带过去。
