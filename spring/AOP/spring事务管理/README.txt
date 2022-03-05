@@ -2,22 +2,30 @@ https://www.jianshu.com/p/5687e2a38fbc
 介绍：
 	spring支持编程式事务管理和声明式事务管理两种方式。
 		1.编程式事务指的是通过编码方式实现事务。
-			即使用TransactionTemplate来实现事务。
+			即使用TransactionTemplate来手动在代码里实现事务。
 			例:
 				./例子/编程式事务之事务模板实现事务管理/
-		2.声明式事务建立在AOP之上的。
-			声明式事务原理：
-				其本质是对方法前后进行拦截，然后在目标方法开始之前创建或者加入一个事务，在执行完目标方法之后根据执行情况提交或者回滚事务。
+		2. 声明式事指的是可通过注解等非侵入式即可实现事务。
+			详：
+				goto：声明式事务管理
 			例：
 				./例子/声明式事务之代理工厂实现事务管理/
+		附：声明式事务优缺点：
+			声明式事务管理要优于编程式事务管理，这正是spring倡导的非侵入式的开发方式，使业务代码不受污染，只要加上注解就可以获得完全的事务支持。
+			唯一不足地方是，最细粒度只能作用到方法级别，无法做到像编程式事务那样可以作用到代码块级别。
+事务原理：
+	事务原理:
+		spring能实现事务管理，是因为数据库对事务提供了支持。
+		没有数据库的事务支持，spring是无法提供事务功能的。
+		真正的数据库层的事务提交和回滚是通过binlog或者redo log实现的。
+	声明式事务原理：
+		声明式事务是建立在AOP之上的。
+		其本质是通过aop对方法前后进行(环绕)拦截，然后在目标方法开始之前创建或者加入一个事务，在执行完目标方法之后根据执行情况提交或者回滚事务。	
 		附：
-			事务原理:
-				spring能实现事务管理，是因为数据库对事务提供了支持。
-				没有数据库的事务支持，spring是无法提供事务功能的。
-				真正的数据库层的事务提交和回滚是通过binlog或者redo log实现的。
-			声明式事务优势：
-				声明式事务管理要优于编程式事务管理，这正是spring倡导的非侵入式的开发方式，使业务代码不受污染，只要加上注解就可以获得完全的事务支持。
-				唯一不足地方是，最细粒度只能作用到方法级别，无法做到像编程式事务那样可以作用到代码块级别。
+			@Transactional原理：
+				spring 在启动的时候会去解析生成相关的bean，这时候会查看拥有相关注解的类和方法，并且为这些类和方法生成代理，
+				并根据@Transaction的相关参数进行相关配置注入，这样就在代理中为我们把相关的事务处理掉了（开启正常提交事务，异常回滚事务）。
+		源码：
 声明式事务管理：
 	介绍：
 		声明式事务有两种方式，一种是在配置文件（xml）中做相关的事务规则声明，另一种是基于@Transactional 注解的方式。
@@ -25,19 +33,14 @@ https://www.jianshu.com/p/5687e2a38fbc
 	声明式事务之配置文件：
 		...
 	声明式事务之@Transactional注解：
-		*介绍：
-			@Transactional使用：
-				1. 配置文件上开启注解驱动。
-				例：@EnableTransactionManagement
-				2. 在相关的类和方法上使用注解@Transactional，即可启用事务。
-			@Transactional优势：
-				使用@Transactional的相比传统的我们需要手动开启事务，然后提交事务来说。
-				它提供如下方便：
-					根据你的配置，设置是否自动开启事务
+		@Transactional使用：
+			1. 配置文件上开启注解驱动。
+			例：@EnableTransactionManagement
+			2. 在相关的类和方法上使用注解@Transactional，
+			即可为对应方法添加事务功能。
+			附：
+				@Transactional的事务具有：
 					自动提交事务或者遇到异常自动回滚
-			@Transactional原理：
-				spring 在启动的时候会去解析生成相关的bean，这时候会查看拥有相关注解的类和方法，并且为这些类和方法生成代理，
-				并根据@Transaction的相关参数进行相关配置注入，这样就在代理中为我们把相关的事务处理掉了（开启正常提交事务，异常回滚事务）。
 				
 		*@Transactional：
 			加在方法上:
@@ -45,7 +48,7 @@ https://www.jianshu.com/p/5687e2a38fbc
 			加在类上:
 				表示对该类里面所有的方法都应用相同配置的事务。
 			参数解析：
-				transactionManager()：事务管理器
+				transactionManager()：事务管理器？
 					https://blog.csdn.net/m0_37556444/article/details/83146804
 					介绍：
 						Spring为事务提供了统一的抽象,它并不做任何事务的具体实现。
@@ -66,7 +69,7 @@ https://www.jianshu.com/p/5687e2a38fbc
 							事务是对一系列的数据库操作（比如插入多条数据）进行统一的提交或回滚操作，如果插入成功，那么一起成功，如果中间有一条出现异常，那么回滚之前的所有操作，这样可以防止出现脏数据，防止数据库数据出现问题。
 				isolation()：
 					goto：spring事务的隔离级别
-				propagation()：
+				*propagation()：
 					goto：spring事务的传播行为
 				readOnly()：
 				timeout ：
@@ -89,7 +92,7 @@ https://www.jianshu.com/p/5687e2a38fbc
 				noRollbackForClassName:
 				
 					
-		*@Transactional 注意事项：
+		注：
 			1. 默认情况下，如果在事务中抛出了未检查异常（继承自 RuntimeException 的异常）或者 Error，则 Spring 将回滚事务；
 			除此之外，Spring 不会回滚事务。
 			你如果想要在特定的异常回滚可以考虑rollbackFor()等属性
@@ -110,7 +113,7 @@ https://www.jianshu.com/p/5687e2a38fbc
 					若不是 public，就不会获取@Transactional 的属性配置信息，最终会造成不会用 TransactionInterceptor 来拦截该目标方法进行事务管理。
 			3. Spring 的 AOP 的自调用问题：
 				Spring的AOP代理，只有目标方法由外部调用，目标方法才由 Spring生成的代理对象来管理，这会造成自调用问题。
-				即：类中没有@Transactional注解的方法，内部调用(例：this.)，有@Transactional注解的方法，有@Transactional注解的方法的事务被忽略，不会发生回滚。
+				即：内部调用(例：this.)有@Transactional注解的方法，有@Transactional注解的方法的事务被忽略，不会发生回滚。
 				这个问题就是Spring AOP 代理造成的。
 				解决方式：
 					使用自注入来解决：
@@ -131,19 +134,22 @@ spring事务的传播行为：
 		1.PROPAGATION_REQUIRED（默认）：
 			如果当前没有事务，就创建一个新事务，如果当前存在事务，就加入该事务，该设置是最常用的设置。
 		2.PROPAGATION_SUPPORTS：
-			支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就以非事务执行。
+			如果当前存在事务，就加入该事务，如果当前不存在事务，就以非事务执行。
 		3.PROPAGATION_MANDATORY：
-			支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常。
+			如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常。
 		4.PROPAGATION_REQUIRES_NEW：
 			创建新事务，无论当前存不存在事务，都创建新事务。
+			存在了？
 		5.PROPAGATION_NOT_SUPPORTED：
 			以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。
 			！只有b方法才是非事务吧
 		6.PROPAGATION_NEVER：
 			以非事务方式执行，如果当前存在事务，则抛出异常。
 		7.PROPAGATION_NESTED：
-			如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则按REQUIRED属性执行。
-			？则在嵌套事务内执行
+			如果当前存在事务，则在嵌套事务内执行。
+			如果当前没有事务，则按REQUIRED属性执行。
+	？
+		传播具体是怎么实现的了
 	附：
 		https://segmentfault.com/q/1010000004263937?_ea=549435
 spring事务的隔离级别：
