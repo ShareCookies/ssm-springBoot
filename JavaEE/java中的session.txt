@@ -1,0 +1,5 @@
+java中session
+	https://blog.csdn.net/samniwu/article/details/90417160
+	
+Spring MVC 中获取session的几种方法
+	https://www.cnblogs.com/wudb/archive/2017/08/31/7458856.html

@@ -1,3 +1,4 @@
+## [JavaEE](https://github.com/ShareCookies/ssm-springBoot/tree/master/JavaEE)
 ## [spring](https://github.com/yuyumyself/ssm-springBoot/tree/master/spring)
 - [springAOP](https://github.com/yuyumyself/ssm-springBoot/tree/master/spring/AOP)
     - [spring事务管理](https://github.com/yuyumyself/ssm-springBoot/tree/master/spring/AOP/spring%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86)
@@ -34,3 +35,7 @@
 
 ## [中间件](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E4%B8%AD%E9%97%B4%E4%BB%B6)
 - [Nginx](https://github.com/yuyumyself/ssm-springBoot/tree/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/nginx)
+
+- [消息中间件(rabbitmq)](https://github.com/ShareCookies/ssm-springBoot/tree/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6)
+- [tomcat](https://github.com/ShareCookies/ssm-springBoot/tree/master/%E4%B8%AD%E9%97%B4%E4%BB%B6/Tomcat)
+- [Elastic-Job]

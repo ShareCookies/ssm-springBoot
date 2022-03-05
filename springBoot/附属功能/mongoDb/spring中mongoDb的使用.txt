@@ -73,3 +73,5 @@ springBoot集成mongodb：
 			journal=true|false	如果设置为 true, 同步到 journal (在提交到数据库前写入到实体中). 应用于 safe=true
 			connectTimeoutMS=ms	可以打开连接的时间。
 			socketTimeoutMS=ms	发送和接受sockets的时间。
+		例：
+			uri: mongodb://aroot:999999@localhost:27017/test

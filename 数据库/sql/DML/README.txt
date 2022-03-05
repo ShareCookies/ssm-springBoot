@@ -15,6 +15,9 @@ DML:数据库操作语言
 		注：
 			UPDATE user SET password=11 
 				此时省略了 WHERE， 则默认为WHERE 1，那么会将password列的所有值设为11
+		附：
+			旧值是新值的一部分
+				https://blog.csdn.net/u010865136/article/details/77337800
 
 	查询：
 		例：
