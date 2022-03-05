@@ -32,89 +32,6 @@ Spring Cloud Gateway介绍：
 		Here, you can modify requests and responses before or after sending the downstream request.
 		
 		Filter可以修改请求和响应。
-网关工作原理：
-	网关工作原理图：
-		spring_cloud_gateway_diagram.png
-	介绍：
-		Clients make requests to Spring Cloud Gateway. 
-		If the Gateway Handler Mapping determines that a request matches a route, it is sent to the Gateway Web Handler. 
-		This handler runs the request through a filter chain that is specific to the request. 
-		The reason the filters are divided by the dotted line is that filters can run logic both before and after the proxy request is sent.
-			过滤器由虚线分隔的原因是,过滤器可以在发送代理请求之前和之后运行逻辑。
-		All “pre” filter logic is executed. Then the proxy request is made. After the proxy request is made, the “post” filter logic is run.
-			？
-				“post” filter 被执行，在代理请求被建立后，
-				就是指修改response吗？
-				还是指代理请求被建立？
-				还是指代理请求被执行完？
-路由：
-	附：
-		URIs defined in routes without a port get default port values of 80 and 443 for the HTTP and HTTPS URIs, respectively.
-4. Configuring Route Predicate Factories and Gateway Filter Factories
-
-	There are two ways to configure predicates and filters: shortcuts and fully expanded arguments. Most examples below use the shortcut way.
-		快捷方式和全扩展参数
-	The name and argument names will be listed as code in the first sentance or two of the each section. The arguments are typically listed in the order that would be needed for the shortcut configuration.
-	4.1Shortcut Configuration：
-		application.yml
-		
-		spring:
-		  cloud:
-			gateway:
-			  routes:
-			  - id: after_route
-				uri: https://example.org
-				predicates:
-				- Cookie=mycookie,mycookievalue
-	4.2. Fully Expanded Arguments
-		Fully expanded arguments appear more like standard yaml configuration with name/value pairs. 
-		Typically, there will be a name key and an args key.
-		The args key is a map of key value pairs to configure the predicate or filter.
-			args键是用于配置谓词或过滤器的键值对的映射。
-			？
-				to 介词，这里前面应该是名词(还是句子了)
-		例：
-			application.yml
-			spring:
-			  cloud:
-				gateway:
-				  routes:
-				  - id: after_route
-					uri: https://example.org
-					predicates:
-					- name: Cookie
-					  args:
-						name: mycookie
-						regexp: mycookievalue
-	
-			这是上面显示的Cookie谓词的快捷方式配置的完整配置。
-			This is the full configuration of the shortcut configuration of the Cookie predicate shown above.
-7.1. Combined Global Filter and GatewayFilter Ordering
-When a request matches a route, the filtering web handler adds all instances of GlobalFilter and all route-specific instances of GatewayFilter to a filter chain. 
-This combined filter chain is sorted by the org.springframework.core.Ordered interface, which you can set by implementing the getOrder() method.
-
-As Spring Cloud Gateway distinguishes between “pre” and “post” phases for filter logic execution (see How it Works), the filter with the highest precedence is the first in the “pre”-phase and the last in the “post”-phase.
-	由于Spring Cloud Gateway区分了执行过滤器逻辑的“前”阶段和“后”阶段（请参见工作原理），因此具有最高优先级的过滤器在“前”阶段中是第一个，在“后”阶段中是最后一个， 阶段。
-The following listing configures a filter chain:			
-Example 53. ExampleConfiguration.java
-	@Bean
-	public GlobalFilter customFilter() {
-		return new CustomGlobalFilter();
-	}
-
-	public class CustomGlobalFilter implements GlobalFilter, Ordered {
-
-		@Override
-		public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-			log.info("custom global filter");
-			return chain.filter(exchange);
-		}
-
-		@Override
-		public int getOrder() {
-			return -1;
-		}
-	}
 
 
 快速上手：
@@ -158,7 +75,7 @@ Example 53. ExampleConfiguration.java
 					SpringApplication.run(GateWayApplication.class, args);
 				}
 
-				
+				//?可以定义几个
 				@Bean
 				public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
 					return builder.routes()
@@ -172,12 +89,135 @@ Example 53. ExampleConfiguration.java
 			}
 		上面两个示例中 uri 都是指向了原作者博客网站，在实际项目使用中可以将 uri 指向对外提供服务的项目地址，统一对外输出接口。
 					
-路由规则
+
+getway微服务化：（getway与网关结合使用）
+	快速使用中是网关代理单个服务的使用语法。
+	但服务中心往往注册了很多服务，如果每个服务都需要单独配置网关的话，很麻烦。
+	Spring Cloud Gateway 提供了一种默认转发的能力，只要将 Spring Cloud Gateway 注册到服务中心，Spring Cloud Gateway 默认就会代理服务中心的所有服务。
+	依赖：
+		<!-- eureka 的客户端依赖包-->
+		<!-- 使用getway建议注册中心升级为Finchley.SR2-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-gateway</artifactId>
+		</dependency>
+	配置文件:application.yml
+		server:
+		  port: 8888
+		spring:
+		  application:
+			name: cloud-gateway-eureka
+		  cloud:
+			gateway:
+			 discovery:
+				locator:
+				 enabled: true
+		eureka:
+		  client:
+			service-url:
+			  defaultZone: http://localhost:8000/eureka/
+		logging:
+		  level:
+			org.springframework.cloud.gateway: debug
+		配置说明：
+			spring.cloud.gateway.discovery.locator.enabled
+				是否与服务注册与发现组件进行结合，默认为 false。
+				开启后将会通过服务中心的自动根据 serviceId 创建路由。
+			eureka.client.service-url.defaultZone
+				指定注册中心的地址，以便使用服务发现功能
+			logging.level.org.springframework.cloud.gateway 
+				调整相 gateway 包的 log 级别，以便排查问题
+	测试
+		1.启动 cloud-gateway-eureka 项目，访问注册中心地址 http://localhost:8000/ 即可看到名为 CLOUD-GATEWAY-EUREKA的服务。
+
+		2.将 Spring Cloud Gateway 注册到服务中心之后，网关会自动代理所有在注册中心的服务，通过网关访问这些服务的语法为：
+			http://网关地址：端口/服务中心注册 serviceId/服务具体的url	
+			例：http://localhost:8888/SPRING-CLOUD-PRODUCER/hello
+网关高级功能：
+	均衡负载：
+		getway是自动实现负载均衡的。
+		例：
+			注册中心有两个名为 SPRING-CLOUD-PRODUCER的服务，通过网关http://localhost:8888/SPRING-CLOUD-PRODUCER/hello
+			页面交替返回以下信息：
+				hello world 1!
+				hello world 2!
+				说明网关自动进行了均衡负载。
+		原理：
+		    ...
+	Gateway  Filter：
+		介绍：
+            利用 GatewayFilter 可以修改请求的 Http 的请求或者响应，或者根据请求或者响应做一些特殊的限制。
+            Gateway 按范围划分：
+                Spring Cloud Gateway 的 Filter 分为两种：GatewayFilter 与 GlobalFilter。
+                GlobalFilter 会应用到所有的路由上
+                    Spring Cloud Gateway 内置了9种 GlobalFilter，比如 Netty Routing Filter、Websocket Routing Filter 等
+                GatewayFilter 将应用到单个路由或者一个分组的路由上。
+            Gateway 按生命周期划分：
+                Spring Cloud Gateway 的 Filter 的生命周期不像 Zuul 的那么丰富，它只有两个：“pre” 和 “post”。
+                    PRE：
+                        这种过滤器在请求被路由之前调用。
+                        我们可利用这种过滤器实现身份验证、在集群中选择请求的微服务、记录调试信息等。
+                    POST：
+                        这种过滤器在路由到微服务以后执行。
+                        这种过滤器可用来为响应添加标准的 HTTP Header、收集统计信息和指标、将响应从微服务发送给客户端等。
+                        ?
+                            是指从微服务返回后吗
+		Filter快速使用：
+		    http://www.ityouknow.com/springcloud/2019/01/19/spring-cloud-gateway-service.html
+			例1：这样就会给匹配的每个请求添加上foo=bar的参数和值。
+                spring:
+                  cloud:
+                    gateway:
+                      routes:
+                      - id: add_request_parameter_route
+                        uri: lb://spring-cloud-producer
+                        filters:
+                        - AddRequestParameter=foo, bar
+            附：？
+            路由转发服务化：( uri: lb://spring-cloud-producer)
+                1. 使用 uri 指定了一个服务转发地址，单个服务这样使用问题不大，(因为所有符合要求请求 都转发到这个uri)
+                2. 但是我们在注册中心往往会使用多个服务来共同支撑整个服务的使用，这个时候我们就期望可以将 Filter 作用到应用的每个实例上，spring cloud gateway 已经有了该功能，只需要简单配置即可。
+                例：
+                    #格式为：lb://应用注册服务名
+                    uri: lb://spring-cloud-producer
+
+
+                    ?请求将均匀转发到后端服务，并且后端服务均接收到了 filter 增加的参数 foo 值。
+
+                原理：？
+                    这里其实默认使用了全局过滤器 LoadBalancerClient ，当路由配置中 uri 所用的协议为 lb 时（以uri: lb://spring-cloud-producer为例），gateway 将使用 LoadBalancerClient 把 spring-cloud-producer 通过 eureka 解析为实际的主机和端口，并进行负载均衡。
+		附：
+        Gateway中使用SpringSecurity进行网关鉴权与权限控制
+            https://www.cnblogs.com/Lyn4ever/p/12702331.html
+            ？
+                网关集成？
+                各服务用户信息的获取？
+		Filter的一些常用功能：
+			http://www.ityouknow.com/springcloud/2019/01/26/spring-cloud-gateway-limit.html
+			修改请求路径的过滤器：
+				例：
+				    ...
+			限速路由器：
+				例：
+				    ...
+			熔断路由器：
+				Spring Cloud Gateway 也可以利用 Hystrix 的熔断特性，在流量过大时进行服务降级。
+				例：
+					...
+			重试路由器：
+				例：
+				    ...
+
+附：路由规则(断言规则):
 	上面只是使用了 predicates 进行了简单的条件匹配， Spring Cloud Gataway 内置了很多 路由 Predicates 实现。
 
 	通过时间匹配
 		Predicate 支持设置一个时间，在请求进行转发的时候，可以通过判断在这个时间之前或者之后进行转发。
-		可以用在限时抢购的一些场景中。	
+		可以用在限时抢购的一些场景中。
 		例：
 			比如我们现在设置只有在请求时间在 2018年1月20日6点6分6秒之后的请求都转发到地址http://ityouknow.com。
 			在之前的页面会报 404 没有找到地址
@@ -189,7 +229,7 @@ Example 53. ExampleConfiguration.java
 					uri: http://ityouknow.com
 					predicates:
 					 - After=2018-01-20T06:06:06+08:00[Asia/Shanghai]
-			
+
 			After Route Predicate：
 				是指在这个时间之后的请求都转发到目标地址。
 			Before Route Predicate：
@@ -202,7 +242,7 @@ Example 53. ExampleConfiguration.java
 					- Between=2018-01-20T06:06:06+08:00[Asia/Shanghai], 2019-01-20T06:06:06+08:00[Asia/Shanghai]
 			时间设置：
 				+08:00是指时间和UTC时间相差八个小时，时间地区为Asia/Shanghai。
-			
+
 				附：
 					Spring 是通过 ZonedDateTime 来对时间进行的对比，
 					ZonedDateTime 是 Java 8 中用于表示带时区的日期与时间信息的类。
@@ -235,7 +275,7 @@ Example 53. ExampleConfiguration.java
 				predicates:
 				- Header=X-Request-Id, \d+
 		使用 curl 测试，命令行输入:
-			curl http://localhost:8080  -H "X-Request-Id:666666" 
+			curl http://localhost:8080  -H "X-Request-Id:666666"
 			则返回页面代码证明匹配成功。将参数-H "X-Request-Id:666666"改为-H "X-Request-Id:neo"再次执行时返回404证明没有匹配。
 	通过 Host 匹配
 		Host Route Predicate 接收一组参数，一组匹配的域名列表，这个模板是一个 ant 分隔的模板，用.号作为分隔符。它通过参数中的主机地址作为匹配规则。
@@ -250,8 +290,8 @@ Example 53. ExampleConfiguration.java
 				- Host=**.ityouknow.com
 		使用 curl 测试，命令行输入:
 
-		curl http://localhost:8080  -H "Host: www.ityouknow.com" 
-		curl http://localhost:8080  -H "Host: md.ityouknow.com" 
+		curl http://localhost:8080  -H "Host: www.ityouknow.com"
+		curl http://localhost:8080  -H "Host: md.ityouknow.com"
 		经测试以上两种 host 均可匹配到 host_route 路由，去掉 host 参数则会报 404 错误。
 	通过请求方式匹配
 		可以通过是 POST、GET、PUT、DELETE 等不同的请求方式来进行路由。
@@ -364,98 +404,9 @@ Example 53. ExampleConfiguration.java
 		各种 Predicates 同时存在于同一个路由时，请求必须同时满足所有的条件才被这个路由匹配。
 
 		一个请求满足多个路由的谓词条件时，请求只会被首个成功匹配的路由转发
-getway微服务化：（getway与网关结合使用）
-	快速使用中是网关代理单个服务的使用语法。
-	但服务中心往往注册了很多服务，如果每个服务都需要单独配置网关的话，很麻烦。
-	Spring Cloud Gateway 提供了一种默认转发的能力，只要将 Spring Cloud Gateway 注册到服务中心，Spring Cloud Gateway 默认就会代理服务中心的所有服务。
-	依赖：
-		<!-- eureka 的客户端依赖包-->
-		<!-- 使用getway建议注册中心升级为Finchley.SR2-->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-gateway</artifactId>
-		</dependency>
-	配置文件:application.yml
-		server:
-		  port: 8888
-		spring:
-		  application:
-			name: cloud-gateway-eureka
-		  cloud:
-			gateway:
-			 discovery:
-				locator:
-				 enabled: true
-		eureka:
-		  client:
-			service-url:
-			  defaultZone: http://localhost:8000/eureka/
-		logging:
-		  level:
-			org.springframework.cloud.gateway: debug
-		配置说明：
-			spring.cloud.gateway.discovery.locator.enabled
-				是否与服务注册与发现组件进行结合，默认为 false。
-				开启后将会通过服务中心的自动根据 serviceId 创建路由。
-			eureka.client.service-url.defaultZone
-				指定注册中心的地址，以便使用服务发现功能
-			logging.level.org.springframework.cloud.gateway 
-				调整相 gateway 包的 log 级别，以便排查问题
-	测试
-		1.启动 cloud-gateway-eureka 项目，访问注册中心地址 http://localhost:8000/ 即可看到名为 CLOUD-GATEWAY-EUREKA的服务。
 
-		2.将 Spring Cloud Gateway 注册到服务中心之后，网关会自动代理所有在注册中心的服务，通过网关访问这些服务的语法为：
-			http://网关地址：端口/服务中心注册 serviceId/服务具体的url	
-			例：http://localhost:8888/SPRING-CLOUD-PRODUCER/hello
-网关高级功能：
-	均衡负载：
-		getway是自动实现负载均衡的。
-		例：
-			注册中心有两个名为 SPRING-CLOUD-PRODUCER的服务，通过网关http://localhost:8888/SPRING-CLOUD-PRODUCER/hello
-			页面交替返回以下信息：
-				hello world 1!
-				hello world 2!
-				说明网关自动进行了均衡负载。
-	Gateway  Filter：
-		利用 GatewayFilter 可以修改请求的 Http 的请求或者响应，或者根据请求或者响应做一些特殊的限制。
-		Gateway 按范围划分：
-			Spring Cloud Gateway 的 Filter 分为两种：GatewayFilter 与 GlobalFilter。
-			GlobalFilter 会应用到所有的路由上
-				Spring Cloud Gateway 内置了9种 GlobalFilter，比如 Netty Routing Filter、Websocket Routing Filter 等
-			GatewayFilter 将应用到单个路由或者一个分组的路由上。
-		Gateway 按生命周期划分：
-			Spring Cloud Gateway 的 Filter 的生命周期不像 Zuul 的那么丰富，它只有两个：“pre” 和 “post”。
-				PRE： 
-					这种过滤器在请求被路由之前调用。
-					我们可利用这种过滤器实现身份验证、在集群中选择请求的微服务、记录调试信息等。
-				POST：
-					这种过滤器在路由到微服务以后执行。
-					这种过滤器可用来为响应添加标准的 HTTP Header、收集统计信息和指标、将响应从微服务发送给客户端等。
-		快速使用Filter：
-			例：
-				给每个匹配的请求添加上foo=bar参数。
-				http://www.ityouknow.com/springcloud/2019/01/19/spring-cloud-gateway-service.html
-		Filter的一些常用功能：
-			http://www.ityouknow.com/springcloud/2019/01/26/spring-cloud-gateway-limit.html
-			修改请求路径的过滤器：
-				例：
-			限速路由器：
-				例：
-			熔断路由器：
-				Spring Cloud Gateway 也可以利用 Hystrix 的熔断特性，在流量过大时进行服务降级。
-				例：
-					
-			重试路由器：
-				例：
-				
 		
 附：
-	Gateway中使用SpringSecurity进行网关鉴权与权限控制
-		https://www.cnblogs.com/Lyn4ever/p/12702331.html
 	zuul网关整合security
 		https://blog.csdn.net/Grain_Rain_tx/article/details/105875025
 	RouteDefinition

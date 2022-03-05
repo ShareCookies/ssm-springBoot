@@ -32,9 +32,14 @@ Spring Cloud微服务框架的搭建：
 			./网关/README.txt
 		结合以上模块就可搭建一个微服务框架。
 	附：
+		Spring Cloud Sleuth	分布式系统调用跟踪:？
+			http://www.ityouknow.com/springcloud/2018/02/02/spring-cloud-sleuth-zipkin.html
+			使用Spring Cloud Sleuth和Zipkin进行分布式链路跟踪.
+			随着业务发展，系统拆分导致系统调用链路愈发复杂一个前端请求可能最终需要调用很多次后端服务才能完成.
+			当整个请求变慢或不可用时，我们是无法得知该请求是由那些后端服务引起的，这时就需要快读定位服务故障点，以对症下药。
+		错误集成？
 		Spring Cloud Config 服务集群配置中心。
 			./配置中心/README.txt
-
 		Spring Cloud Bus 集群中传播状态的变化（通常配置变化事件）。
 			./配置中心/SpringCloudBus.txt
 Spring Cloud附：
@@ -83,11 +88,7 @@ Spring Cloud附：
 			Consul 支持健康检查,并允许 HTTP 和 DNS 协议调用 API 存储键值对.
 		Spring Cloud Consul 
 			封装了Consul操作，consul是一个服务发现与配置工具，与Docker容器可以无缝集成。
-		Spring Cloud Sleuth	分布式系统调用跟踪:
-			http://www.ityouknow.com/springcloud/2018/02/02/spring-cloud-sleuth-zipkin.html
-			使用Spring Cloud Sleuth和Zipkin进行分布式链路跟踪.
-			随着业务发展，系统拆分导致系统调用链路愈发复杂一个前端请求可能最终需要调用很多次后端服务才能完成.
-			当整个请求变慢或不可用时，我们是无法得知该请求是由那些后端服务引起的，这时就需要快读定位服务故障点，以对症下药。
+		
 		Spring Cloud Stream:
 			https://www.cnblogs.com/dengpengbo/p/11103943.html
 			Stream实现了消息中间件和服务的高度解耦。
