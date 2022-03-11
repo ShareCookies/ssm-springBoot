@@ -76,10 +76,11 @@ IOC容器：(spring的bean管理器)
 						使用XML文件配置的bean，可选择ClassPathXmlApplicationContext来加载。
 						该类加载位于应用程序类路径下的XML配置文件。
 					例：
-						ApplicationContextcontext = new ClassPathXm1App1icationContext ( "knight.xm1") ;
+						ApplicationContextcontext = new ClassPathXm1App1icationContext("knight.xm1") ;
 					附：
-						使用FileSystemXmlApplicationContext和使 用ClassPathXmlApp-licationContext的区别在 于：FileSystemXmlApplicationContext在指定的文件系统路 径下查找knight.xml文件；
-						而ClassPathXmlApplicationContext 是在所有的类路径（包含JAR文件）下查找 knight.xml文件。
+						FileSystemXmlApplicationContext和ClassPathXmlApp-licationContext的主要区别在于：
+						FileSystemXmlApplicationContext在指定的文件系统路 径下查找knight.xml文件；
+						而ClassPathXmlApplicationContext 则是在类路径下(resource)查找 knight.xml文件。
 				
 
 				WebApplicationContext:
