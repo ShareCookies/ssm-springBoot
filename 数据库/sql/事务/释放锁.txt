@@ -1,17 +1,27 @@
-
-https://blog.csdn.net/David_jiahuan/article/details/91558816?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase
-
 释放死锁：
 	https://blog.csdn.net/dujianxiong/article/details/90770301
-	字段解释：
-		https://blog.csdn.net/J080624/article/details/80596958/?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-3&spm=1001.2101.3001.4242
-	1. 通过事务表和锁表，确认INNODB_TRX里面是否有正在锁定的事务，通过trx_mysql_thread_id（事务对应的线程ID），
-	看看ID是否在show processlist里面的sleep线程中，如果是，就证明这个sleep的线程事务一直没有commit或者rollback而是卡住了，我们需要手动kill掉。
+		
+	1. 死锁/卡死 查找
+		思路：
+			1. 通过事务表和锁表，找到有问题的事务(死锁或卡死)。
+			2. 通过事务对应的线程ID，查看其在show processlist中的状态(是否sleep)。
+			如果是，就证明这个sleep的线程事务一直没有commit或者rollback而是卡住了，我们需要手动kill掉。
+			？
+				理论上mysql不是会自动释放一个死锁吗 那这里为什么会卡死了
 		当前正在运行的所有事务：
 			mysql> SELECT * FROM information_schema.INNODB_TRX;
 			目的：
 				找出运行比较久的事务，判断他们的事务状态。
-				可与附1结合来判断到锁之间关系，可能是两个事务间死锁或某个事务阻塞死。
+				附：判断 死锁还是卡死
+					可与附1结合来判断锁之间关系，可能是两个事务间死锁 还是某个事务导致数据库阻塞死。
+				附：数据库卡死
+					sql复杂、数据量大、并发情况下
+					这个时候可能造成了数据库卡死。此后，其他任何查询都会卡死。
+						？为什么会让数据库卡死？这里的卡死指的是什么卡死
+					此时需要杀掉mysql的进程然后重启mysql服务才可以解决数据库卡死的问题。
+					https://blog.csdn.net/m0_46266503/article/details/106426579
+					？
+						数据库卡死通过杀死线程是没用的吗 一定要重启才行吗
 			附：
 				推荐mysql客户端执行：SELECT * FROM INFORMATION_SCHEMA.INNODB_TRX\G（便于复制出来查看）
 				https://blog.csdn.net/zhaoyangjian724/article/details/52858519
@@ -25,7 +35,7 @@ https://blog.csdn.net/David_jiahuan/article/details/91558816?utm_medium=distribu
 					事务开始等待锁的时间（TRX_STATE is LOCK WAIT时才有，否则为空）
 				TRX_QUERY：事务执行的语句
 		附1:
-		当前出现的锁
+		当前出现的锁？
 			当前出现的锁：
 				mysql> SELECT * FROM information_schema.INNODB_LOCKs;
 				附：
@@ -64,6 +74,11 @@ https://blog.csdn.net/David_jiahuan/article/details/91558816?utm_medium=distribu
 					把造成阻塞的sql kill掉，就云淡风轻了。
 					需要注意，造成阻塞的sql要特别检查执行计划(explain)，优化之。我的经验，这种sql一般是巨耗资源的。
 					https://bbs.csdn.net/topics/200049269
+	附：
+		mysql8的事务表有变化：
+			./mysql8特性.txt
+	？
+		https://blog.csdn.net/J080624/article/details/80596958/?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-3&spm=1001.2101.3001.4242
 附：
 	mysql死锁日志：
 		通过show engine innodb status 查看最新一次记录死锁的日志。
