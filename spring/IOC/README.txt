@@ -11,10 +11,9 @@ IOC：(Inversion of Control) 控制反转
 			即spring来负责控制对象的生命周期和对象间的关系。
 		附：DI (dependency injection 依赖注入)
 			介绍：
-				IoC的一个重点是在系统运行中，需要动态的向某个对象提供它所需要的其他对象。
+				1. IoC的一个重点是在系统运行中，需要动态的向某个对象提供它所需要的其他对象。
 				这一点是通过DI（Dependency Injection，依赖注入）来实现的。
-				附：
-					DI能够让相互协作的软件组件保持松散耦合
+				
 			依赖注入三种实现方式：
 				1.接口注入
 				2.Setter注入
@@ -41,8 +40,6 @@ IOC：(Inversion of Control) 控制反转
 						类的属性使用getter和setter来访问等。
 					POJO：
 						一个不受任何限制的Java对象，除了Java语言规范。
-springBean的生命周期：
-	./spring高级装配/springBean的生命周期/
 
 IOC容器：(spring的bean管理器)
 	https://www.cnblogs.com/xiaoxi/p/5846416.html
@@ -55,7 +52,7 @@ IOC容器：(spring的bean管理器)
 		BeanFactory接口：
 			介绍:
 				BeanFactory接口仅实现了IOC功能。
-				通常只提供注册（put），获取（get）这两个功能，可称为IOC容器（低级容器）。
+				通常只提供注册（put），获取（get）这两个功能（低级容器）。
 			实现类:
 				XmlBeanFactory:
 				所需参数:
@@ -68,9 +65,9 @@ IOC容器：(spring的bean管理器)
 			实现类:
 				各种应用上下文的实现，它们之间主要的区别仅在于如何加载bean配置。
 				FileSystemXmlApplicationContext:
-						介绍：通过参数指定配置文件位置。即可获得类路径之外的资源。
-						例：
-							ApplicationContext context = new FileSystemXmlApplicationContext("C:/knight.xml") ;
+					介绍：通过参数指定配置文件位置。即可获得类路径之外的资源。
+					例：
+						ApplicationContext context = new FileSystemXmlApplicationContext("C:/knight.xml") ;
 				ClassthPathXmlApplicationContext:
 					介绍：
 						使用XML文件配置的bean，可选择ClassPathXmlApplicationContext来加载。
@@ -80,8 +77,7 @@ IOC容器：(spring的bean管理器)
 					附：
 						FileSystemXmlApplicationContext和ClassPathXmlApp-licationContext的主要区别在于：
 						FileSystemXmlApplicationContext在指定的文件系统路 径下查找knight.xml文件；
-						而ClassPathXmlApplicationContext 则是在类路径下(resource)查找 knight.xml文件。
-				
+						而ClassPathXmlApplicationContext 则是在应用类路径下的resource中查找 knight.xml文件。
 
 				WebApplicationContext:
 					介绍：spring的Web应用容器
@@ -89,25 +85,12 @@ IOC容器：(spring的bean管理器)
 	
 	容器使用：
 		1.创建容器：
-			方式1：web应用无需手动创建，而是配置要使用的容器：？
+			方式1：web应用无需手动创建，而是配置要使用的容器：
 				1.在servlet的web.xml配置spring的ContextLoaderListener监听器
 				或2.修改web.xml在其中添加一个servlet，定义使用spring的ContextLoaderServlet类。
 			方式2：手动创建创建容器
 		2.bean的装配：
-			介绍：
-				定义那些类要注册为spring容器的bean。
-			方式1：在XML中进行显式配置。p76
-			方式2：Spring自动发现和装配bean。（推荐）
-				./bean自动加载/springBean的自动加载.txt
-			方式3：在Java中进行显式配置。
-				./JavaConfig显式配置.txt
-			附：
-				混合配置：
-					介绍：
-						Spring的bean配置风格是可以互相搭配的。
-						所以你可以选择使用XML装配一些bean，
-						使用Spring基于Java的配置（JavaConfig）来装配另一些bean，
-						而将剩余的bean让Spring去自动发现。			
+			./bean的装配/
 
 		3.通过容器手动获取bean:
 			例:获取user对象
@@ -132,3 +115,5 @@ IOC容器：(spring的bean管理器)
 			（3）BeanFactory通常以编程的方式被创建，ApplicationContext还能以声明的方式创建，如使用ContextLoader。
 
 			（4）BeanFactory和ApplicationContext都支持BeanPostProcessor、BeanFactoryPostProcessor的使用，但两者之间的区别是：BeanFactory需要手动注册，而ApplicationContext则是自动注册。?
+springBean的生命周期：
+	./spring高级装配/springBean的生命周期/

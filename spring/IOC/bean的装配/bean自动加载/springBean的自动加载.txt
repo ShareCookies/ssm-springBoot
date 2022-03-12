@@ -3,16 +3,7 @@
 参考·：
 	spring实战P76
 SpringBean自动化加载的实现：
-	介绍：
-		组件扫描和构造性注解来实现将bean注册到容器中。
-		然后在通过自动装配注解，来使spring容器自动管理bean的依赖。（即自动往bean的属性中注入所需要的bean）
-	附：
-		组件扫描（component scanning）：
-			Spring会自动发现应用上下文中所创建的bean。
-		自动装配（autowiring）：
-			Spring自动满足bean之间的依赖。
-				在springBean无需自己查找或创建与其关联的其他对象，由容器负责把需要相互协作的对象引用赋予各个对象。
-
+	通过组件扫描、构造性注解，即可实现bean自动化加载到容器中。
 
 1.构造性注解定义bean：
 	实现方式：
@@ -22,7 +13,7 @@ SpringBean自动化加载的实现：
 		@Component
 		class Test{}
 	附：
-		构造型注解（stereotype）：
+		各构造型注解：（stereotype）
 			介绍：
 				开启注解扫描器后，spring会把构造型注解标注的类注册为bean，这些类对象都将由spring的bean容器管理。
 				如@Component等均是构造型注解。
@@ -119,13 +110,10 @@ SpringBean自动化加载的实现：
 			@Inject注解来源于Java依赖注入规范，Spring同时支持@Inject和@Autowired。
 	
 3.开启组件扫描：
-	介绍：
-		1.只有使用了构造型注解，才需要开启组件扫描。
-		2.如果1,2步均使用了xml实现，则无需开启组件扫描。
-		组件扫描作用：
-			查找bean，并把bean交给spring的容器管理。
-			注：
-				如果1,2步均使用了xml实现，则bean就已经交给了spring容器管理。
+	组件扫描作用：
+		查找bean，并把bean交给spring的容器管理。
+		注：
+			1. 只有使用了构造型注解，才需要开启组件扫描。
 	实现方式：
 		1.配置启动类上使用@ComponentScan注解，即可启用组件扫描
 		例：
