@@ -14,11 +14,37 @@ Spring Security简介：
 		Spring Security 用户认证过程：
 			https://blog.csdn.net/my_learning_road/article/details/79833802
 		《Spring实战》（第4版）第9章，主要是Spring Security保护Web层的安全。
+
+
+Security使用Filter保护Web请求和实现登陆
+	登陆实现思路：
+		简要：
+			filter：filter拦截请求，生成Authentication
+			provider：
+				provider实现了：
+					用户的登陆，和说明了其适配那种Authentication。
+				provider如何被应用：
+					filter会调用AuthenticationManager，让其找到适配的provider进行
+		详细：
+			./security是如何实现用户登录的.txt
+	案例：
+		Spring Security 的token登陆实战：
+			./Spring Security快速使用.txt
+	
+
+
+
+
 使用security保护方法调用：
-	...
+	...？
 	《Spring实战》（第4版）第14章中，主要是Spring Security如何保护方法的调用。
 
-附：
+
+
+
+
+
+待定：
 	spring security 管方文档：
 		https://docs.spring.io/spring-security/site/docs/4.2.1.RELEASE/reference/htmlsingle/#getting-started
 	1. 认证 (Authentication) 和授权 (Authorization)的区别：
@@ -42,7 +68,10 @@ Spring Security简介：
 		什么是OAuth 2.0：
 			OAuth 是一个行业的标准授权协议，主要用来授权第三方应用获取有限的权限。
 				实际上它就是一种授权机制，它的最终目的是为第三方应用颁发一个有时效性的令牌token，使得第三方应用能够通过该令牌获取相关的资源。
-待定，废弃：
+
+
+
+废弃：
 	Spring Security具有的模块:p306
 		Spring Security 3.2分为11个模块。
 		注：

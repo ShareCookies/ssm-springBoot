@@ -5,9 +5,18 @@ security是如何实现用户登录的：
 	附：
 		UsernamePasswordAuthenticationFilter：
 			UsernamePasswordAuthenticationFilter是AbstractAuthenticationProcessingFilter一种实现类，是针对使用用户名和密码进行身份验证而定制化的一个过滤器。
-			AbstractAuthenticationProcessingFilter是个抽象类，实现类有cookie，用户名密码等。抽象类在整个身份验证的流程中主要处理的工作就是所有与Web资源相关的事情，并且将其封装成Authentication对象，最后调用AuthenticationManager的验证方法。
-			所以UsernamePasswordAuthenticationFilter的工作大致也是如此，只不过在这个场景下更加明确了Authentication对象的封装数据的来源——用户名和密码。
-			如何决定用那个filter了？
+			如何决定用那个filter了：
+				//通过该方法决定过滤器应用到那个请求
+				public UsernamePasswordAuthenticationFilter() {
+					super(new AntPathRequestMatcher("/login", "POST"));
+				}
+				？通过了是如何跳过后续的filter了
+				
+			附：
+				AbstractAuthenticationProcessingFilter是个抽象类，实现类有cookie登陆，用户名密码登陆等。
+				抽象类在整个身份验证的流程中主要处理的工作就是所有与Web资源相关的事情，并且将其封装成Authentication对象，最后调用AuthenticationManager的验证方法。
+				所以UsernamePasswordAuthenticationFilter的工作大致也是如此，只不过在这个场景下更加明确了Authentication对象的封装数据的来源——用户名和密码。
+
 		AuthenticationManager如何完成校验工作：
 			AuthenticationManager唯一实现类ProviderMananger。
 			ProviderMananger根据各个AuthenticationProvider实现类的support方法询问哪个具体实现类能支持该token工作，找到后调用其authenticate进行认证判断。
