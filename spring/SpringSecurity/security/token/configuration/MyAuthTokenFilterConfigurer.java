@@ -27,6 +27,7 @@ public class MyAuthTokenFilterConfigurer extends SecurityConfigurerAdapter<Defau
     @Override
     public void configure(HttpSecurity http) throws Exception {
         MyAuthTokenFilter customFilter = new MyAuthTokenFilter(detailsService, tokenProvider);
+		//这里确保了自定义的filter会优先于u.filter执行。（?u.filter是第一个过滤器吗）
         http.addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }

@@ -1,39 +1,20 @@
 Spring Security简介：
 	Spring Security是为基于Spring的应用程序提供安全保护的安全性框架。
-	它能够在Web请求级别，或方法调用级别，处理身份认证和授权。
+	它能够在Web请求级别、或方法调用级别，处理身份认证和授权。
 	Spring Security能够解决两种安全性问题:
 		1.保护Web请求
 			Security使用了Servlet规范中的Filter保护Web请求并限制URL级别的访问。
 		2.保护方法调用
 			Security使用了Spring AOP保护方法调用，能够确保只有具备适当权限的用户才能访问安全保护的方法。
 使用security保护Web请求：
-	sprig security 结合 token 实现用户认证：
-		./Spring Security快速使用.txt
-	./使用security保护Web请求.txt
-	附：
-		Spring Security 用户认证过程：
-			https://blog.csdn.net/my_learning_road/article/details/79833802
-		《Spring实战》（第4版）第9章，主要是Spring Security保护Web层的安全。
+	介绍：
+		Security使用Filter保护Web请求和实现登陆。
+	案例：SpringSecurity结合token快速应用：
+		./SpringSecurity结合token快速应用.txt
 
-
-Security使用Filter保护Web请求和实现登陆
-	登陆实现思路：
-		简要：
-			filter：filter拦截请求，生成Authentication
-			provider：
-				provider实现了：
-					用户的登陆，和说明了其适配那种Authentication。
-				provider如何被应用：
-					filter会调用AuthenticationManager，让其找到适配的provider进行
-		详细：
-			./security是如何实现用户登录的.txt
-	案例：
-		Spring Security 的token登陆实战：
-			./Spring Security快速使用.txt
-	
-
-
-
+	？
+		./使用security保护Web请求.txt
+		./security是如何实现用户登录的.txt
 
 使用security保护方法调用：
 	...？

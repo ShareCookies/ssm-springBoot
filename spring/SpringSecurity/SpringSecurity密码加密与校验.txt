@@ -1,7 +1,8 @@
 原文：https://www.jianshu.com/p/922963106729
 
-一般在代码中注入PasswordEncoder的实例，然后调用其 matches 方法来匹配当前密码和数据库中保存的“密码”；
 附：
+	手动确认密码是什么：
+		一般在代码中注入PasswordEncoder的实例，然后调用其 matches 方法来匹配当前密码和数据库中保存的“密码”；
 	security具有的PasswordEncoder 密码编码器：
 		bcrypt 、ldap 、MD4 、 MD5 、noop 、pbkdf2 、scrypt 、SHA-1 、SHA-256
 		BCryptPasswordEncoder：
@@ -12,7 +13,7 @@
 		加密/解密 与 Hash ：
 			SHA 系列是 Hash 算法，不是加密算法，加密意味着可以解密，但是 Hash 是不可逆的
 			（无法通过 Hash 值还原得到密码，只能比对 Hash 值看看是否相等）。
-		安全性问题：
+		安全性问题：？
 			目前很大一部分存在安全问题的系统一般仅仅使用密码的 MD5 值进行保存，
 			可以通过 MD5 查询库去匹配对大部分的密码（可以直接从彩虹表里反推出来），而且 MD5 计算 Hash 值碰撞容易构造，安全性大大降低。
 			MD5 加盐在本地计算速度也是很快，也是密码短也是极其容易破解；更好的选择是 SHA-256、BCrypt 等等等
@@ -74,52 +75,3 @@ BCryptPasswordEncoder的密码加密与密码匹配过程：
 		.........
 		就是从数据库密码中获取相应的密码盐，
 		利用这个密码盐对传入的原密码进行计算，最后两个密码进行匹配。
-
-
-这里认证的时候会调用到密码校验编码器进行密码的校验。
-package org.springframework.security.authentication;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-
-/**
- * Processes an {@link Authentication} request.
- *
- * @author Ben Alex
- */
-public interface AuthenticationManager {
-	// ~ Methods
-	// ========================================================================================================
-
-	/**
-	 * Attempts to authenticate the passed {@link Authentication} object, returning a
-	 * fully populated <code>Authentication</code> object (including granted authorities)
-	 * if successful.
-	 尝试去认证传递过来的Authentication对象，如果成功，则会返回一个全面详细（包含了授权信息）的Authentication对象。
-	 * <p>
-	 * An <code>AuthenticationManager</code> must honour the following contract concerning
-	 * exceptions:
-	 * <ul>
-	 * <li>A {@link DisabledException} must be thrown if an account is disabled and the
-	 * <code>AuthenticationManager</code> can test for this state.</li>
-	 * <li>A {@link LockedException} must be thrown if an account is locked and the
-	 * <code>AuthenticationManager</code> can test for account locking.</li>
-	 * <li>A {@link BadCredentialsException} must be thrown if incorrect credentials are
-	 * presented. Whilst the above exceptions are optional, an
-	 * <code>AuthenticationManager</code> must <B>always</B> test credentials.</li>
-	 * </ul>
-	 * Exceptions should be tested for and if applicable thrown in the order expressed
-	 * above (i.e. if an account is disabled or locked, the authentication request is
-	 * immediately rejected and the credentials testing process is not performed). This
-	 * prevents credentials being tested against disabled or locked accounts.
-	 *
-	 * @param authentication the authentication request object
-	 *
-	 * @return a fully authenticated object including credentials
-	 *
-	 * @throws AuthenticationException if authentication fails
-	 */
-	Authentication authenticate(Authentication authentication)
-			throws AuthenticationException;
-}
-

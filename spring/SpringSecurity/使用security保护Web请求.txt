@@ -1,25 +1,23 @@
 保护Web请求：
-	1.过滤Web请求：p307
+	1.过滤Web请求：？
 		介绍：
 			Spring Security借助一系列Servlet Filter来提供各种安全性功能。
-			但我们只需配置一个Filter，DelegatingFilterProxy，该filter会拦截请求，并将工作委托给一个Filter实现类。
+			我们只需配置一个Filter(DelegatingFilterProxy)即可启用security就可拦截请求。
 		1.注册DelegatingFilterProxy过滤器：
-			web.xml注册：p307
+			DelegatingFilterProxy是什么：
+				DelegatingFilterProxy是一个Filter，该filter会拦截请求，并将工作委托给一个Filter实现类。
+				Spring Security中不管我们通过web.xml还是通过AbstractSecurityWebApplicationInitializer的子类来配置DelegatingFilterProxy，
+				它都会拦截发往应用中的请求，并将请求委托给ID为springSecurityFilterChain bean。
+				附：？
+					1.xml注册了DelegatingFilterProxy后，DelegatingFilterProxy是通过filter-name把请求委托给代理器。
+					2.？java中注册了DelegatingFilterProxy，它是通过bean名将请求委托给springSecurityFilterChain bean吗。
+			web.xml注册：
+				p307
 			java方式注册：
 				p307
-				goto：spring security的入口——springSecurityFilterChain。
-			附录：
-				DelegatingFilterProxy是什么：
-					DelegatingFilterProxy是一个Filter，该filter会拦截请求，并将工作委托给一个Filter实现类。
-					Spring Security中不管我们通过web.xml还是通过AbstractSecurityWebApplicationInitializer的子类来配置DelegatingFilterProxy，
-					它都会拦截发往应用中的请求，并将请求委托给ID为springSecurityFilterChain bean。
-					注：
-						1.xml注册了DelegatingFilterProxy后，DelegatingFilterProxy是通过filter-name把请求委托给代理器。
-						2.？java中注册了DelegatingFilterProxy，它是通过bean名将请求委托给springSecurityFilterChain bean吗。
-				java代码是如何注册DelegatingFilterProxy：
-					AbstractSecurityWebApplicationInitializer实现了 WebApplication-Initializer，
-					因此Spring会发现它，并用它 在Web容器中注册DelegatingFilterProxy。
-					//尽管我们可以重载 它的appendFilters()或insertFilters()方法来注册自己选择 的Filter，但是要注册DelegatingFilterProxy的话，我们并不需 要重载任何方法。
+				AbstractSecurityWebApplicationInitializer实现了 WebApplication-Initializer，
+				因此Spring会发现它，并用它 在Web容器中注册DelegatingFilterProxy。
+				//尽管我们可以重载 它的appendFilters()或insertFilters()方法来注册自己选择 的Filter，但是要注册DelegatingFilterProxy的话，我们并不需 要重载任何方法。
 					
 	2.配置Security来启用Web安全性功能：
 		1.启用Web安全性功能的最简单配置：

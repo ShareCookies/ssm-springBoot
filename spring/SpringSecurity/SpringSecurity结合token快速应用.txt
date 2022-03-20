@@ -1,0 +1,174 @@
+https://www.cnblogs.com/demingblog/p/10874753.html
+介绍：(Spring Security 的token实战)
+	token 实现登录 介绍：
+		前后端项目分离，并不一定均适合使用session方案保持登录状态（如移动端就无法使用cookie）。
+		服务器先向客户端传递token，客户端访问时在带上该token，然后服务端通过token来识别用户是较好的一个解决方案。
+	spring security整合token:
+		0. 应用集成security：
+			1. 添加security依赖 
+			2. 在配置类上通过注解@EnableWebSecurity来启用security。
+			详 goto：
+				1. security依赖 
+				2. 新建一个security配置类
+		1. 生成token：
+			1. 编写登入认证接口
+				goto: 
+					1. 设置用户存储
+					2. 编写登入认证接口
+			2. 开放登入认证接口
+				goto：web请求的访问权限控制
+		2. 自定义filter来识别请求上的token信息：
+			介绍：(spring security怎么根据token得到授权认证信息。)
+				客户端有token后，请求的时候带上token=abcd参数。
+				然后在security中使用一个自定义的filter解析token，复原security无状态下的"session"，让当前请求的处理线程具有认证授权数据，后面的业务逻辑才能执行。
+				即：
+					这一步的思路是，手动把当前用户信息存入security，即手动设置security的authentication。
+					否则SecurityContext中没有用户信息，后面的流程会检测出"需要登录"。
+			实现：
+				自定义filter：
+					在该过滤器中来解析token
+					./security/token/filter/MyAuthTokenFilter.java
+				将自定义的filter整合到spring security中:
+					通过security的配置适配器 把自定义filter添加到security的配置中。
+					1.将自定义的过滤器整合到SecurityConfigurerAdapter中。
+						./security/token/configuration/MyAuthTokenFilterConfigurer.java
+					2.将SecurityConfigurerAdapter整合到security配置类中：
+						private MyAuthTokenConfigurer securityConfigurerAdapter() {
+						  return new MyAuthTokenConfigurer(userDetailsService, tokenProvider);
+						}
+						@Override
+						protected void configure(HttpSecurity http) throws Exception {
+							http
+								.and()
+								.apply(securityConfigurerAdapter());// 增加自定义的securityConfigurerAdapter
+						}
+		3.security使用了token认证方案后要关闭的一些设置：
+			1. goto：禁用spring security 的session
+			2. .and().csrf().disable() //关闭csrf保护 （Cross-site request forgery 跨站请求伪造）
+			？
+				禁用原因详细描述
+	附：思路总结
+		使用token进行用户验证的系统流程：
+			1.客户端（react前端，IOS等）调用“登录接口”获得一个包含token的响应（通常是个JSON，如 {“token”:”abcd”,”expires”:1234567890}）
+			2.客户端发起请求并携带token参数，向服务器获取数据。
+			3.
+				服务端根据token发现token过期/错误，返回”请登录”状态码
+				服务器发现token正常，并解析出来是A，设置用户信息到security上下文中，security对请求放行。
+注:
+1. security依赖：
+	加入如下依赖，引入spring security：
+	<dependency>
+	 <groupId>org.springframework.boot</groupId>
+	 <artifactId>spring-boot-starter-security</artifactId>
+	</dependency>
+2.新建一个security配置类：
+	例：
+		./security/SecurityConfiguration.java
+	介绍：
+		1. 启用security。
+			在配置类上通过注解@EnableWebSecurity来启用security。
+			？
+				原理
+		2. web请求的访问权限控制：
+			实现用户只能访问特定的接口（一般我们会开放出登入等链接），让其无法访问其余接口。
+			例：
+				@Override
+				protected void configure(HttpSecurity http) throws Exception {
+					http.authorizeRequests() //authorizeRequests() 定义哪些URL需要被保护、哪些不需要被保护。
+						.antMatchers("/test/*").permitAll() //
+						.antMatchers("/user/register/*").permitAll() //
+						.antMatchers("/user/login/*").permitAll() // 配置需要忽略的请求（即不需要登录也可访问，但会经过spring security的过滤器链）。
+						.anyRequest().authenticated(); //其余所有的url均需要认证
+				}		
+			附：原理
+				security是通过filter来保护请求的。
+				详：？
+					./使用security保护Web请求.txt goto: 过滤请求
+					？ 为什么配置了就可拦截了
+		3. 设置用户存储：
+			介绍：
+				告诉security怎么如何获取具体用户信息。
+				作用：
+					security都是用provider来实现用户信息认证的，而认证是需要获取用户信息才能认证啊，用户存储就是给security来获取用户信息用的。
+			例：
+				指明security如何从数据库获取用户信息：
+				1.自定义UserDetailsService：
+					介绍：
+						该service是用来指明查找用户的具体操作，并返回UserDetails格式的用户信息。
+					例：
+						./security/CustomUserDetailsService.java
+				2.把自定义UserDetailsService，应用到security用户存储配置中。
+					@Override
+					protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+						auth.userDetailsService(userDetailsService)
+							.passwordEncoder(passwordEncoder());// 设置密码编码器
+					}
+			原理：
+				security认证用户的原理：
+					security是如何实现用户登录的.txt#AuthenticationManager如何完成用户的校验工作
+3.编写登入认证接口：（即如何登入然后进行认证）
+    //1,2,3,4步骤都是spring security内置校验方法，如果完成了则表明账号密码都正确。
+	// 第5步是我们自己定义的，用来把登入成功后的信息转换成自定义token。
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	@Autowired
+	UserDetailsService userDetailsService;
+    @PostMapping("/user/login/account")
+    public AuthToken loginByAccountReturnToken(@RequestParam(value = "name") String username, @RequestParam String password) {
+        // 1 创建UsernamePasswordAuthenticationToken （构造一个可以让security进行验证的身份令牌）
+        UsernamePasswordAuthenticationToken token
+                = new UsernamePasswordAuthenticationToken(username, password);
+        // 2 认证  （security通过authenticationManager进行身份验证，验证不通过会返回403拒接访问）
+        Authentication authentication = this.authenticationManager.authenticate(token);
+        // 3 保存认证信息 （认证通过，把身份信息保存到security上下文中，便于随时获取）（？具体保存在哪）
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        //  加载UserDetails
+        //UserDetails details = this.userDetailsService.loadUserByUsername(username);
+        // 5 生成自定义token
+        User user = new User();
+        user.setName(username);
+        user.setPassword(password);
+        AuthTokenProvider authTokenProvider = new AuthTokenProvider();
+        //User user1 = SecurityUtils.getLoginUser();
+        return authTokenProvider.createToken(user);
+    }
+	附
+		第5步解释：
+			介绍：				
+				客户端可以通过该请求来获得一个token了{"token":"abcd","expires":1234567890}，那么下次请求的时候，带上 token=abcd这个参数（或者也可以是自定义的请求头中），服务端即可从该token中识别出你的信息，无需登入。
+			AuthTokenProvider：
+				自定义的token工具类，该类具有两个方法，一个用来生成token，一个用来验证token（即从token中识别用户）。
+				例：./security/token/AuthTokenProvider.java
+			AuthToken：
+				自定义的token对象，就是保存了token的一些信息。
+				例：./security/token/AuthToken.java
+
+附：
+	禁用spring security 的session:
+		spring security 使用了session：
+			开篇例子使用管理员账号密码登录之后，就可以访问/admin/home了，此时修改浏览器地址栏为/product/info之后刷新页面，仍然可以访问，说明认证状态被保持了；
+			如果关闭浏览器重新输入/admin/home就会提示我们重新登录，这有点session的感觉。
+			如果此时，我们将浏览器cookie禁用掉，你会发现登录之后自动跳转只会得到403，403是拒绝访问的意思，是没有权限的意思，说明这种情况下授权状态和session是挂钩的。
+			即spring security使用了session。
+		禁用spring security的session：
+			spring security session四状态：
+				always – a session will always be created if one doesn’t already exist，没有session就创建。
+				ifRequired – a session will be created only if required (default)，如果需要就创建（默认）。
+				never – the framework will never create a session itself but it will use one if it already exists
+				stateless – no session will be created or used by Spring Security 不创建不使用session
+			介绍：
+				目前的应用基本都是前后端分离的，前后端通常以token的方式来交互，
+				后端并没有登录状态保持，服务器通过客户端调用传递的token来识别调用者是谁。
+				所以这里我们要关注的是 stateless，通常称为无状态。
+			例:
+				依然是修改我们之前定义的SecurityConfiguration:
+				http
+					.sessionManagement()
+					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+	我们在业务中如何获取当前登入用户信息：
+		https://blog.csdn.net/LI_AINY/article/details/88694920
+		//通过SecurityContextHolder来获取当前登入用户信息
+		Object principl = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if(principl instanceof UserDetails) {
+			currentUser = ((UserDetails)principl).getUsername();
+		}
