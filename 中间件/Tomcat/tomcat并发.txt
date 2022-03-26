@@ -1,24 +1,74 @@
 Tomcat能支持的并发：
-	https://www.cnblogs.com/zhaosq/p/10870762.html
 	介绍：
-		对 tomcat 来说，每一个进来的请求都需要一个线程，直到该请求结束。
+		对 默认通信方式的tomcat 来说，每一个进来的请求都需要一个线程，直到该请求结束。
 		如果同时进来的请求多于当前可用的请求处理线程数，额外的线程就会被创建，直到到达配置的最大线程数(maxThreads属性值)。
 		如果仍就同时接收到更多请求，这些来不及处理的请求就会在Connector创建的ServerSocket中堆积起来，
 			附：
 				直到到达最大的配置值(acceptCount属性值)。至此，任何再来的请求将会收到connection refused错误，直到有可用的资源来处理它们。
-	tomcat配置：
-		http://www.cnblogs.com/shenpengyan/articles/5938749.html
+
+	Spring Boot 内嵌的Tomcat配置详解:	
+		https://www.cnblogs.com/javastack/p/9153952.html
+		server.connection-timeout= # Time in milliseconds that connectors will wait for another HTTP request before closing the connection. When not set, the connector's container-specific default will be used. Use a value of -1 to indicate no (i.e. infinite) timeout.
+		server.tomcat.accept-count= # Maximum queue length for incoming connection requests when all possible request processing threads are in use.
+
+
+		server.tomcat.max-threads=0 # Maximum amount of worker threads.
+		server.tomcat.accept-count= # Maximum queue length for incoming connection requests when all possible request processing threads are in use.
+		server.tomcat.max-connections= # Maximum number of connections that the server will accept and process at any given time.
+		server.tomcat.min-spare-threads=0 # Minimum amount of worker threads.
+
+	tomcat容器优化：
+		https://blog.csdn.net/yangshengwei230612/article/details/109153664
+		1、线程数 2、超时时间 3、JVM优化
+
+		1. 线程数
+			注：线程数在不同的机器、操作系统组合的情况下可能会不同，最好的方式是多设置几次并且进行测试，观察响应时间和cpu、内存使用情况。
+
+			初始线程数：
+				介绍：保障启动的时候，如果有大量用户访问，能够很稳定的接受请求。
+				例：
+					#最小备用线程数，tomcat启动时的初始化的线程数。
+					min-spare-threads：()
+			最大线程数：
+				介绍：用来保证系统的稳定性。
+				#Tomcat可创建的最大的线程数。tomcat默认每一个线程处理一个请求，超过这个请求数后，客户端请求只能排队，等有线程释放才能处理。
+				max-threads：默认是200（建议这个配置数可以在服务器CUP核心数的200~250倍之间）
+				附：
+				允许的最大连接数还受制于操作系统的内核参数设置，通常：
+					Windows 每个进程中的线程数不允许超过 2000
+					Linux 每个进程中的线程数不允许超过 1000
+					另外，在 Java 中每开启一个线程需要耗用 1MB 的 JVM 内存空间用于作为线程栈之用。
+			附：
+				最大等待队列数：
+					#最大等待队列长度，允许HTTP请求缓存到请求队列的最大个数
+					#当调用Web服务的HTTP请求数达到tomcat的最大线程数时，还有新的HTTP请求到来，这时tomcat会将该请求放在等待队列中，这个acceptCount就是指能够接受的最大等待数 如果等待队列也被放满了，这个时候再来新的请求就会被tomcat拒绝
+					accept-count：默认不限制？（）。
+				最大连接数：
+					#这个参数是指在同一时间，tomcat能够接受的最大连接数。
+					max-connections：默认不设置，默认是10000(一般这个值要大于(max-threads)+(accept-count))
+		
+		2. 超时时间
+			介绍：用来保障连接数不容易被压垮。如果大批量的请求过来，延迟比较高，很容易把线程数用光。
+			这时就需要提高超时时间？。
+			这种情况在生产中是比较常见的 ，一旦网络不稳定，宁愿丢包也不能把服务器压垮。
+			例：
+				#最长等待时间，如果没有数据进来，等待一段时间后断开连接，释放线程。
+				#设置0，表示永不超时 但这样是有隐患的。
+				connection-timeout：默认？(单位ms，通常设置30000。)
+
+		3. JVM优化
+			最大内存、初始内存：
+				通过调整启动命令参数来调整内存大小。
+				-Xms :设置Java堆栈的初始化大小
+				-Xmx :设置最大的java堆大小
+				例：
+					nohup java -Xmx512m -Xms256m -jar -Dspring.profiles.active=dev -Dfile.encoding=UTF-8 test.jar  >> nohup.log 2>&1 &
+				附：
+					springboot内嵌了tomcat， 所以调整springboot应用进程的内存就是调整tomcat的进程。
+
+			...
+	
 	附：
-	一个Tomcat最多支持多少用户的并发：
-		1. tomcat 默认配置的最大请求数是 150，即同时支持 150 个并发。
-		2. 并发数能调到多大，
-		建议200，当某个应用拥有 250 个以上并发的时候，应考虑应用服务器的集群。
-		具体能承载多少并发，需要看硬件的配置(CPU、内存)
-		附：
-		操作系统对于进程中的线程数有一定的限制：
-			Windows 每个进程中的线程数不允许超过 2000
-			Linux 每个进程中的线程数不允许超过 1000
-			另外，在 Java 中每开启一个线程需要耗用 1MB 的 JVM 内存空间用于作为线程栈之用。
 	Tomcat 通信方式：
 		https://blog.csdn.net/dxyzhbb/article/details/101444786?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ELandingCtr%7ERate-2.queryctrv4&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ELandingCtr%7ERate-2.queryctrv4&utm_relevant_index=5
 		Tomcat支持三种接收请求的处理方式：BIO、NIO、APR 。 
@@ -35,7 +85,9 @@ Tomcat能支持的并发：
 			启用这种模式稍微麻烦一些，需要安装一些依赖库。
 			应用：
 				...
-			
+	链接：
+		https://www.cnblogs.com/zhaosq/p/10870762.html
+
 tomcat原理：
 	核心思路：
 		Tomcat服务器接受客户请求并做出响应的过程如下：
