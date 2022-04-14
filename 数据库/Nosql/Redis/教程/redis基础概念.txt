@@ -89,8 +89,12 @@ redisObject？
 					Sorted Set 的内部使用 HashMap 和跳跃表（skipList）来保证数据的存储和有序，HashMap 里放的是成员到 Score 的映射。
 					而跳跃表里存放的是所有的成员，排序依据是 HashMap 里存的 Score，使用跳跃表的结构可以获得比较高的查找效率，并且在实现上比较简单。
 
-		命名空间：？
+		命名空间：
 				https://blog.csdn.net/HeliosJ/article/details/103258441
+				介绍：
+					直接以普通键值对存储，就会显得比较乱，数据分类不明显。
+				例：
+					键值为test:1，那么就会自动把改建放到 test命名空间中，如果无该命名空间则自动创建。
 		附：
 			list set zset的区别：
 				数据结构	是否允许重复元素	是否有序	有序实现方式	应用场景

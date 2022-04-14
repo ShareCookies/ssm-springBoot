@@ -62,7 +62,9 @@ springBoot中使用模板来操作redis：
 		例：
 			./例子/StringRedisTemplateTest.java
 
-
+	RedisTemplate：
+		RedisTemplate的key值序列化：？
+			http://www.wld5.com/javajc/19537.html
 springBoot中使用redis来实现缓存：	
 ？
 	1.@EnableCaching开启缓存
@@ -132,10 +134,13 @@ springBoot中使用redis来实现缓存，集成案例：
 				2. 没有，则调用方法，并将将返回结果缓存到redis
 			例：
 				@Cacheable(value = "dict", key = "#p0")
-			
+				value:
+					代表...
+					redis上会有"dict"命名空间，且每个key都会加上前缀"dict"
 				“#p0”表示取第一个参数
 					如果参数为对象，则可以通过#p0.id获取对象的id
 				所以key值为dict::第一个参数
+				
 		2. @CacheEvict表示删除该缓存数据
 
 		3.@CachePut表示修改该缓存数据

@@ -96,7 +96,7 @@ spring缓存注解：
 	@CacheEvict
 		根据条件对缓存进行清空。
 	@CachePut	
-		保证方法被调用，又希望结果被缓存。
+		CachePut表示修改该缓存数据
 			即@CachePut 的逻辑是：执行方法体 - 将结果缓存起来；
 	附：
 		@Cacheable 和 @CachePut 区别：
