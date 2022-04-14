@@ -1,7 +1,6 @@
-		https://www.cnblogs.com/itplay/p/10982072.html
-		https://www.jianshu.com/p/786509ddb853
 spring 事件机制
-	原理：观察者模式
+	https://www.jianshu.com/p/786509ddb853
+	
 	spring的事件机制包括：
 		事件源（ApplicationEvent)，对应具体的事件。
 		事件监听器(ApplicationListener)，负责接收具体的事件源。
@@ -10,6 +9,8 @@ spring 事件机制
 	相应的处理逻辑为：
 		事件监听器会注册具体的事件源，当事件广播器广播具体的事件源后，事件监听器能接到该事件的发布消息，然后处理相关事件。
 		（发布一个事件，对应的事件监听器听到了，就执行一个方法）
+		附：
+			这里应用了观察者模式思想
 	例：
 
 		事件
@@ -71,6 +72,23 @@ spring 事件机制
 	
 
 	　　
+原理：
+	思路：
+		https://zhuanlan.zhihu.com/p/438248130
+	源码：
+		https://www.cnblogs.com/zhangxiaoguang/p/spring-notification.html
 
 
-
+注：
+	spring事件机制线程：
+		spring事件机制是同步执行的，所以大批量的遍历发布操作是不会出问题的:
+		例：
+			//这里遍历发布事件是否不会有问题的
+			for (String docId : list){
+				applicationContext.publishEvent(new DocResourceDeleteEvent(this,docId));
+			
+			}
+		同步执行证明：
+			./例/
+			和从源码分析。
+		
