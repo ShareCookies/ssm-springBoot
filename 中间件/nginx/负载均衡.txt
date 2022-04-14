@@ -4,52 +4,58 @@
 	介绍：
 		当用户访问我们的服务器的时候, 请求发送给ng后， Nginx服务器将决定转发到哪个Tomcat服务器上去给用户提供服务。 
 		如此我们就可以处理高并发的访问了, 达到负载均衡的目的。
-	负载均衡实现:(有问题)
+	负载均衡实现:
 		https://www.linuxidc.com/Linux/2015-03/115207.htm
-		# 配置了两台转发机器: 39.156.66.18和13.250.177.223, 它们的权重分别是2/3 和1/3, 
-		#也就是说访问三次ng, 有两次是18上的Tomcat来处理,有一次是223上的Tomcat来处理.
-		
-		upstream balanceserver{
-			server ip1:端口 weight=20;
-			server ip2:端口 weight=10;
-		}
-		server {
-			listen 9999 ssl;
-			#ssl证书(公钥.发送到客户端的)
-				ssl_certificate ssl/1_58xuejia.cn_bundle.crt;
-			#ssl私钥,
-				ssl_certificate_key ssl/2_58xuejia.cn.key;
-			server_name  58xuejia.cn;
-		
-			location / {
-				proxy_pass http://balanceserver;
-			}
-		}
-
-	Keepalived:
-		https://www.cnblogs.com/wang-meng/p/5861174.html
-		Keepalived作用：
-			这里如果我们的机器ng1 出现故障了呢? 那么怎么使用ng2上的Nginx进行转发呢? 
-			怎么设置主机和备机呢? 如果主机死了怎么进行故障移除呢?　如果主机从不可用到可用状态又怎么进行恢复添加呢? 
-			这些功能都是可以通过Keepalived来进行设置的.
+		负债分配策略：
+			round-robin 轮询:（默认）
+				
+				每个请求按时间顺序逐一分配到不同的应用服务器，如果应用服务器down掉，自动剔除，剩下的继续轮询。
+				轮询优缺点：
+					...
+			weight（权重）
+				指定轮询几率，weight和访问比率成正比，用于后端服务器性能不均的情况。
+				如下所示，10.0.0.88的访问比率要比10.0.0.77的访问比率高一倍。
+				例：
+					# 配置了两台转发机器: 39.156.66.18和13.250.177.223, 它们的权重分别是2/3 和1/3, 
+					#也就是说访问三次ng, 有两次是18上的Tomcat来处理,有一次是223上的Tomcat来处理.
+					upstream balanceserver{
+						server ip1:端口 weight=20;
+						server ip2:端口 weight=10;
+					}
+					server {
+						listen 9999 ssl;
+						#ssl证书(公钥.发送到客户端的)
+							ssl_certificate ssl/1_58xuejia.cn_bundle.crt;
+						#ssl私钥,
+							ssl_certificate_key ssl/2_58xuejia.cn.key;
+						server_name  58xuejia.cn;
+					
+						location / {
+							proxy_pass http://balanceserver;
+						}
+					}
 			
-		Keepalived工作流程：
-			首先Keepalived可以在主机上产生一个虚拟的ip,192.168.200.150, keepalived会将这个virtual ip绑定到交换机上.
-			当用户访问主机:ng1时, 交换机会通过这个ip和虚拟ip的对应找到192.168.200.129上的Nginx进行处理.
-			
-			如果当有一天192.168.200.129上的Nginx挂掉的时候, Keepalived会立即在备机上生成一个相同的vip: 192.168.200.150, 当用户继续访问192.168.200.129时, 交换机上已经重新绑定了virtual ip, 这时发现这个vip是存在于192.168.200.130上面的, 所以直接将请求转发到了备机上. 
-			
-			如果主机被修复好能够继续对外提供服务时, 这时keepalived会将主机上继续生成这个virtual ip, 同时回收在备机上生成的 virtual ip. 
-				这个是通过心跳检查来判断主机已恢复使用.
-		搭建Keepalived：
-			1.安装openssl
-				Keepalived需要依赖openssl
+			fair（第三方）
+				按后端服务器的响应时间来分配请求，响应时间短的优先分配。
+			ip_hash（访问ip）
+				每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器。
 				附：
-					检测是否安装了openssl
-						rpm -qa | grep openssl
-			2.安装Keepalived:
-				https://www.cnblogs.com/wang-meng/p/5861174.html		
-	附：
+					可以解决session存在服务器的问题。
+			url_hash（第三方）
+				按访问url的hash结果来分配请求，使每个url定向到同一个后端服务器，后端服务器为缓存时比较有效。
+				注意：在upstream中加入hash语句，server语句中不能写入weight等其他的参数，hash_method是使用的hash算法。
+	注：内置健康检查功能: 
+	如果后端的某台应用节点挂了，请求不会再转发给这个节点，不影响线上功能。
+		关键指令： max_fails, fail_timeout
+
+		upstream backend {
+			server backend1.example.com weight=5;
+			server 127.0.0.1:8080       max_fails=3 fail_timeout=30s;
+			server unix:/tmp/backend3;
+
+			server backup1.example.com  backup;
+		}
+附：
 	负载均衡的实现方式
 		1.一种是通过硬件来进行解决
 			常见的硬件有NetScaler、F5、Radware和Array等商用的负载均衡器，但是它们是比较昂贵的

@@ -1,3 +1,4 @@
+https://zhuanlan.zhihu.com/p/356001849
 nginx:
 	官网：http://nginx.org/en/download.html
 	Nginx：
@@ -10,15 +11,21 @@ nginx:
 			稳定几乎可以做到7*24不间断运行，即使运行数个月也不需要重新启动。
 	nginx的安装：
 		./linux安装nginx.txt
-	
-	反向代理：
+		附：
+			./ng配置文件介绍.txt
+ng特性：
+	代理：
 		https://www.cnblogs.com/anruy/p/4989161.html
-		介绍：         
-			Reverse Proxy是指以代理服务器来接受Internet上的连接请求，然后将请求转发给内部网络上的服务器；
-			并将从服务器上得到的结果返回给Internet上请求连接的客户端，此时代理服务器对外就表现为一个服务器。
+		介绍：
+			所谓“代理”，是指在内网边缘 设置一个硬件/软件转发请求；
+			“正向”还是“反向”的说法，取决于转发的是"出站请求"还是"入站请求".
+			正向代理：
+				处理来自客户端的出站请求，将其转发到Internet，然后将生成的响应返回给客户端。
+			反向代理：
+				处理来自Internet的入站请求，将其转发给后端工作程序，然后将响应返回给Internet。
 		反向代理的两种应用：
 			可以作为内容服务器的替身，也可以作为内容服务器集群的负载均衡器。
-			 1，作内容服务器的替身：
+			1. 作内容服务器的替身：
 				Nginx 反向代理的指令不需要新增额外的模块，ng默认自带 proxy_pass 指令，只需要修改配置文件就可以实现反向代理。
 				https://blog.csdn.net/linlin_0904/article/details/89633150
                 配置文件：
@@ -37,22 +44,71 @@ nginx:
 						}
 					}
 					附：
-						
-					    #rewrite重写URL，代理后端接口来解决跨域
+					    #rewrite重写URL
 						location ^~ /api/ {
 							rewrite ^/api/(.*) /$1 break;
-							proxy_pass http://localhost:6081;
-							
+							proxy_pass http://localhost:8080;
 						}
-				附：
+					注：
+						动静分离:
+							前端部署在ng上，后端通过url重写等进行跳转代理。
+						例：
+							#前端
+							location / {
+								error_page 405 =200 /index.html;
+								index index.html;
+								root /work2/egov/frontend;
+							}
+							#后端
+							location ^~ /api/ {
+								rewrite ^/api/(.*) /$1 break;
+								proxy_pass http://localhost:8080;
+							}
+							
+				附：代理服务器附加功能
+					1. 代理可解决跨域问题
+					2. 
 					可提高内容服务器的安全性。
 						如在防火墙外部设置一个代理服务器作为内容服务器的替身。
 						当客户机向站点提出请求时，请求将转到代理服务器。然后，代理服务器通过防火墙中的特定通路，将客户机的请求发送到内容服务器。内容服务器再通过该通道将结果回传给代理服务器。代理服务器将内容发送给客户机。
 						这样，代理服务器就在安全数据库和可能的恶意攻击之间提供了又一道屏障。与有权访问整个数据库的情况相对比，就算是侥幸攻击成功，作恶者充其量也仅限于访问单个事务中所涉及的信息。未经授权的用户无法访问到真正的内容服务器，因为防火墙通路只允许代理服务器有权进行访问。
 						附：
 							可以配置防火墙路由器，使其只允许特定端口上的特定服务器有权通过防火墙进行访问，而不允许其他任何机器进出。
+					3. 对流量执行操作、使用缓存或压缩来提高性能：
+						...
+						节省带宽:
+							支持gzip压缩
+							对静态资源开启gzip压缩
+							location / {
+										gzip on;
+										gzip_types application/javascript text/css image/jpeg;
+							}
+
 			2.作为内容服务器集群的负载均衡器：
 				./负载均衡.txt
+			
+	Keepalived:高可用
+		https://www.cnblogs.com/wang-meng/p/5861174.html
+		Keepalived工作流程：？
+			首先Keepalived可以在主机上产生一个虚拟的ip,192.168.200.150, keepalived会将这个virtual ip绑定到交换机上.
+			当用户访问主机:ng1时, 交换机会通过这个ip和虚拟ip的对应找到192.168.200.129上的Nginx进行处理.
+			
+			如果当有一天192.168.200.129上的Nginx挂掉的时候, Keepalived会立即在备机上生成一个相同的vip: 192.168.200.150, 当用户继续访问192.168.200.129时, 交换机上已经重新绑定了virtual ip, 这时发现这个vip是存在于192.168.200.130上面的, 所以直接将请求转发到了备机上. 
+			
+			如果主机被修复好能够继续对外提供服务时, 这时keepalived会将主机上继续生成这个virtual ip, 同时回收在备机上生成的 virtual ip. 
+				这个是通过心跳检查来判断主机已恢复使用.
+		搭建Keepalived：
+			1.安装openssl
+				Keepalived需要依赖openssl
+				附：
+					检测是否安装了openssl
+						rpm -qa | grep openssl
+			2.安装Keepalived:
+				https://www.cnblogs.com/wang-meng/p/5861174.html		
+	ng有高并发吗？
+	限流？
+	
+		
 	ng支持https：
 		https://www.cnblogs.com/jingxiaoniu/p/6745254.html
 		注：
@@ -67,9 +123,9 @@ nginx:
 				listen 80;
 				listen 443 ssl;
 				#ssl证书(公钥.发送到客户端的)
-					ssl_certificate ssl/1_58xuejia.cn_bundle.crt;
+				ssl_certificate ssl/1_58xuejia.cn_bundle.crt;
 				#ssl私钥,
-					ssl_certificate_key ssl/2_58xuejia.cn.key;
+				ssl_certificate_key ssl/2_58xuejia.cn.key;
 				server_name 58xuejia.cn;#域名
 				
 				location / {
@@ -79,10 +135,4 @@ nginx:
 				}
 			}
 		附：
-		1.https简介
-			HTTPS其实是有两部分组成：HTTP + SSL / TLS，也就是在HTTP上又加了一层处理加密信息的模块。
-			服务端和客户端的信息传输都会通过TLS进行加密，所以传输的数据都是加密后的数据
-		2.https协议原理
-			首先，客户端与服务器建立连接，各自生成私钥和公钥，是不同的。服务器返给客户端一个公钥，然后客户端拿着这个公钥把要搜索的东西加密，称之为密文，并连并自己的公钥一起返回给服务器，服务器拿着自己的私钥解密密文，然后把响应到的数据用客户端的公钥加密，返回给客户端，客户端拿着自己的私钥解密密文，把数据呈现出来
-附：
-	./ng配置文件介绍.txt
+			ng配https作用？
