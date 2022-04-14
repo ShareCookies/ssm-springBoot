@@ -1,0 +1,14 @@
+？
+https://baijiahao.baidu.com/s?id=1686893177802551420&wfr=spider&for=pc
+	应用数据库连接池：	
+		
+	
+	数据库连接数：
+		查看mysql数据库连接数：
+			show variables like '%max_connections%';
+			https://blog.csdn.net/qq_35304570/article/details/81945157?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0.pc_relevant_default&spm=1001.2101.3001.4242.1&utm_relevant_index=3
+		
+为什么nginx只用4个线程发挥出的性能就大大超越了100个进程的Apache Web服务器：
+		
+	即使是单核的计算机也可以“同时”支持数十个或数百个线程。但是我们都应该知道，这仅仅是操作系统通过时间分片交替执行的一个小把戏，
+	实际上，单个内核一次只能执行一个线程，然后操作系统切换上下文执行另一个线程的代码，依此类推。给定一颗CPU核心，其顺序执行A和B永远比通过时间分片“同时”执行A和B要快，这是一条计算机科学的基本法则。一旦线程的数量超过了CPU核心的数量，再增加线程数系统就只会更慢，而不是更快。

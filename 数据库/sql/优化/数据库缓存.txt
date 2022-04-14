@@ -1,0 +1,38 @@
+https://www.cnblogs.com/applelife/p/11576295.html
+
+1.查询缓存概述
+
+
+	1. Mysql查询缓存机制（query cache）简单的说就是缓存sql语句及查询结果，如果运行相同的sql，服务器直接从缓存中提取结果，而不是再去解析和执行sql。而且这些缓存能被所有的会话共享，一旦某个客户端建立了查询缓存，其他发送同样sql语句的客户端也可以使用这些缓存。
+
+	2. 如果表更改了，那么使用这个表的所有缓存查询将不再有效，查询缓存值得相关条目被清空。
+	附：
+		更改的是表中任何数据或是结构的改变，包括insert、update、delete、truncate、alter table、drop table或drop database等，也包括哪些映射到改变了表的使用merge表的查询。
+  
+
+  附：
+	1. 显然，这对于频繁更改的表，查询缓存是不合适的，而对于一些不常改变的数据且有大量相同sql查询的表，查询缓存会节约很大的性能。
+	2. 查询必须是完全相同的（逐字节相同）才能够被认为是相同的，字符的大小也被认为是不同的。
+	3. 另外，同样的查询字符由于其他原因可能认为是不同的。使用不同的数据库，不同的协议版本或者不同默认字符字符集的查询被认为是不同的查询并且分别进行缓存。
+  
+	？
+		在mysql的性能优化方面经常涉及到缓冲区（buffer）和缓存（cache），mysql通过在内存中建立缓冲区（buffer）和缓冲（cache）来提高mysql性能。对于innodb数据库，mysql采用缓冲池（buffer pool）的方式来缓存数据和索引；对于mylsam数据库，mysql采用缓存的方式来缓存数据和索引。
+缓存开启：
+	1. my.cnf中添加如下配置并重启，开启MySQL缓存
+	query_cache_size=256M
+	query_cache_limit=10M
+	query_cache_type=1
+	附：
+		query_cache_size为总缓存大小，官方推荐不要超过256M
+		query_cache_limit为单条查询结果的最大缓存大小，如不设置，默认为1M
+		query_cache_type表示缓存方式
+			0表示不开启缓存
+			1表示每条语句都开启缓存（除非指定不需要缓存）
+			2表示如果查询语句中指定使用缓存，则进行缓存。
+			例：
+				#query_cache_type=2时，在SELECT后加上SQL_CACHE，对指定语句应用缓存；
+				SELECT SQL_CACHE ... FROM ... WHERE ...
+				#当query_cache_type=1时，也可以通过SQL_NO_CACHE来关闭查询缓存。
+				SELECT SQL_NO_CACHE ... FROM ... WHERE ...
+	查看mysql的缓存信息、查询缓存的维护：
+		...
