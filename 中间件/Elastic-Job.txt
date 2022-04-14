@@ -1,120 +1,74 @@
 https://shardingsphere.apache.org/elasticjob/index_zh.html
 https://github.com/dangdangdotcom/elastic-job
-
+https://zhuanlan.zhihu.com/p/87322772
 介绍：
 	https://www.cnblogs.com/wuzhenzhao/p/13299497.html
-	https://zhuanlan.zhihu.com/p/87322772
+	
 	elastic-job 分布式定时任务系统（任务调度系统、作业系统）。
-		在这之前，我们开发定时任务一般都是使用quartz或者spring-task（ScheduledExecutorService），无论是使用quartz还是spring-task，我们都会至少遇到两个痛点：
+		
+	其余定时任务框架：
+		spring-task：（ScheduledExecutorService）
 			不敢轻易跟着应用服务多节点部署，可能会重复多次执行而引发系统逻辑的错误。
-			quartz的集群仅仅只是用来HA，节点数量的增加并不能给我们的每次执行效率带来提升，即不能实现水平扩展。
-	基于Zookepper、Quartz开发并开源，解决了Quartz不支持分布式的弊端。
-	Elastic job主要的功能有支持弹性扩容，通过Zookepper集中管理和监控job，支持失效转移等。
-	附：
-		Elastic-Job 最开始只有一个 elastic-job-core 的项目，在 2.X 版本以后主要分为Elastic-Job-Lite 和 Elastic-Job-Cloud 两个子项目。
-		他们区别只是部署方式不同，使用相同的 API，只要开发一次。
-		1.其中Elastic-Job-Lite 定位为轻量级 无 中 心 化 解 决 方 案 ， 使 用 jar 包 的 形 式 提 供 分 布 式 任 务 的 协 调 服 务 。 
-		2.而Elastic-Job-Cloud 使用 Mesos + Docker 的解决方案，额外提供资源治理、应用分发以及进程隔离等服务。
-		为什么说是去中心化呢：
+		quartz：
+			作业只能通过 DB 抢占随机负载，无法协调
+			任务不能分片——单个任务数据太多了跑不完，消耗线程，负载不均。
+	Elastic-Job：
+		elastic-job 分布式任务调度系统（定时任务系统）。
+		基于开源产品封装（Quartz和 Curator），它是一个无中心化的分布式调度框架。
+		因为数据库缺少分布式协调功能（比如选主），替换为 Zookeeper 后，增加了弹性扩容和数据分片的功能，支持失效转移等。？
+		为什么说是去中心化：
 			因为没有统一的调度中心。集群的每个节点都是对等的，节点之间通过注册中心进行分布式协调。
-			E-Job 存在主节点的概念，但是主节点没有调度的功能，而是用于处理一些集中式任务，如分片，清理运行时信息等。
-	Elastic-Job主要功能：
-		定时任务： 基于成熟的定时任务作业框架Quartz cron表达式执行定时任务。
-		作业注册中心： 基于Zookeeper和其客户端Curator实现的全局作业注册控制中心。用于注册，控制和协调分布式作业执行。
-		作业分片： 将一个任务分片成为多个小任务项在多服务器上同时执行。
-		弹性扩容缩容： 运行中的作业服务器崩溃，或新增加n台作业服务器，作业框架将在下次作业执行前重新分片，不影响当前作业执行。
+				怎么协调？为什么协调？
+			E-Job 存在主节点的概念，但是主节点没有调度的功能，而是用于处理一些集中式任务，如分片？，清理运行时信息等。
+	附：
+		Elastic-Job-Lite 和 Elastic-Job-Cloud：
+			Elastic-Job 最开始只有一个 elastic-job-core 的项目，在 2.X 版本以后主要分为Elastic-Job-Lite 和 Elastic-Job-Cloud 两个子项目。
+			他们区别只是部署方式不同，使用相同的 API，只要开发一次。
+			1.其中Elastic-Job-Lite 定位为轻量级无中心化解决方案 ， 使 用 jar 包 的 形 式 提 供 分 布 式 任 务 的 协 调 服 务 。 
+			2.而Elastic-Job-Cloud 使用 Mesos + Docker 的解决方案，额外提供资源治理、应用分发以及进程隔离等服务。
+
+	Elastic-Job功能特性：
+		定时任务： 
+			基于成熟的定时任务作业框架Quartz cron表达式执行定时任务。
+		分布式调度协调：作业注册中心
+			基于Zookeeper和其客户端Curator实现的全局作业注册控制中心。用于注册，控制和协调分布式作业执行。
+			？不是说无中心吗
+		作业分片：
+			将一个任务分片成为多个小任务项在多服务器上同时执行。
+		弹性扩容缩容： 
+			运行中的作业服务器崩溃，或新增加n台作业服务器。
+			作业框架将在下次作业执行前重新分片，不影响当前作业执行。
+		丰富的作业类型：？
+			（Simple、DataFlow、Script）
+			
+			Dataflow是什么？
+				Dataflow类型用于处理数据流，需实现DataflowJob接口。
+				该接口提供2个方法可供覆盖，分别用于抓取(fetchData)和处理(processData)数据。
+				流式处理数据只有fetchData方法的返回值为null或集合长度为空时，作业才停止抓取，否则作业将一直运行下去； 非流式处理数据则只会在每次作业执行过程中执行一次fetchData方法和processData方法，随即完成本次作业。
+
+		运维平台：？
+			提供运维界面，可以管理作业和注册中心。
+		？
 		支持多种作业执行模式： 支持OneOff，Perpetual和SequencePerpetual三种作业模式。
-		失效转移： 运行中的作业服务器崩溃不会导致重新分片，只会在下次作业启动时分片。启用失效转移功能可以在本次作业执行过程中，监测其他作业服务器空闲，抓取未完成的孤儿分片项执行。
-		运行时状态收集： 监控作业运行时状态，统计最近一段时间处理的数据成功和失败数量，记录作业上次运行开始时间，结束时间和下次运行时间。
-		作业停止，恢复和禁用：用于操作作业启停，并可以禁止某作业运行（上线时常用）。
-		被错过执行的作业重触发：自动记录错过执行的作业，并在上次作业完成后自动触发。可参考Quartz的misfire。
-		多线程快速处理数据：使用多线程处理抓取到的数据，提升吞吐量。
-		幂等性：重复作业任务项判定，不重复执行已运行的作业任务项。由于开启幂等性需要监听作业运行状态，对瞬时反复运行的作业对性能有较大影响。
-		容错处理：作业服务器与Zookeeper服务器通信失败则立即停止作业运行，防止作业注册中心将失效的分片分项配给其他作业服务器，而当前作业服务器仍在执行任务，导致重复执行。
+		失效转移： 	
+			运行中的作业服务器崩溃不会导致重新分片，只会在下次作业启动时分片。
+			启用失效转移功能可以在本次作业执行过程中，监测其他作业服务器空闲，抓取未完成的孤儿分片项执行。
+		运行时状态收集： 	
+			监控作业运行时状态，统计最近一段时间处理的数据成功和失败数量，记录作业上次运行开始时间，结束时间和下次运行时间。
+		作业停止，恢复和禁用：
+			用于操作作业启停，并可以禁止某作业运行（上线时常用）。
+		被错过执行的作业重触发：
+			自动记录错过执行的作业，并在上次作业完成后自动触发。可参考Quartz的misfire。
+		多线程快速处理数据：
+			使用多线程处理抓取到的数据，提升吞吐量。
+		幂等性：
+			重复作业任务项判定，不重复执行已运行的作业任务项。由于开启幂等性需要监听作业运行状态，对瞬时反复运行的作业对性能有较大影响。
+		容错处理：
+			作业服务器与Zookeeper服务器通信失败则立即停止作业运行，防止作业注册中心将失效的分片分项配给其他作业服务器，而当前作业服务器仍在执行任务，导致重复执行。
 		Spring支持：支持spring容器，自定义命名空间，支持占位符。
-		运维平台：提供运维界面，可以管理作业和注册中心。
+		
 使用：
-	Elastic-Job 提供了三种任务类型：
-		SimpleJob、DataflowJob、ScriptJob
-	pom 依赖：
-		<!-- 引入elastic-job核心模块 -->
-		<!-- elastic-job核心模块，只通过Quartz和Curator就可执行分布式作业。 -->
-		<dependency>
-			<groupId>com.dangdang</groupId>
-			<artifactId>elastic-job-core</artifactId>
-			<version>1.0.1</version>
-		</dependency>
-	一作业完整开发案例：
-		1.作业开发：
-			//简单实现，未经任何封装的类型。需实现 SimpleJob 接口.
-			@Component
-			public class SendMsgJusticeToUrgeOvertimeTask implements SimpleJob {
-				...
-				@Override
-				public void execute(ShardingContext shardingContext) {
-					//你想做的事
-					String.format("分片项 ShardingItem: %s | 运行时间: %s | 线程ID: %s | 分片参数: %s ",
-					context.getShardingItem(),
-					new SimpleDateFormat("HH:mm:ss").format(new Date()),
-					Thread.currentThread().getId(),
-					context.getShardingParameter());
-				}
-			}
-		2. 作业调度：
-			创建一个新的job需要经历一系列的配置。
-			配置的过程大概分为以下几个步骤：
-				1.由于 Elastic-Job依赖于 ZK，所以首先是注册中心的配置。
-				2.如果想对事件的执行链路持久化，还需要配置相关JobEventConfiguration。
-				创建作业配置
-					3.作业核心配置：JobCoreConfiguration，配置作业名称、CRON 表达式、分片总数等。
-					CRON 表达式:
-						定义作业什么时候执行
-					4.作业类型配置，如SimpleJobConfiguration，配置自己的实现等。
-					5.定义Lite作业根配置 LiteJobConfiguration，配置 作业分片策略
-				6.最后构建 Job，JobScheduler
-				附　　
-					作业核心配置分为 3 级，分别是 JobCoreConfiguration，JobTypeConfiguration 和LiteJobConfiguration 。
-					LiteJobConfiguration 使 用 JobTypeConfiguration ，JobTypeConfiguration 使用 JobCoreConfiguration，层层嵌套。
-					JobTypeConfiguration 根 据 不 同 实 现 类 型 分 为 SimpleJobConfiguration ，DataflowJobConfiguration 和 ScriptJobConfiguration。
-					E-Job 使用 ZK 来做分布式协调，所有的配置都会写入到 ZK 节点。
-			例：
-				public class SimpleJobTest {
-					// TODO 如果修改了代码，跑之前清空ZK
-					// 要创建一个新的job需要经历一系列的配置
-					public static void main(String[] args) {
-						// ZK注册中心
-						CoordinatorRegistryCenter regCenter = new ZookeeperRegistryCenter(
-								new ZookeeperConfiguration("192.168.1.101:2181", "ejob-standalone")
-						);
-						regCenter.init();
-						// 数据源 , 事件执行持久化策略
-						DruidDataSource dataSource =new DruidDataSource();
-						dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-						dataSource.setUrl("jdbc:mysql://192.168.1.101:3306/study?useUnicode=true&characterEncoding=utf-8");
-						dataSource.setUsername("root");
-						dataSource.setPassword("123456");
-						JobEventConfiguration jobEventConfig = new JobEventRdbConfiguration(dataSource);
-						// 定义作业核心配置
-						JobCoreConfiguration coreConfig = JobCoreConfiguration
-								.newBuilder("MySimpleJob", "0/20 * * * * ?", 4)
-								.shardingItemParameters("0=RDP, 1=CORE, 2=SIMS, 3=ECIF").failover(true).build();
-						
-						// 定义SIMPLE类型配置
-						SimpleJobConfiguration simpleJobConfig = new SimpleJobConfiguration(
-								coreConfig, MySimpleJob.class.getCanonicalName());
-						// 作业分片策略
-						// 基于平均分配算法的分片策略
-						
-						String jobShardingStrategyClass = AverageAllocationJobShardingStrategy.class.getCanonicalName();
-						// 定义Lite作业根配置
-						// LiteJobConfiguration simpleJobRootConfig = LiteJobConfiguration.newBuilder(simpleJobConfig).jobShardingStrategyClass(jobShardingStrategyClass).build();
-						LiteJobConfiguration simpleJobRootConfig = LiteJobConfiguration.newBuilder(simpleJobConfig).overwrite(true).build();
-						// 构建Job
-						// new JobScheduler(regCenter, simpleJobRootConfig).init();
-						 new JobScheduler(regCenter, simpleJobRootConfig, jobEventConfig).init();
-					}
-				}
-	springboot 集成 Elastic-Job：!
+	springboot 集成 Elastic-Job：
 		1.导入依赖
 			pom 依赖：
 			<!-- 引入elastic-job核心模块 -->
@@ -136,18 +90,219 @@ https://github.com/dangdangdotcom/elastic-job
 			  zk:
 				server-list: 192.168.210.188:2166,192.168.210.186:2166,192.168.210.171:2166
 				namespace: zjsgy-oa-elastic-job
+			？
+				ej用zk来做什么
+				ej部署多个，那个会起作用
+				ej原理
 		3.作业开发：
 			1.作业开发
-			2.配置各对应作业的配置
-				 //超时提醒负责人以及承办人反馈
-				@Bean(initMethod = "init")
-				public SpringJobScheduler sendMsgJusticeToUrgeOvertimeJobScheduler(CoordinatorRegistryCenter registryCenter, SendMsgJusticeToUrgeOvertimeTask sendMsgJusticeToUrgeOvertimeTask) {
-					// 定义作业核心配置
-					//newBuilder的第1个参数为 job名称， 第2个参数为cron表达式， 第3个参数为分片数量
-					JobCoreConfiguration jobCoreConfiguration = JobCoreConfiguration.newBuilder("sendMsgJusticeToUrgeOvertimeTask", "0 */5 * * * ?", 1).build();
-					// 定义SIMPLE类型配置 固定写法， XxlJob换成你的Job类名
-					SimpleJobConfiguration simpleJobConfiguration = new SimpleJobConfiguration(jobCoreConfiguration, SendMsgJusticeToUrgeOvertimeTask.class.getCanonicalName());
-					// 定义Lite作业根配置 固定写法，高级用法见官方文档 overwrite(true) 选项为覆盖zookeeper上的配置
-					LiteJobConfiguration liteJobConfiguration = LiteJobConfiguration.newBuilder(simpleJobConfiguration).overwrite(true).build();
-					return new SpringJobScheduler(sendMsgJusticeToUrgeOvertimeTask, registryCenter, liteJobConfiguration);
-				}
+				Elastic-Job 提供了三种任务类型：
+					SimpleJob、DataflowJob、ScriptJob
+					SimpleJob ：
+						简单实现，未经任何封装的类型。需实现 SimpleJob 接口.
+					DataflowJob：？
+						Dataflow 类型用于处理数据流，必须实现 fetchData()和processData()的方法，一个用来获取数据，一个用来处理获取到的数据。
+					ScriptJob：
+						Script 类型作业意为脚本类型作业，支持 shell，python，perl 等所有类型脚本。
+						
+
+				例：SimpleJob 简单实现：
+					@Component
+					public class SendMsgJusticeToUrgeOvertimeTask implements SimpleJob {
+						...
+						@Override
+						public void execute(ShardingContext shardingContext) {
+							//定时要做的事
+							System.err.println("每小时打印一次");
+						}
+					}
+			2. 作业调度
+				说明对应作业的如何应用
+				
+				例：
+				spring
+					 //超时提醒负责人以及承办人反馈
+					@Bean(initMethod = "init")
+					public SpringJobScheduler sendMsgJusticeToUrgeOvertimeJobScheduler(CoordinatorRegistryCenter registryCenter, SendMsgJusticeToUrgeOvertimeTask sendMsgJusticeToUrgeOvertimeTask) {
+						// 定义作业核心配置。
+							//第1个参数为作业名称， 第2个参数为cron表达式(指明什么时候运行作业)， 第3个参数为分片数量
+						JobCoreConfiguration jobCoreConfiguration = JobCoreConfiguration.newBuilder("sendMsgJusticeToUrgeOvertimeTask", "0 */5 * * * ?", 1).build();
+						// 定义SIMPLE作业类型配置
+						SimpleJobConfiguration simpleJobConfiguration = new SimpleJobConfiguration(jobCoreConfiguration, SendMsgJusticeToUrgeOvertimeTask.class.getCanonicalName());
+						// 定义Lite作业根配置
+							//高级用法见官方文档 overwrite(true) 选项为覆盖zookeeper上的配置
+							//可在此处指明分片策略等
+						LiteJobConfiguration liteJobConfiguration = LiteJobConfiguration.newBuilder(simpleJobConfiguration).overwrite(true).build();
+						//构建Job
+						return new SpringJobScheduler(sendMsgJusticeToUrgeOvertimeTask, registryCenter, liteJobConfiguration);
+					}
+				java
+					创建一个新的job需要经历一系列的配置。
+					配置的过程大概分为以下几个步骤：
+						1.由于 Elastic-Job依赖于 ZK，所以首先是注册中心的配置。
+						2.如果想对事件的执行链路持久化，还需要配置相关JobEventConfiguration。
+						创建作业配置
+							3.作业核心配置：JobCoreConfiguration，配置作业名称、CRON 表达式、分片总数等。
+							CRON 表达式:
+								定义作业什么时候执行
+							4.作业类型配置，如SimpleJobConfiguration，配置自己的实现等。
+							5.定义Lite作业根配置 LiteJobConfiguration，配置 作业分片策略
+						6.最后构建 Job，JobScheduler
+						附：
+							作业核心配置分为 3 级，分别是 JobCoreConfiguration，JobTypeConfiguration 和LiteJobConfiguration 。
+							LiteJobConfiguration 使 用 JobTypeConfiguration ，JobTypeConfiguration 使用 JobCoreConfiguration，层层嵌套。
+							JobTypeConfiguration 根 据 不 同 实 现 类 型 分 为 SimpleJobConfiguration ，DataflowJobConfiguration 和 ScriptJobConfiguration。
+							E-Job 使用 ZK 来做分布式协调，所有的配置都会写入到 ZK 节点。
+						例：
+							public class SimpleJobTest {
+								// TODO 如果修改了代码，跑之前清空ZK
+								// 要创建一个新的job需要经历一系列的配置
+								public static void main(String[] args) {
+									// ZK注册中心
+									CoordinatorRegistryCenter regCenter = new ZookeeperRegistryCenter(
+											new ZookeeperConfiguration("192.168.1.101:2181", "ejob-standalone")
+									);
+									regCenter.init();
+									// 数据源 , 事件执行持久化策略
+									DruidDataSource dataSource =new DruidDataSource();
+									dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+									dataSource.setUrl("jdbc:mysql://192.168.1.101:3306/study?useUnicode=true&characterEncoding=utf-8");
+									dataSource.setUsername("root");
+									dataSource.setPassword("123456");
+									JobEventConfiguration jobEventConfig = new JobEventRdbConfiguration(dataSource);
+									// 定义作业核心配置
+									JobCoreConfiguration coreConfig = JobCoreConfiguration
+											.newBuilder("MySimpleJob", "0/20 * * * * ?", 4)
+											.shardingItemParameters("0=RDP, 1=CORE, 2=SIMS, 3=ECIF").failover(true).build();
+									
+									// 定义SIMPLE类型配置
+									SimpleJobConfiguration simpleJobConfig = new SimpleJobConfiguration(
+											coreConfig, MySimpleJob.class.getCanonicalName());
+									// 作业分片策略
+									// 基于平均分配算法的分片策略
+									
+									String jobShardingStrategyClass = AverageAllocationJobShardingStrategy.class.getCanonicalName();
+									// 定义Lite作业根配置
+									// LiteJobConfiguration simpleJobRootConfig = LiteJobConfiguration.newBuilder(simpleJobConfig).jobShardingStrategyClass(jobShardingStrategyClass).build();
+									LiteJobConfiguration simpleJobRootConfig = LiteJobConfiguration.newBuilder(simpleJobConfig).overwrite(true).build();
+									// 构建Job
+									// new JobScheduler(regCenter, simpleJobRootConfig).init();
+									 new JobScheduler(regCenter, simpleJobRootConfig, jobEventConfig).init();
+								}
+							}
+				
+				附：
+					作业配置为以下步骤：
+						作业核心配置：
+							JobCoreConfiguration，配置作业名称、CRON 表达式、分片总数等。
+						作业类型配置
+							如SimpleJobConfiguration，配置自己的实现等。
+							附：
+								JobTypeConfiguration 根 据 不 同 实 现 类 型 分 为 SimpleJobConfiguration ，DataflowJobConfiguration 和 ScriptJobConfiguration。
+						定义Lite作业根配置
+							LiteJobConfiguration，配置 作业分片策略
+						最后构建作业
+							JobScheduler
+						附：
+							作业配置层层嵌套的含义是为了：
+								...
+
+				corn表达式：
+					https://www.bejson.com/othertools/cron/
+高级特性:
+	分片：
+		分片：
+			数据分片的目的在于把一个任务分散到不同的机器上运行，既可以解决单机计算能力上限的问题，也能降低部分任务失败对整体系统的影响。
+			
+			分片策略：
+				ej框架也预置了一些分片策略：
+					AverageAllocationJobShardingStrategy : 基于平均分配算法的分片策略。 
+					OdevitySortByNameJobShardingStrategy:根据作业名的哈希值奇偶数决定IP升降序算法的分片策略。 ？
+					RotateServerByNameJobShardingStrategy:根据作业名的哈希值对服务器列表进行轮转的分片策略。 ？
+					默认使用AverageAllocationJobShardingStrategy。
+				同时也提供了自定义分片策略的接口。
+			附：
+				部署在一台机器上的多个Job实例也能分片
+
+
+		分片原理：
+			elastic-job并不直接提供数据处理的功能，框架只会将分片项分配至各个运行中的作业服务器（Job实例），开发者需要自行处理分片项与真实数据的对应关系。
+			https://www.cnblogs.com/haoxinyue/p/6919375.html
+		
+		例：
+			场景一：多个任务，分布式执行，并且需要避免不同节点上重复执行任务
+				解决方法：
+				1） 分片数设置为1；
+				JobCoreConfiguration.Builder builder = JobCoreConfiguration.newBuilder(final String jobName, final String cron, final int shardingTotalCount)
+				//2）不同的jobName要设置成唯一的；
+				//3）使用 RotateServerByNameJobShardingStrategy 分片策略；
+				
+				
+				附：为什么 分片数设置为1 只有一台会运行：
+					1片任务只会分配一台实例。
+					
+			场景二：需要执行某一类任务，比如查询一个数据库表的多个记录，一条记录就是一个任务，需要分散压力到多个节点上
+				解决方法：
+
+				1）分片数设置成集群节点数相同或节点的倍数；
+					附：
+						取模的基数要大于机器数。否则在增加机器后，会导致机器空闲。例如取模基数是 2，而服务器有 5 台，那么有三台服务器永远空闲。而取模基数是 10，生成 10 个 shardingItem，可以分配到 5 台服务器。
+				2）jobName每个节点必须设置成相同的值，如果每个节点上的jobName不同，则每个节点都会执行所有的分片，
+				因为ElasticJob是根据JobName来区分任务的，名字相同，会当成同一个任务，然后对该任务进行分片；
+				3）使用AverageAllocationJobShardingStrategy分片策略；
+				JobCoreConfiguration.Builder builder = JobCoreConfiguration.newBuilder(final String jobName, final String cron, final int shardingTotalCount)
+				
+			分片解决方案: job实例获取到分片数后
+				job实例 获取到分片项 shardingItem 之后，怎么对数据进行分片查询。
+				1. 对业务主键进行取模，获取余数等于分片项的数据。
+				例：获取到的 sharding item 是 0,1。
+					在 SQL 中加入过滤条件：where mod(id, 4) in (1, 2)。
+					这种方式的缺点：会导致索引失效，查询数据时会全表扫描。
+					解决方案：在查询条件中在增加一个索引条件进行过滤。
+				2. 数据库层面，增加字段，在生成数据时，就为该行数据生成一个mod值。 
+					做分片的初衷就是跑批数据量越来越大、单台机器处理能力有限，通过扩展机器数来提升系统处理的能力。该mod值建议不要太小，至少要比分片项大。
+					例: 生成的1000条数据的mod值只有0和1，而机器数加到了10，那最终只有两台机器在运行，造成资源浪费。
+					当然，我们可以及时调整生成数据时的取模值，新生成的数据还是会分散到不同的机器上。
+				2. 如果从业务层面，可以用 ShardingParamter 进行分片。
+					例如 0=RDP, 1=CORE, 2=SIMS, 3=ECIF
+					List<users> = SELECT * FROM user WHERE status = 0 AND SYSTEM_ID ='RDP' limit 0, 100。
+		
+ej原理：
+	...
+附：
+	ZK作用：
+		E-Job 使用 ZK 来做分布式协调，所有的配置都会写入到 ZK 节点。
+		
+	ej 的Zookeeper数据结构:
+		一级节点:命令空间
+		二级节点：作业名称jobName 
+			config 节点:
+				JSON 格式存储。存储任务的配置信息，包含执行类，cron 表达式，分片算法类，分片数量，分片参数等等。
+			instances 节点:
+				elastic-job 的部署实例。
+				instances 的命名是 IP+@-@+PID。只有在运行的时候能看到。
+
+
+			leader 节点:
+				任务实例的主节点信息，通过 zookeeper 的主节点选举，选出来的主节点信息。
+				在elastic job 中，任务的执行可以分布在不同的实例（节点）中，但任务分片等核心控制，需要由主节点完成。
+				因此，任务执行前，需要选举出主节点。下面有三个子节点：
+
+					election：主节点选举
+					sharding：分片
+					failover：失效转移，这里没有显示是未发生失效转移
+				　　election 下面的 instance 节点显示了当前主节点的实例 ID：jobInstanceId。
+					election 下面的 latch 节点也是一个永久节点用于选举时候的实现分布式锁。
+					sharding 节点下面有一个临时节点，necessary，是否需要重新分片的标记。如果分片总数变化，或任务实例节点上下线或启用/禁用，以及主节点选举，都会触发设置重分片标记，主节点会进行分片计算。
+
+			servers 节点:
+				任务实例的信息，主要是 IP 地址，任务实例的 IP 地址。
+				跟 instances 不同，如果多个任务实例在同一台机器上运行则只会出现一个 IP 子节点。可在 IP 地址节点写入DISABLED 表示该任务实例禁用。
+
+			sharding 节点:
+				任务的分片信息，子节点是分片项序号，从 0 开始。
+					分片项序号的子节点存储详细信息。
+				分片个数是在任务配置中设置的。
+				每个分片项下的子节点用于控制和记录分片运行状态。
+			
+			最主要的子节点就是 instance。
