@@ -41,13 +41,14 @@ https://blog.csdn.net/f641385712/article/details/89607829
 			AsyncConfigurationSelector、TransactionManagementConfigurationSelector、CachingConfigurationSelector。
 		Spring的缓存体系@EnableCaching，模式也是和这个极其类似的~~~
 3. AutoProxyRegistrar:
+    附：
+        ImportBeanDefinitionRegistrar，向容器里注册Bean的定义信息
 	介绍：
-		自动代理注册器。
-		向Spring容器注入了一个bean，InfrastructureAdvisorAutoProxyCreator 基础设施切面自动代理创建器.
-		附：
-			ImportBeanDefinitionRegistrar，可以实现自己向容器里注册Bean的定义信息
+		自动代理注册器 主要是向Spring容器注入了一个bean，InfrastructureAdvisorAutoProxyCreator 基础设施切面自动代理创建器.
+		这一步最重要的就是向Spring容器注入了一个自动代理创建器：org.springframework.aop.config.internalAutoProxyCreator，并且看看是否强制采用CGLIB。
+
+
 		
-	这一步最重要的就是向Spring容器注入了一个自动代理创建器：org.springframework.aop.config.internalAutoProxyCreator，并且看看是否强制采用CGLIB。
 
 	// @since 3.1
 	public class AutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
@@ -60,7 +61,7 @@ https://blog.csdn.net/f641385712/article/details/89607829
 				// 原因：因为mode、proxyTargetClass等属性会直接影响到代理得方式，而拥有这些属性的注解至少有：
 				// @EnableTransactionManagement、@EnableAsync、@EnableCaching等~~~~
 				// 甚至还有启用AOP的注解：@EnableAspectJAutoProxy它也能设置`proxyTargetClass`这个属性的值，因此也会产生关联影响~
-			//获取类(配置类)的所有注解	
+			//1. 获取类(配置类)的所有注解
 				//importingClassMetadata是config配置类,所有配置类都会被调次这个方法
 			Set<String> annoTypes = importingClassMetadata.getAnnotationTypes();
 			for (String annoType : annoTypes) {
