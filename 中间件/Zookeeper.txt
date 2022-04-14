@@ -1,0 +1,64 @@
+Zookeeper数据查看工具ZooInspector:
+	https://www.jianshu.com/p/f45af8027d7f
+	
+
+Zookeeper：
+	https://zhuanlan.zhihu.com/p/62526102
+	ZooKeeper主要服务于分布式系统，可以用ZooKeeper来做：
+		统一配置管理、统一命名服务、分布式锁、
+		集群管理。
+			使用分布式系统就无法避免对节点管理的问题(需要实时感知节点的状态、对节点进行统一管理等等)，ZooKeeper作为一个能够通用解决这些问题的中间件就应运而生了。
+			
+	为什么ZooKeeper能干这么多：	
+		通过监听+Znode节点(持久/短暂[临时])，ZooKeeper就可以玩出这么多花样了。
+		数据结构
+			ZooKeeper的数据结构，跟Unix文件系统非常类似，可以看做是一颗树，每个节点叫做ZNode。
+			Znode分为两种类型：
+				短暂/临时(Ephemeral)：当客户端和服务端断开连接后，所创建的Znode(节点)会自动删除
+				持久(Persistent)：当客户端和服务端断开连接后，所创建的Znode(节点)不会删除
+			一台服务器对应一个节点？
+
+		监听器
+			在上面我们已经简单知道了ZooKeeper的数据结构了，ZooKeeper还配合了监听器才能够做那么多事的。
+
+			常见的监听场景有以下两项：
+
+				监听Znode节点的数据变化
+				监听子节点的增减变化
+	ZooKeeper是怎么做到的：
+		统一配置管理、
+			可以将common.yml配置放在ZooKeeper的Znode节点中，系统A、B、C监听着这个Znode节点有无变更，如果变更了，及时响应。
+			例：
+				基于zookeeper实现统一配置管理
+				https://blog.csdn.net/u011320740/article/details/78742625
+		统一命名服务、
+			统一命名服务的理解其实跟域名一样，是我们为这某一部分的资源给它取一个名字，别人通过这个名字就可以拿到对应的资源。
+			？
+				跟配置不是有点像 区别了
+		分布式锁、
+			系统A、B、C都去访问/locks节点，访问的时候会创建带顺序号的临时/短暂(EPHEMERAL_SEQUENTIAL)节点，比如，系统A创建了id_000000节点，系统B创建了id_000002节点，系统C创建了id_000001节点。
+			接着，拿到/locks节点下的所有子节点(id_000000,id_000001,id_000002)，判断自己创建的是不是最小的那个节点
+
+			如果是，则拿到锁。
+				释放锁：执行完操作后，把创建的节点给删掉
+			如果不是，则监听比自己要小1的节点变化
+		集群管理
+			节点的动态感知
+				ZooKeeper是怎么"感知"节点的动态新增或者删除的了。
+				还是以我们三个系统A、B、C为例，在ZooKeeper中创建临时节点即可，
+				只要系统A挂了，那/groupMember/A这个节点就会删除，通过监听groupMember下的子节点，系统B和C就能够感知到系统A已经挂了。(新增也是同理)
+			动态选举Master：
+				除了能够感知节点的上下线变化，ZooKeeper还可以实现动态选举Master的功能。(如果集群是主从架构模式下)
+
+				原理也很简单，如果想要实现动态选举Master的功能，Znode节点的类型是带顺序号的临时节点(EPHEMERAL_SEQUENTIAL)就好了。
+				Zookeeper会每次选举最小编号的作为Master，如果Master挂了，自然对应的Znode节点就会删除。然后让新的最小编号作为Master，这样就可以实现动态选举的功能了。
+				？
+					主节点作用是什么？，选出来了 大家怎么知道？
+？
+	leaders
+	servers
+	...
+	zk高可用 弹性
+https://www.cnblogs.com/ultranms/p/9585191.html
+https://www.jianshu.com/p/f7db8baedd69、
+	
