@@ -93,10 +93,10 @@ AMQP和JMS:
 			Connection：
 				连接，应用程序与Server的网络连接，
 				TCP连接。
-			Channel：？
+			Channel：
 				信道，消息读写等操作在信道中进行。
 				客户端可以建立多个信道，每个信道代表一个会话任务。
-			Message：？
+			Message：
 				消息，应用程序和服务器之间传送的数据。
 				消息可以非常简单，也可以很复杂。
 				消息由Properties和Body组成。

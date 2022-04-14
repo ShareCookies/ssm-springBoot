@@ -44,9 +44,12 @@ RabbitMQ：
 						Headers Exchange：
 							该类型的交换器不依赖路由规则来路由消息，而是根据消息内容中的headers属性进行匹配。
 							headers类型交换器性能差，在实际中并不常用。
-					绑定：Binding、Binding Key
+					绑定：Binding、Binding Key、routing key
 						介绍：
 							RabbitMQ中通过Binding将Exchange与Queue关联起来，这样RabbitMQ就知道如何正确地将消息路由到指定的Queue了。
+							所以 ：
+								Binding是指Exchange与Queue的关联，binding key 是这个Binding的名称，
+								当客户端的发布消息时要传routing key，(Direct类型的)exchange 就会明白要把消息转发给那个队列。
 						附：
 							Binding Key：
 								在绑定（Binding）Exchange与Queue的同时，一般会指定一个binding key；
@@ -63,8 +66,6 @@ RabbitMQ：
 							交换没绑定队列 生产者连接发布会如何：
 								不会怎样 消息发出去无效而已 不会有报错
 
-
-
 				Queue：
 					消息队列，存储消息的队列.
 					消息到达队列,转发给指定的消费者。
@@ -75,8 +76,8 @@ RabbitMQ：
 				生产者发送消息流程：
 					1、生产者和Broker建立TCP连接。
 					2、生产者和Broker建立信道。
-					3、生产者通过通道，将消息发送给Broker，由Exchange将消息进行转发。
-					4、Exchange将消息转发到指定的Queue
+					3、生产者通过信道，将消息发送给Broker的Exchange。
+					4、然后Exchange将消息进行转发 到对应的Queue
 		Consumer：
 			消息消费者(消费方客户端)，接收MQ(Broker)转发的消息。
 			附：
@@ -84,11 +85,15 @@ RabbitMQ：
 					1、消费者和Broker建立TCP连接
 					2、消费者和Broker建立信道
 					3、消费者监听指定的Queue（队列）
-						？消费者只能绑定一个队列
-					附4、当有消息到达Queue时Broker默认将消息推送给消费者。
-					5、消费者接收到消息。
-					和对接收的消息进行处理
+					
+					5、消费者接收到消息,通过回掉对对应的消息进行处理。
+					？
+						附4、当有消息到达Queue时Broker默认将消息推送给消费者。？
+						这里监听的实现原理是什么，不断的轮询吗
 					6、ack回复
+					？
+						重复消费？
+						
 
 
 	
@@ -103,28 +108,101 @@ RabbitMQ：
 		rabbitMq高可用...
 RabbitMQ使用:
 	./RabbitMQ使用.txt
+RabbitMq几个重要的概念：
+	分别是优先级队列、消息顺序性、消息分发、持久化。
+	持久化：
+		介绍：
+			RabbitMQ 的消息默认存放在内存上面，消息不会持久化保存到硬盘上面的，如果节点重启或者意外crash掉，消息就会丢失。
+			而持久化消息就会保存到硬盘上。
+		1. 交换器持久化
+		2. 队列持久化
+			队列和消息的持久化，如果只设置其中一个是没有意义的.
+			因为消息存在队列里，如果消息设置持久化，队列没有，那么队列丢失，消息也会丢失
+		3. 消息持久化
+		例：
+			https://blog.csdn.net/u013256816/article/details/60875666/
+		附：
+			持久化rabbitMq停机会导致消息丢失吗：
+				不是的 
+				https://blog.csdn.net/u013256816/article/details/60875666/
+				关键的问题是消息在正确存入RabbitMQ之后，还需要有一段时间（这个时间很短，但不可忽视）才能存入磁盘之中，RabbitMQ并不是为每条消息都做fsync的处理，可能仅仅保存到cache中而不是物理磁盘，首先可以引入RabbitMQ的mirrored-queue即镜像队列，这个相当于配置了副本，当master在此特殊时间内crash掉，可以自动切换到slave，这样有效的保障了HA, 除非整个集群都挂掉
+	优先级队列：
+		优先级高的消息具备优先消费的特权。
+		
+		队列设置优先级？消息设置优先级？
+			消息设置优先级是说明消息的级别。
+			队列设置优先级难道是为了说明最高能接收多大级别吗？如果队列不设是没启用优先级吗 即使消息设了也没用吗？
+		
+		优先级队列什么情况下会起作用：
+			需要在生产者的速度大于消费者的速度，且Broker中有消息堆积的情况下，设置队列及消息优先级才有意义，否则，生产者刚生产一条就被消费者消费了，消息在Broker没有堆积，何谈优先级。
+			例：
+				https://blog.csdn.net/u013256816/article/details/55105495
+	消息顺序性：
+		RabbitMq没有属性设置消息的顺序性。
+		所以在没有前提的情况下说RabbitMq消息的消费具有顺序性是错误的，理想情况下，没有重复消费前提下，生产者发送 msg1、msg2、msg3，那么消费者消费顺序也是msg1、msg2、msg3。
+
+		那如何保证消息的顺序性了？
+	消息分发:
+		RabbitMq有多个消费者的时候，队列会以轮询的方式分发给多个消费者。
+
+		这里有一个很重要的参数 channel.basicQos()，该方法是允许信道上消费者最大未确认消息数量。他是针对信道而言的，一个连接可以有多个信道，一个信道可以有多个队列。
+
+		channel.basicQos()参数只适用于推模式的消费方式。?
+
+		例:
+			channel.basicQos(5)，代表该信道上的其中一个消费者未确认数量达到5后，RabbitMq就不会向这个消费者在发送任何消息，直到该消费者确认了一个消息后计数器减1，之后才可以继续接收消息。
+	
+			
+
 附:
 	消息丢失
-	https://www.cnblogs.com/flyrock/p/8859203.html 
-	...
-		接收者消息会丢失吗
-			不会ack吗
-		rabbitMq停机会导致消息丢失吗：
-			消息持久化
-				RabbitMQ 的消息默认存放在内存上面，如果不特别声明设置，消息不会持久化保存到硬盘上面的，如果节点重启或者意外crash掉，消息就会丢失。
-				消息持久化：
-					要想做到消息持久化，必须满足以下三个条件，缺一不可。
-					1） Exchange 设置持久化
-					2）Queue 设置持久化
-					3）Message持久化发送：发送消息设置发送模式deliveryMode=2，代表持久化消息
-			?这样就可以成功保证发送到服务器的消息 就不会丢失吗
+		https://www.cnblogs.com/flyrock/p/8859203.html
 		发送者如何确保消息不会丢失：
-			https://blog.csdn.net/u013738122/article/details/104538987
-			ConfirmCallback：
-				?
-				
-				
-				
+			https://blog.csdn.net/weixin_38003389/article/details/93193672
+			介绍：
+				持久化只能保证消息不会在服务器上丢失，但是如果消息如果投递失败我们怎么进行补偿操作呢。
+				解决办法就是实现回调函数(消息确认种类)，在消息的发送和消息的消费都可以进行补偿操作？
+			消息确认种类
+				消息的确认做有很多法，其中包括事务机制、批量确认、异步确认等。	
+				异步确认：
+					异步确认是利用回调函数来达到消息可靠性传递的，无论是可靠性还是效率都没得说。
+					消息发送确认：
+						ConfirmCallback
+							ConfirmCallback是一个回调接口，消息发送到 Broker 后触发回调，确认消息是否到达 Broker 服务器，也就是只确认是否正确到达 Exchange 中。
+							例：
+								...
+						附：
+						ReturnCallback
+							此接口是在交换器路由不到队列时触发回调
+							附：
+								该方法可以不使用，因为交换器和队列是在代码里绑定的。
+								如果消息成功投递到Broker后几乎不存在绑定队列失败，除非你代码写错了。
+
+					消息消费确认：
+						goto：接收者消息丢失
+		rabbitmq服务器保证消息不丢失：
+			goto：持久化
+		接收者消息丢失：
+			消息确认模式有：
+				AcknowledgeMode.NONE：自动确认
+				AcknowledgeMode.AUTO：根据情况确认
+				AcknowledgeMode.MANUAL：手动确认
+			？
+				direct 单个消费者 可以用ack
+				多个消费者了？ 有一个消费失败了？ 
+			？？？
+				ack回复丢失
+		
+		
+	如何保证消息不被重复消费：（如何保证消息消费时的幂等性）
+		https://blog.csdn.net/dsa572713470/article/details/99683457
+	？？？
+		如果queue没有消费者订阅 那么消息发送到队列后就被丢掉了？ queue为什么不保存消息了直到有订阅者了？
+		所以queue的原理是什么了？
+		没有消费者订阅 如何让消息还存在？
+		那为什么可以等消费者的ack响应了？
+		一个响应了，其他未响应了？
+附：
 六种消息模型
 	https://blog.csdn.net/kavito/article/details/91403659?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.add_param_isCf
 	介绍：
@@ -136,12 +214,17 @@ RabbitMQ使用:
 		C：消费者：消息的接受者，会一直等待消息到来。
 		
 		queue：消息队列，缓存消息。生产者向其中投递消息，消费者从其中取出消息。 
-			
+		例？
 	work消息模型：(工作队列或竞争消费者模式)。
 		work queues与入门程序相比，多了一个消费端，两个消费端共同消费同一个队列中的消息，但是一个消息只能被一个消费者获取。
 		？
 			rabbitmq消息只能被消费1次？
 			多个监听一个，如何确保这个另一个还未消费了？
+		例：
+			https://www.cnblogs.com/LUA123/p/8472070.html
+			channel.queueDeclare(QUEUE_NAME, false, false, false, null);    // 声明队列，只有他不存在的时候创建
+			channel.basicConsume(QUEUE_NAME, true, consumer);
+
 	Publish/subscribe（发布订阅模式）
 		交换机类型 Fanout， 也称为广播
 	Routing 路由模型：
@@ -167,5 +250,3 @@ RabbitMQ使用:
 					*：匹配不多不少恰好1个词
 	RPC:
 		？
-？
-	如何保证消息不被重复消费
