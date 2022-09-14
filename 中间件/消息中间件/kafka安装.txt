@@ -42,15 +42,14 @@ kafka安装：
 	2. 修改配置文件
 		./config/server.properties
 		
-		简易：
+		//设置zookeeper的连接端口
+		zookeeper.connect=192.168.123.102:2181,192.168.123.103:2181,192.168.123.104:2181	
+		附：
 			//当前机器在集群中的唯一标识，和zookeeper的myid性质一样（每台机器必需唯一）
 			broker.id=0
-			//设置zookeeper的连接端口
-			zookeeper.connect=192.168.123.102:2181,192.168.123.103:2181,192.168.123.104:2181
-			//设置zookeeper的连接超时时间
-			zookeeper.connection.timeout.ms=6000
-			...
 	3. 启动Kafka集群服务
 		 bin/kafka-server-start.sh config/server.properties
 		 ！
 			启动4台即可构成kafka集群
+		附:windows启动
+			.\bin\windows\kafka-server-start.bat .\config\server.properties
