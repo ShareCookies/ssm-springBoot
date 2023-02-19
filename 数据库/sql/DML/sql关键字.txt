@@ -53,8 +53,9 @@ mysql sql注意事项：
 			在表中，一个列可能会包含多个重复值，distinct能输出列中不同的值。
 			位置：
 				select 后，筛选的列名 前
-		样例：
+		例：
 			SELECT DISTINCT status FROM fund	--输出status不同的行
+		注：- distinct是多字段的
 			SELECT DISTINCT status,id FROM fund	--过滤掉 id和status 相同的行
 		附：
 		group_concat函数：
@@ -213,6 +214,8 @@ mysql sql注意事项：
 			先是按 createTime 降序排列  （优先）
 			如果 createTime  字段 有些是一样的话   再按price 升序排列 (前提是满足createTime 降序排列)
 			总结：当第一个条件相等时，才会用第二个条件去排序
+		mysql默认排序：
+			https://blog.csdn.net/jiandanokok/article/details/122504344
 	limit 返回数限制：
 		介绍：
 		 	LIMIT 关键字用于强制指定 SELECT 语句返回的记录数。

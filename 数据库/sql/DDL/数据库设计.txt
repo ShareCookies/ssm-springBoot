@@ -127,6 +127,27 @@ MySQL之text字段
 			！
 				数据库中定义的varchar(20)指的是20个字符。
 				字符集只能用来把字符跟二进制进行映射而已，如果找不到对应的字符映射就会报错出异常。所以到底能容纳几个字应该是跟字符集没有关系的！
+
+时间类型：
+	https://blog.csdn.net/qq_36833673/article/details/106591189
+	time
+		显示格式：HH：mm：ss
+	date：
+		显示格式：YYYY-MM-DD
+	datetime
+		显示格式：YYYY-MM-DD  HH：mm：ss
+	timestamp
+		显示格式YYYY-MM-DD   HH：mm：ss
+	附：
+		datetime支持的时间范围为：1000-00-00  00:00:00  至  9999-12-31  23:59:59；
+			datetime会将客户端输入的时间直接进行存储，查询时返回，基本上没有变化。
+		timestamp支持的时间范围为1970-01-01  00:00:01   至   2038-01-19  03:14:17
+			timestamp与时区有关系，插入时间是会把时间从当前时区转换为UTC（世界标准时间）进行存储，查询时，又会把标准时间转换为当时时区时间显示。？
+	注1：
+		https://blog.csdn.net/hd243608836/article/details/114645259
+		表中有两个timestamp字段，只要你更新任何非timestamp字段的值，则第一个timestamp列会更新成当前时间,而第二人timestamp列的值不变。
+		因为：
+			MySQL系统create创建默认语句，MySQL会默认自动给第一个timestamp字段加上DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP。
 mysql 一行数据长度限制：
 	https://blog.csdn.net/weixin_35292208/article/details/113117761
 	MySQL在建表的时候有个限制：MySQL要求一个行的定义长度不能超过65535。

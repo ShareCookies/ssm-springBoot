@@ -1,3 +1,5 @@
+字段过多优化：？
+	过多影响？怎么判断过多？
 mysql 
 	https://blog.csdn.net/youcijibi/article/details/80673811
 	binary和varbinary数据类型

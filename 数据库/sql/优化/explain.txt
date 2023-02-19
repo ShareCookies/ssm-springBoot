@@ -38,7 +38,10 @@ mysql explain执行计划结果的查看：
         介绍：
             该sql语句查询使用的索引类型。
             依次从好到差:system,const,eq_ref,ref,fulltext,ref_or_null,unique_subquery,index_subquery,range,index_merge,index,ALL。
-            除了all之外,其他的type都使用到索引,除了index_merge之外,其他的type只可以用到一个索引
+            一般情况下，得保证查询至少达到range级别，最好能达到ref。
+			附：
+				除了all之外,其他的type都使用到索引,
+				除了index_merge之外,其他的type只可以用到一个索引
         type值：
             A:system:
                 表中只有一行数据或者是空表,且只出现于myisam和memory表。

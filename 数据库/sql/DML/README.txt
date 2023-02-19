@@ -18,7 +18,12 @@ DML:数据库操作语言
 		附：
 			旧值是新值的一部分
 				https://blog.csdn.net/u010865136/article/details/77337800
-
+		附：
+			drop：drop table 表名
+				 删除内容和定义，并释放空间。执行drop语句，将使此表的结构一起删除。
+			truncate：truncate table 表名
+				清空表中的数据。也就是保留表的数据结构
+			delete语句是数据库操作语言(dml)，truncate、drop 是数据库定义语言(ddl)。
 	查询：
 		例：
 			select * from fund;

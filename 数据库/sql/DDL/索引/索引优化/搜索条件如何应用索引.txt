@@ -29,11 +29,14 @@
 		  　　	SELECT * FROM mytable WHERE username like'admin%'
 		 	而下句就不会使用：
 		 　　 	SELECT * FROM mytable WHEREt Name like'%admin'
+				SELECT * FROM mytable WHERE username like'_admin%'
+
 		因为：
+			_也不行是因为任意一个b树上任一索引第一个位置都可能符合要求，所以应用不了索引
 			！：
 				具体b树是怎么对比的了，是先比a，在比d这些？
 	不要在列上进行运算:
-		在列上进行运算,将在每个行上进行运算，这将导致索引失效而进行全表扫描，
+		在列上进行运算,要注意 如果该列有索引 那么这将导致索引失效
 		例：
 			select * from users where YEAR(adddate)<2007;
 			因此我们可以改成

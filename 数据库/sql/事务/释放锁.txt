@@ -62,9 +62,10 @@
 				mysql8已抛弃，请改用Performance_Schema 中data_locks和data_lock_waits表。
 					例：
 						SELECT * FROM `performance_schema`.data_locks;
-		附2:
-		查看数据库当前的进程
-			mysql> show  processlist;
+    注:
+    查看数据库当前的进程
+        mysql> show  processlist;
+
 	2. mysql命令杀掉线程：
 		kill 线程id  (trx_mysql_thread_id)
 		附：
@@ -79,10 +80,31 @@
 			./mysql8特性.txt
 	？
 		https://blog.csdn.net/J080624/article/details/80596958/?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-3&spm=1001.2101.3001.4242
+	？数据库卡顿现象之一
+	    对应表更新不了
+	    有些表查询不了
+	    mysql系统表和部分表又能查询
+
+	    事务查询和锁查询又没问题
+	    更新了表索引 才出现问题，我杀了对应表一个事务和表索引更新进程 就好了 为啥了 应该是冲突了吧
+	    https://blog.csdn.net/songxi_bo/article/details/121700745
 附：
 	mysql死锁日志：
-		通过show engine innodb status 查看最新一次记录死锁的日志。
+		show engine innodb status 查看最新一次记录死锁的日志。
 			https://blog.csdn.net/cojm55771/article/details/100261120
+		自动保存死锁日志
+            https://blog.csdn.net/u011334954/article/details/121350197
+            MySQL 系统内部提供一个 innodb_print_all_deadlocks 参数，该参数默认是关闭的，开启后可以将死锁信息自动记录到 MySQL 的错误日志中。
+            将 innodb_print_all_deadlocks 参数设置为 1 ，这样每次发生死锁后，系统会自动将死锁信息输出到错误日志中，
+                需要注意的是打开此参数后，只会记录死锁部分信息而不会记录 innodb 其他相关信息，即只会记录 show engine innodb status 中的 LATEST DETECTED DEADLOCK 部分。
+            例：
+                # 查看参数是否开启
+                mysql> show variables like 'innodb_print_all_deadlocks';
+
+                # 开启innodb_print_all_deadlocks,此参数是全局参数，可以动态调整。记得要加入到配置文件中
+                mysql> set global innodb_print_all_deadlocks = 1;
+
+
 	模拟死锁场景：
 		https://blog.csdn.net/DaBingShui/article/details/88953734?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.nonecase
 		session 1:                                session 2:

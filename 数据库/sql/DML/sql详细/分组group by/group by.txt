@@ -11,6 +11,9 @@ group by：
 					avg() 平均数
 					max() 最大值
 					min() 最小值
+					any_value() 当select字段未在group中时，又想获取该字段 可以该函数取符合条件的任一结果值。
+					    注：any_value获取的值是group by 结果的任意一行值
+
 			位置：
 				from 后 order前
 	例子：
@@ -81,6 +84,20 @@ having：
 		https://blog.csdn.net/Peacock__/article/details/90608246
 		https://blog.csdn.net/qq_42175986/article/details/82384160
 		尝试用一下any_value()函数
+
+		附：
+		    但是any_value 取的值为任意一行，所以如果想要指定行数据可考虑和表关联等语句混用
+		    select A.* from
+                EGOV_INFO_SCORING as A
+                    RIGHT JOIN
+                (
+                    SELECT MAX(SCORE) AS SCORE,SOURCE_CATEGORY_NO,INFO_NO
+                    FROM
+                        EGOV_INFO_SCORING
+                    GROUP BY INFO_NO,SOURCE_CATEGORY_NO
+                ) as B ON A.SOURCE_CATEGORY_NO = B.SOURCE_CATEGORY_NO AND A.INFO_NO = B.INFO_NO AND A.SCORE = B.SCORE
 附2：
 	SQL多字段的查询重复记录
 		select * from table1 t where (select count(*) from table1 where column1=t.column1 AND column2=t.column2 and column3=t.column3)>1
+？
+	分组应用索引的原理
