@@ -1,5 +1,93 @@
-字段过多优化：？
-	过多影响？怎么判断过多？
+更新卡死
+    现象：
+        数据库一堆表更新卡死，其中FLOW_WORK_TODO最多
+        应用日志出现：
+            MySQLTransactionRollbackException: Lock wait timeout exceeded; try restarting transaction
+            DeadlockLoserDataAccessException:UPDATE FLOW_WORK_TODO...WHERE ID = ?;
+    修复过程：
+        能想到的优化方式先上，不一定要立马找到问题
+        1. 调整数据库超时时间为3s
+        2. 优化并减少 FLOW_WORK_TODO表索引
+        3. 优化前端无效的自动更新
+        以上优化后系统可以正常运行，没什么更新超时。由于业务场景与逻辑限制，无法改变(for循环进行update)所以后续迁移表数据
+    异常排查：
+        show  processlist;
+        SELECT * FROM INFORMATION_SCHEMA.INNODB_TRX;#查看当前事务
+        SELECT * FROM INFORMATION_SCHEMA.INNODB_LOCKS; #查看当前锁定的事务
+        SELECT * FROM INFORMATION_SCHEMA.INNODB_LOCK_WAITS;#查看当前等锁的事务
+        mysql死锁日志开启与保存
+    异常原因：
+       应该是for循环进行update 与 UPDATE FLOW_WORK_TODO...WHERE business_doc_id = ?;造成大量死锁冲突
+
+
+?
+	字段过多优化：？
+		过多影响？怎么判断过多？
+
+	插入比更新快很多？
+
+	更新慢 归根结底 磁盘问题？
+	死锁，？mysql 一次性更新很多数据 一次性获取到锁吗？
+
+	mysql索引存在磁盘还是内存？存储在硬盘中的，MYSQL需要的时侯调入部分内容到内存。一次IO就能将其中一个节点完全载入其中？
+	    ？索引会不会太大调不进来，太大那就调一部分吗
+	    https://zhuanlan.zhihu.com/p/38476038
+
+	索引树的更新，只要有记录 所有的索引树都会被更新吗？
+	    https://blog.csdn.net/huanghanqian/article/details/103055802
+	    对于数据的每一次更新，MySQL并不会每次都会更新索引(针对非唯一性索引而言)
+	    索引的更新策略是这样的：
+            在InnoDB中，增删改都会立刻修改主键or唯一索引，但是不会rebuild全局索引？，而是对这些索引增加值(或移除值)？。
+            对于非唯一性索引，InnoDB会进行change buffering操作。
+                附：这种特性不需要手动开启，而是默认开启的。
+                在MySQL5.1版本，change buffering操作仅仅适用于insert。
+                而在MySQL5.5版本之后，change buffering操作则扩展到update和delete里。
+        change buffering：
+            对于那些不在缓存池内的二级索引有修改时，对应的修改会被缓存在change buffer里。
+                附：
+                    二级索引就是非聚集索引？
+                    对二级索引有修改的场景包括：对数据的插入、更新和删除操作。
+                附：
+                    change buffer是一个特殊的数据结构。
+            之后如果有读操作时，会将这些二级索引页加载到缓存池里时，此时才会将change buffer里的修改与二级索引页合并。
+            附：
+                你可以自定义最大的change buffer的大小。
+                详情可见：https://dev.mysql.com/doc/refman/8.0/en/innodb-change-buffer.html#innodb-change-buffer-configuration
+        这种清洗工作往往在系统处于空闲时周期进行，或者通过一段短暂的shutdown来将更新的索引页写入磁盘。这种清洗工作将一系列索引值写入磁盘块，会比来一个写一次快得多。
+
+        附：
+            当存在很多被影响的行，存在很多需要更新的二级索引时，change buffer的合并工作往往会消耗几个小时。
+            在这段时间内，磁盘IO数量激增，会导致对于磁盘的查询操作宕机。另外，change buffer的合并工作会在事务提交后进行，甚至会在服务器的关闭重启后进行。
+
+        在内存中，change buffer占用了缓冲池的一部分。在磁盘上，change buffer是系统表空间的一部分，当数据库服务器被关闭时，索引的更改将会被缓存在其中。
+
+        ？？？
+            看着好像更新对普通索引影响不是很大啊，因为更新对索引的操作好像异步的
+
+        https://stackoverflow.com/questions/31288895/what-happens-with-an-index-exactly-when-a-row-is-inserted-or-updated-in-mysql
+    索引影响更新，那多少为妙？
+        https://blog.csdn.net/weixin_36027833/article/details/113458803?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-3-113458803-blog-113141564.pc_relevant_3mothn_strategy_recovery&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-3-113458803-blog-113141564.pc_relevant_3mothn_strategy_recovery&utm_relevant_index=4
+
+        https://blog.csdn.net/weixin_42402241/article/details/113141564
+
+    联合索引是否还有必要加上重复率高的字段：？
+        http://www.itpub.net/thread-1345407-1-1.html
+        https://www.cnblogs.com/shujiying/p/12532315.html
+        https://www.yijiashun.cn/article/72346defe769ad3acc059648.html
+        可以加
+            不加可以让树更低
+            加可以(where用到)，加可以让回表更少
+    mysql更新为啥会卡住？
+        更新是不是有个队列？太多更新了，且这里头较多死锁，导致所有更新卡死
+            大量更新语句是否会堵住数据库，为何？mysql 是不是有个更新队列，只用来更新 不会影响查询？
+        锁表。首先那些情况会锁表？锁住了表为啥会不释放了？
+    ?
+        索引不包含更新的字段，该索引还会被更新吗
+        应该不会 https://www.oomake.com/question/2721808
+    ?
+        只有主键是聚簇索引？
+        https://blog.csdn.net/weixin_41346473/article/details/122921076
+
 mysql 
 	https://blog.csdn.net/youcijibi/article/details/80673811
 	binary和varbinary数据类型
@@ -44,3 +132,8 @@ sql 把特定数据排在最前面
         WHEN '特提' THEN 6
         ELSE  0 END
         DESC,CREATE_TIME DESC
+Mysql 当排序的字段存在null时,想让null排在后面
+
+	https://blog.csdn.net/qq_35885175/article/details/114285961?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0.no_search_link&spm=1001.2101.3001.4242
+	https://www.cnblogs.com/sharpest/p/13706627.html
+

@@ -69,41 +69,4 @@ SQL可分为两个部分：
 	mysql日志：
 		./优化/诊断.txt goto:MySQL的日志
 附2：
-	mysql数据备份：
-		https://www.runoob.com/mysql/mysql-database-export.html
-		navicat导出数据库:
-			要导出的数据库上右击鼠标->点击“转储SQL 文件”->“数据跟结构”。
-		navicat自带备份功能。
-		mysql自带备份功能。
-	mysql回滚数据库：
-		http://www.cppcns.com/shujuku/mysql/173077.html
-		https://blog.csdn.net/lvshaorong/article/details/80631133
-	mysql常见控制台命令：
-		quit：
-			退出mysql
-		show tables;
-			https://www.cnblogs.com/123456789qq/p/5891289.html
-			显示数据库
-		导入|导出：
-			https://www.cnblogs.com/jwlfpzj/articles/7998395.html
-			导入数据库source d:/dbname.sql
-		改密码：
-			use mysql;//此时要会提示Database changed
-			update user set password=password("") where user="root";
-			flush privileges; //刷新权限,使密码生效
-		命令帮助手册：
-			例 help drop indexa
-		注：
-			linux调用mysql控制台：
-				mysql -uroot -p
-			linux mysql的启动：
-				https://www.cnblogs.com/microcat/p/6610963.html
-			linux mysql的启动服务
-				service mysql start　　　
-			linux mysql的关闭服务
-				service mysql stop
-	mysql命令：
-		查看数据库版本：
-			select @@version;
-		MySQL查看数据库和表容量大小：
-			https://blog.csdn.net/fdipzone/article/details/80144166
+    mysql常见命令和功能、技巧：./mysql使用技巧.txt
