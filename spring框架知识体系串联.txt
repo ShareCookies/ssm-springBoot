@@ -1,29 +1,41 @@
 spring框架知识体系串联：
-	spring框架起点：
+	springcore：spring框架起点
 		spring框架是以springcore为核心的，spring框架的所有组件都要依赖springcore的ioc、aop功能。
 		springcore通过ioc容器（bean工厂、ApplicationContext 应用上下文）来提供ioc和aop功能。
 			？上下文具体实现原理？怎么提供ioc和aop的源码分析
-			？
-				spring和tomcat是怎么结合的
+			spring几个核心模块都在一个spring包里头吗？
+
+			spring和tomcat是怎么结合的：
+			    应该说springmvc怎么和Tomcat合的，通过servlet啊 。spring在Java中应用就是通过spring容器来获取对应的Javabean。
 		ioc：控制反转
 			控制反转核心概念就是对象的实例化不由用户进行，而是程序控制。
-			Spring就使用ioc容器来控制管理所有的Bean对象，当应用上下文加载好bean配置后就开始创建bean。（控制反转）
-				工厂是用到bean时才创建。
+			IOC容器：
+			    Spring使用ioc容器来控制管理所有的Bean对象，（控制反转）。
+			    IOC容器可划分为两种类型，BeanFactory和ApplicationContext两个系列。
+				容器不同，bean的创建时机也不同:工厂是用到bean时才创建。当应用上下文加载好bean配置后，就开始创建bean。
 			bean的生命周期则有：
-				构造器初始化(bean加载顺序)、属性注入(di)、
-				接着就是各种注入回调、初始化回调、销毁回调等。
-					对于这些回调可通过实现指定接口来应用。
-			bean创建好后就可以从容器中开始获取bean并开始使用，此时就涉及到bena作用域问题。
+				对象的实例化，属性注入（只是注入代理器吧。），各种spring bean的初始化阶段回调，bean的销毁回调。
+				附：对象实例化时，如果通过构造函数注入bean的属性 那么可能涉及到循环依赖等问题。
+
 			bena作用域：
-				用户用一对象一般new一次，但从容器中获取却不是new的，而是很早就创建 你每次获取的都是这个对象。(单例作用域)
+			    bean创建好后就可以从容器中开始获取bean并开始使用，此时就涉及到bena作用域问题。
+				用户用一对象一般new一次，但从容器中获取却不是new的，而是很早就创建 你每次获取的都是这个对象。(单例作用域)(默认)
 				其余作用域：单例、原型、请求、会话
+
 		aop：面向切面编程
-			原理：aop就是为一对象创建代理，当你调用对象方法时 你调的其实是代理的方法 然后代理进行一些操作后才会决定是否调用对象方法。
-			
-			应用：编写切面、编写切点、编写通知
-			springaop实现，当代理接口时就用java动态代理、类时就用cglib。
-			spring中aop的典型应用就是spirngtransaction。
-	
+			原理思路：aop原理 就是为一对象创建代理对象，当你调用对象方法时 你调的其实是代理的方法 然后代理进行一些操作后才会决定是否调用对象方法。
+			springaop实现：!。 通过切点表达式匹配找到代理目标方法。 2. 通过动态代理生成代理类。默认当代理接口时就用jdk动态代理、类时就用cglib。
+
+			使用：注解模式使用
+			    编写一个切面类、
+			    编写方法，并在方法上编写通知和切点
+			    ？引入是用这个吗
+			        @DeclareParents
+			附：
+               spring中aop的典型应用就是spirngtransaction。
+                    ?话说transaction是如何获取到数据库连接 然后进行回滚的了
+            附：
+                静态代理、动态代理区别：编译阶段生成代理类。代码运行阶段生成代理类。
 	springmvc.
 		springmvc通过dispatcherServlet拦截请求，然后将其转发到我们写的控制器，
 			？
@@ -58,25 +70,35 @@ spring框架知识体系串联：
 				？
 					事务已被标记回滚异常，是因为其实就用一个事务模板导致的吗
 	springboot
-		spirng的快速开发框架，其主要提供了以下功能来实现快速开发web应用。
-		starter启动、约定优先于配置、和springboot的快速开发注解
+		基于spring的快速开发框架，其主要提供了以下功能来实现快速开发web应用。
+		起步依赖、自动配置（约定优先于配置）、springboot的快速开发注解，这个功能都由starter启动包自动实现和提供。
+		spring 还提供了些便于开发的附属功能 例Actuator等。
+        原理：
+            起步依赖:starter包maven配置都已经帮我们引入了相关的依赖，我们引入starter包即可。
+            自动配置：@SpringBootApplication里包含了个核心注解@EnableAutoConfiguration，该注解可以将所有starter包符合条件(spring.factories文件中指定)的配置类加载到IoC容器中。
+            ?springboot启动做了那些事
+                SpringApplication.run(ZjrsConsumerApplication.class, args);
 	springsecurity
-		web应用开发完后，总得有用户权限认证吧，security就起到这个作用。
+		security用户权限认证作用。
 		security通过filter保护web请求，通过认证管理器找到对应的认证提供者对请求进行校验 通过则放行。
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
+        使用：为security新增token认证功能
+            设置用户存储(userDetailsService 用户信息服务)到AuthenticationManagerBuilder
+            编写登陆接口：调用authenticationManager进行用户认证，保存认证信息 （认证通过，把身份信息保存到security上下文中，便于随时获取），返回token。
+            自定义filter解析token，并将filter添加到security的配置中。
+        原理：用户认证原理
+            AuthenticationManager唯一实现类是ProviderMananger。
+            ProviderMananger会根据各个AuthenticationProvider实现类的support方法询问哪个具体实现类能支持该token工作，找到后调用其authenticate进行认证判断。
+
+
+
+
+
+
+
+
+
+
 
 集成mybatis:
 	...
@@ -91,7 +113,7 @@ spring框架知识体系串联：
 			？会话和jdbc连接区别
 		3、 通过sqlsession执行数据库操作
 			1. 可以通过 SqlSession 实例来直接执行已映射的 SQL 语句：
-			
+
 			2. 更常用的方式是先获取Mapper(映射)，然后再执行SQL语句：
 			BlogMapper mapper = session.getMapper(BlogMapper.class);
 			Blog blog = mapper.selectBlog(101);
@@ -108,9 +130,9 @@ spring框架知识体系串联：
 		SqlSessionFactory
 			SqlSessionFactory 是用来创建SqlSession的，相当于一个数据库连接池？，每次创建SqlSessionFactory都会使用数据库资源，多次创建和销毁是对资源的浪费。
 			所以SqlSessionFactory是应用级的生命周期，而且应该是单例的。
-			
+
 		SqlSession
-		
+
 			SqlSession相当于JDBC中的Connection，SqlSession 的实例不是线程安全的？，因此是不能被共享的，
 			所以它的最佳的生命周期是一次请求或一个方法。
 		Mapper
@@ -119,8 +141,8 @@ spring框架知识体系串联：
 		MyBatis通常也是和Spring集成使用
 		Spring可以帮助我们创建线程安全的、基于事务的 SqlSession 和映射器，并将它们直接注入到我们的 bean 中，我们不需要关心它们的创建过程和生命周期，那就是另外的故事了。
 		集成原理？
-		
-		
+
+
 我们已经大概知道了MyBatis的工作流程，按工作原理，可以分为两大步：生成会话工厂、会话运行。
 会话运行
 	会话运行是MyBatis最复杂的部分，它的运行离不开四大组件的配合：
@@ -157,6 +179,7 @@ PreparedStatementHandler:
 	public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
 	PreparedStatement ps = (PreparedStatement)statement;
 	ps.execute();
+				接着就是各种注入回调、初始化回调、销毁回调等。
 	return this.resultSetHandler.handleResultSets(ps);
 	}
 
@@ -186,3 +209,34 @@ ResultSetHandler（结果处理器）
 	它会使用typeHandle处理类型，然后用ObjectFactory提供的规则组装对象，返回给调用者。
 整体上总结一下会话运行：
 	
+
+
+
+
+
+temp：
+    https://www.cnblogs.com/toutou/p/ssm_spring.html
+    https://www.cnblogs.com/doudouxiaoye/p/5693399.html
+
+
+    spring、springMVC、mybatis、springboot
+    Spring是一java开源开发框架，spring框架的各个模块可独立使用 但其中spring是核心模块
+    mybaits与spring的整合：
+        设置MyBatis的sessionFactory到spring的应用上下文
+        <!-- 配置会话工厂SqlSessionFactory -->
+        <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+            <!-- 数据源 -->
+            <property name="dataSource" ref="dataSource"/>
+            <property name="mapperLocations" value="classpath:sqlmap/*Mapper.xml"/>
+             <property name="typeAliasesPackage" value="com.hcg.entity" />
+         </bean>
+
+         BeanDefinitionRegistryPostProcessor that searches recursively starting from a base package for  interfaces and registers them as {@code MapperFactoryBean}.
+        <!-- 在spring容器中配置mapper的扫描器产生的动态代理对象在spring的容器中自动注册，
+        bean的id就是mapper类名（首字母小写）-->
+         <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+             <!-- 指定扫描包的路径，就是mapper接口的路径，多个包中间以 半角逗号隔开   -->
+             <property name="basePackage" value="com.hcg.dao"/>
+             <!-- 配置sqlSessionFactoryBeanName --><!-- 配置mapper代理对象 -->
+             <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+         </bean>
