@@ -80,9 +80,7 @@ JDBC:
 			当需要访问数据库时，只需要从数据库连接池中获取空闲的数据库连接，当程序访问数据库结束时，数据库连接会放回数据库连接池中。
 		附：
 			druid连接池：
-				https://www.cnblogs.com/chy18883701161/p/12594889.html
-				git：https://github.com/alibaba/druid/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98
-				开启druid监控：https://www.cnblogs.com/lijiasnong/p/9889510.html
+
 			常见连接池的datasource：
 				https://blog.csdn.net/fightingXia/article/details/82555999
 				Spring Boot(2.0)默认数据源：HikariDataSource

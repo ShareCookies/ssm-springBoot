@@ -30,6 +30,7 @@ redis 和 memcached 对比：
 redis介绍：
 	Redis(Remote Dictionary Server)  是 C 语言开发的、一个开源（遵从 BSD 协议）、高性能、键值对（key-value）的、内存数据库。
 	特性：
+	    丰富的数据类型、提供多种语言的 API
 		高性能
 			数据在内存中，读写速度非常快，官方数据支持 10W QPS(每秒内的查询次数(Query Per Second) )！。
 			单进程单线程
@@ -52,8 +53,7 @@ redis介绍：
 		高可用
 			主从、主从哨兵、集群
 			
-		一种 NoSQL（not-only sql，泛指非关系型数据库）的数据库
-		提供多种语言的 API
+
 		可持久化
 			可以将内存中数据保存在磁盘中，重启时加载。
 		

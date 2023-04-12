@@ -32,8 +32,9 @@ Spring Cloud微服务框架的搭建：
 			./网关/README.txt
 		结合以上模块就可搭建一个微服务框架。
 	附：
-		Spring Cloud Sleuth	分布式系统调用跟踪:？
+		Spring Cloud Sleuth	分布式系统调用跟踪:???
 			http://www.ityouknow.com/springcloud/2018/02/02/spring-cloud-sleuth-zipkin.html
+			https://www.cnblogs.com/roadlandscape/p/12934407.html
 			使用Spring Cloud Sleuth和Zipkin进行分布式链路跟踪.
 			随着业务发展，系统拆分导致系统调用链路愈发复杂一个前端请求可能最终需要调用很多次后端服务才能完成.
 			当整个请求变慢或不可用时，我们是无法得知该请求是由那些后端服务引起的，这时就需要快读定位服务故障点，以对症下药。

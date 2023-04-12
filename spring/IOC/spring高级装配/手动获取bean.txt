@@ -1,8 +1,7 @@
-	附1：
-		过滤器的创建时优先于spring容器的。
-		因为spring web应用是通过servlet来注入并启用容器的，过滤器又是优先于servlet的。
 
-	手动获取bean：
+
+手动获取bean：-从ServletContext上下文实例获取容器
+	例：
 		@WebFilter(urlPatterns = "/*")
 		@Order(Integer.MAX_VALUE-2)
 		public class SSOFilter implements Filter {
@@ -13,7 +12,10 @@
 				ApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(servletContext);
 				redisTemplate = ctx.getBean("redisTemplate",RedisTemplate.class);
 			}
-		}	
+		}
+	附1：
+        过滤器的创建时优先于spring容器的。
+        因为spring web应用是通过servlet来注入并启用容器的，过滤器又是优先于servlet的。
 	获取ServletContext：
 		https://www.cnblogs.com/yysbolg/p/9018559.html
 		(1)生命周期

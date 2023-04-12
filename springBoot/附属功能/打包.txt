@@ -4,7 +4,18 @@ https://my.oschina.net/u/4006148/blog/3171507
 	一种是打包成jar包直接执行(内嵌tomcat)，
 	另一种是打包成war包放到tomcat服务器下。
 打包成jar包：
-	使用的是maven来管理项目，执行以下命令：
+maven管理的项目：
+	1. pom
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+					<version>1.5.9.RELEASE</version>
+				</plugin>
+			</plugins>
+		</build>
+	2.  maven执行以下命令：
 		cd 项目根目录（和pom.xml同级）
 		mvn clean package -Dmaven.test.skip=true  删除 target 目录，跳过测试打包到本项目的 target 目录下
 
@@ -15,13 +26,13 @@ https://my.oschina.net/u/4006148/blog/3171507
 			只有用了内嵌tomcat项目启动的springboot项目才要使用打包插件。
 			2.https://blog.csdn.net/weixin_33753845/article/details/86248454
 
-		附：
-			1.打包完成后jar包会生成到target目录下，命名一般是项目名+版本号.jar
-			2.推荐的jar包运行命令：
-			先杀掉原有tomcat进程：
-				lsof -i:6051 -t|xargs kill -9   https://www.cnblogs.com/sparkbj/p/7161669.html
-			运行jar包：
-				nohup java -Xmx512m -Xms256m -jar -Dspring.profiles.active=dev（激活的springboot配置环境） -Dfile.encoding=UTF-8 包名.jar  >> nohup.log 2>&1 &
+	附：
+		1.打包完成后jar包会生成到target目录下，命名一般是项目名+版本号.jar
+		2.推荐的jar包运行命令：
+		先杀掉原有tomcat进程：
+			lsof -i:6051 -t|xargs kill -9   https://www.cnblogs.com/sparkbj/p/7161669.html
+		运行jar包：
+			nohup java -Xmx512m -Xms256m -jar -Dspring.profiles.active=dev（激活的springboot配置环境） -Dfile.encoding=UTF-8 包名.jar  >> nohup.log 2>&1 &
 附：
 	什么是可执行jar包：
 		https://blog.csdn.net/programmer0804/article/details/78509846
@@ -36,3 +47,7 @@ https://my.oschina.net/u/4006148/blog/3171507
 			？
 	maven命令：
 		SHARE_CONTENT\编程常用工具笔记\maven\maven命令介绍.txt
+		
+?
+	package 
+	repackage

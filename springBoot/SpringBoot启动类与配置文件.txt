@@ -5,6 +5,8 @@ springBoot启动类：
 		*https://blog.csdn.net/qiuz1024/article/details/100530260
 		https://www.jianshu.com/p/8268b58daa57
 		https://www.jianshu.com/p/721c76c1529c
+		标明这是一个配置类。
+			告诉SpringBoot这是一个配置类，相当于xml配置文件。
 	@Import：
 		https://blog.csdn.net/qq_36903131/article/details/99625225
 		有两个作用：
@@ -23,15 +25,60 @@ springBoot启动类：
 			spring三方包类注入容器的四种方法：
 				https://blog.csdn.net/luoanjuan/article/details/88652582
 
+	@bean注解
+		https://blog.csdn.net/MrYushiwen/article/details/111880916
+		作用：为容器中添加组件
+		用法：
+			@Bean应用在配置类方法上
+			附：
+				以方法名作为组件的id。
+				返回类型就是组件类型。
+				返回的值，就是组件在容器中的实例。默认也是单实例的
+		例：
+			@Configuration
+			public class Config {
+				//给容器中添加组件。
+				// 以方法名作为组件的id。person1
+				//返回类型就是组件类型。
+				//返回的值，就是组件在容器中的实例
+				@Bean   
+				public Person person1(){
+					return new Person("Mr.Yu",21,"male");
+				}
+			}
+	
 	main方法介绍：
 		例:
 			SpringApplication.run(Application.class, args);
 			这行代码会告诉Spring Boot（通过SpringApplication类）根据Application中的配置以及命令行中的参数来运行。
 	附：
 		多个@Configuration：
-		一个项目下有多个@Configuration，均会被spring加载。
-		定义加载顺序
-		https://www.cnblogs.com/mrray1105/p/11122883.html
+			一个项目下有多个@Configuration，均会被spring加载。
+			定义加载顺序
+			https://www.cnblogs.com/mrray1105/p/11122883.html
+	附：
+		如何修改springboot默认配置：
+			https://blog.csdn.net/MY_baldy/article/details/120665290
+			1. 配置类中通过@Bean生成一个对应的自定义组件
+				注：
+				通过@Bean来替换默认配置时，bean名称要对应才会替换默认组件
+			2. 配置文件中覆盖掉组件的对应属性（推荐的方法，可以查看官方文档中可以修改的属性）
+			附：
+			自动配置原理思路：
+				springboot在配置很多组件的时候，先看容器中有没有用户自己配置的( @Bean，@Component)，如果有，就使用用户自己配置的；
+				如果没有，才会自动配置。 
+				附：
+					有的组件是有多个配置来源(Viewresolver),这个时候就会把用户和默认整合起来一起用。？
+				源码：
+					...
+
+			?
+				
+			？ 
+				在Springboot中会有很多的
+				xxxConfigurer 组件帮助我们进行拓展配置。
+				xxxCustomizer组件帮助我们进行定制配置。
+
 配置文件：
 	https://blog.csdn.net/qq_33524158/article/details/79600434
 	SpringBoot提供了一个全局的配置文件，可用来修改SpringBoot自动配置的默认值；

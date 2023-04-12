@@ -27,7 +27,7 @@ https://blog.csdn.net/zxc123e/article/details/80222967
 @EnableAutoConfiguration原理：
 	其中最关键的要属@Import(AutoConfigurationImportSelector.class)。
 	AutoConfigurationImportSelector 通过 SpringFactoriesLoader.loadFactoryNames()。
-	starter包里/META-INF/spring.factories文件中指定每一个xxxAutoConfiguration.class配置文件都加载到容器中。
+	将starter包里/META-INF/spring.factories文件中指定每一个xxxAutoConfiguration.class配置文件都加载到容器中。
 	
 	AutoConfigurationImportSelector：
 		/**

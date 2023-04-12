@@ -26,7 +26,8 @@
 		
 		
 		
-		
+Spring获取HttpServletRequst 的几种方法
+    https://blog.csdn.net/xiaoguangtouqiang/article/details/80885270
 		
 		
 		

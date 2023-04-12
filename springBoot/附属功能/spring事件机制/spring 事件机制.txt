@@ -91,4 +91,21 @@ spring 事件机制
 		同步执行证明：
 			./例/
 			和从源码分析。
+附：应用上下文获取
+@Component
+public class GetSpringApplicationContext implements ApplicationContextAware {
+    @Autowired
+    private static ApplicationContext context;
+
+    public GetSpringApplicationContext() {
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        context = applicationContext;
+    }
+
+    public static ApplicationContext getMyApplicationContext() {
+        return context;
+    }
+}
 		

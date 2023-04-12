@@ -18,53 +18,53 @@ Spring介绍：
 	Spring还构建了一个在核心框架之上的庞大生态圈（例如Web服务、REST、移动开发），常见的模块有七个，（基于核心容器模块上）spring框架的每个模块即可单独使用，也可和其他模块或框架组合使用。
 Spring模块：
 	介绍：
+	    https://www.likecs.com/show-203463964.html
 		spring框架的每个模块即可单独使用，也可和其他模块或框架组合使用。
-		
-		在Spring 4.0中，Spring框架的发布版本包括了20个不同的模块。
-		每个模块会有3个JAR文件（二进制类库、源码的JAR文件以及JavaDoc的JAR文件）。
-		注：
-			spring远不止这些模块
-		Spring七大核心模块
-			https://www.cnblogs.com/xiaobaizhiqian/p/7616453.html
-			https://www.yiibai.com/spring/
-	Spring Core(核心容器模块):
-		介绍:
-		核心容器模块提供Spring框架的基本功能。
-		1.该模块是spring的核心模块，主要实现了IOC功能（控制反转），	提供Spring框架的基本功能。其他的Spring模块都要基于核心容器模块。
-		2.IOC能让Spring以bean的方式组织和管理Java应用中的各个组件及其关系，Spring使用BeanFactory（容器）来产生和管理Bean。
-	Spring Context（应用上下文）：
-		提供框架式的Bean访问方式（BeanFactory定义了IoC容器的基本规范，ApplicationContext 应用上下文则是IoC容器的高级表现形式）。
-		以及企业级功能，例如E-mail、JNDI、EJB、国际化、校验和调度功能等
-	Spring AOP：
-		Spring AOP 模块将面向切面编程功能集成到了 Spring框架中。
-	Spring DAO（JDBC和DAO模块）：
-		对JDBC的抽象（抽象层提供了有意义的异常层次结构），简化了数据访问异常的处理；
-			抽象层提供了有意义的异常层次结构，可用该结构来管理异常，便于不同数据库供应商所抛出的错误信息。！
-			这使我们可以方便切换持久层，编码时也不用担心会捕获每种技术特有的异常。
-		还提供了模板方法简化了大量的代码编写。
-	Spring ORM（对象实体映射）
-		对于那些更喜欢ORM（Object-Relational Mapping）工具而不愿意直接使用JDBC的开发者，Spring提供了ORM模块。
-		SpringORM模块没有尝试去创建自己的ORM解决方案，而是对许多流行的ORM框架进行了集成，包括Hibernate、Java Persisternce API、Java Data Object和iBATIS SQLMaps等，所有这些都遵从Spring的通用事物和DAO异常层次结构。
-		Spring的事务管理支持所有的ORM框架以及JDBC。
-		？
-			那mybaits这些都在这个模块中
-	Spring Web：
-		WebApplicationContext扩展了对web应用的支持，其建立在应用程序上下文模块之上，为基于web的应用程序提供了上下文。
-		所以Spring框架支持与Struts集成，web模块还简化了处理多部分请求以及将请求参数绑定到域对象的工作。
-	Spring MVC：
-		MVC框架提供面向Web应用的Model-View-Controller实现。它可以帮助用户将界面逻辑与应用逻辑分离。
-		
-		通过策略接口，MVC框架变成为高度可配置的。
-		模型来有JavaBean来构成，存放于m当中，
-		MVC容纳了大量视图技术，其中包括JSP、POI等，而视图是一个接口，负责实现模型，
-		控制器表示逻辑代码，由c的事情。
-	
-spring模板封装：？能自定义样板吗
-	Spring旨在通过模板封装来消除样板式代码。
-	Spring的JdbcTemplate使得执行数据库操作时，避免传统的JDBC样板代码成为了可能。
+		在Spring 4.0中，Spring框架的发布版本包括了20个不同的模块。每个模块会有3个JAR文件（二进制类库、源码的JAR文件以及JavaDoc的JAR文件）。
+
+	Spring七大核心模块：
+	    https://www.cnblogs.com/xiaobaizhiqian/p/7616453.html
+        Spring Core(核心容器模块):
+            介绍:
+            核心容器模块提供Spring框架的基本功能。
+            1.该模块是spring的核心模块，主要实现了IOC功能（控制反转），	提供Spring框架的基本功能。其他的Spring模块都要基于核心容器模块。
+            2.IOC能让Spring以bean的方式组织和管理Java应用中的各个组件及其关系，Spring使用BeanFactory（容器）来产生和管理Bean。
+        Spring Context（应用上下文）：
+            提供框架式的Bean访问方式（BeanFactory定义了IoC容器的基本规范，ApplicationContext 应用上下文则是IoC容器的高级表现形式）。
+            以及企业级功能，例如E-mail、JNDI、EJB、国际化、校验和调度功能等
+        Spring AOP：
+            Spring AOP 模块将面向切面编程功能集成到了 Spring框架中。
+        Spring DAO（JDBC和DAO模块）：
+            对JDBC的抽象（抽象层提供了有意义的异常层次结构），简化了数据访问异常的处理；
+                抽象层提供了有意义的异常层次结构，可用该结构来管理异常，便于不同数据库供应商所抛出的错误信息。！
+                这使我们可以方便切换持久层，编码时也不用担心会捕获每种技术特有的异常。
+            还提供了模板方法简化了大量的代码编写。
+        Spring ORM（对象实体映射）
+            对于那些更喜欢ORM（Object-Relational Mapping）工具而不愿意直接使用JDBC的开发者，Spring提供了ORM模块。
+            SpringORM模块没有尝试去创建自己的ORM解决方案，而是对许多流行的ORM框架进行了集成，包括Hibernate、Java Persisternce API、Java Data Object和iBATIS SQLMaps等，所有这些都遵从Spring的通用事物和DAO异常层次结构。
+            Spring的事务管理支持所有的ORM框架以及JDBC。
+            ？
+                那mybaits这些都在这个模块中
+        Spring Web：
+            WebApplicationContext扩展了对web应用的支持，其建立在应用程序上下文模块之上，为基于web的应用程序提供了上下文。
+            所以Spring框架支持与Struts集成，web模块还简化了处理多部分请求以及将请求参数绑定到域对象的工作。
+            ?
+                能否具体描述下作用了
+        Spring MVC：
+            MVC框架提供面向Web应用的Model-View-Controller实现。它可以帮助用户将界面逻辑与应用逻辑分离。
+
+            通过策略接口，MVC框架变成为高度可配置的。
+            模型来有JavaBean来构成，存放于m当中，
+            MVC容纳了大量视图技术，其中包括JSP、POI等，而视图是一个接口，负责实现模型，
+            控制器表示逻辑代码，由c的事情。
+    附：
+        https://www.yiibai.com/spring/
+
 	
 Spring Portfolio：
 	SpringPortfolio包括多个构建于核心Spring框架之上的框架和类库。
+	he：
+	    简单说就是基于spring的框架，再开发的各种框架，各框架提供了各种功能。
 	Spring Boot
 		Spring简化了众多的编程任务。
 		Spring Boot项目，致力于简化Spring本身。

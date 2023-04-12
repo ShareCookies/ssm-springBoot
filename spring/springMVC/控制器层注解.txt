@@ -68,6 +68,15 @@ spirngMVC控制器相关注解：
 						1.告诉Spring跳过正常的模型/视图流程（即不不适用视图解析器），转而使用消息转换器。
 							
 						2.该注解将使控制器方法返回的对象，通过适当的HttpMessageConverter(消息转换器)转化为前端指定格式（Accept请求头指定，一般就是json格式）后，写入到Response对象的body数据区。
+						
+					消息转换器原理：
+						?
+						？
+							1. model中仅有getTelNo()的方法,那么前端就会有telNo属性
+							2. model中均无对应get方法，public属性也会在前端显示
+							    private String tt="tt1";
+								public String tt2="tt2";
+							原理：
 			@RestController：
 				介绍：
 					该注解用于控制器类上。

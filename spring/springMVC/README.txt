@@ -40,6 +40,8 @@
 				​// Actually invoke the handler.
 				​mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 			附：
+				处理器还有很多类型？，所以需要适配器来统一调用
+			注：
 				控制器方法执行完后会有两种类型返回：1.视图名和模型 2. restful形式，返回的mv为null，即不走第5步。
 				1.返回视图名和模型：
 ​					控制器方法没有直接产生浏览器中渲染所需的HTML。
@@ -70,7 +72,7 @@
 							附：
 								@JsonFormat等注解要想生效，要用消息转换器来接收参数。
 		5、视图解析器ViewResolver
-​			前端控制器接到ModelAndView之后，交由我们的视图解析器去查找合适的视图，最然进行视图渲染，渲染完成塞入response最终返回给用户。
+			前端控制器接到ModelAndView之后，交由我们的视图解析器去查找合适的视图，最然进行视图渲染，渲染完成塞入response最终返回给用户。
 			​例：
 				​for (ViewResolver viewResolver : this.viewResolvers) {
 				​	View view = viewResolver.resolveViewName(viewName, locale);

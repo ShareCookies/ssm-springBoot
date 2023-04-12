@@ -40,6 +40,20 @@ springBoot中使用模板来操作redis：
 					当redis中存入的数据是可读形式而非字节数组时，
 					使用redisTemplate取值的时候会无法获取导出数据，获得的值为null。
 					可以使用 StringRedisTemplate 试试。
+		附：
+			RedisTemplate的key值序列化替换为StringRedisSerializer：
+				@Bean
+				public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory connectionFactory)
+				{
+					RedisTemplate<Object, Object> rt = new RedisTemplate<>();
+					rt.setConnectionFactory(connectionFactory);
+					rt.setKeySerializer(new StringRedisSerializer());
+					rt.setValueSerializer(new JdkSerializationRedisSerializer());
+					return rt;
+				}
+				？
+					RedisConnectionFactory这个谁传进来的。
+					@bean是被springboot的容器初始话的吧，那springboot会去找对应的初始化参数吗
 	StringRedisTemplate常用操作：
 		1 StringRedisTemplate.opsForValue().* //操作String字符串类型
 			.get(name);
@@ -62,9 +76,7 @@ springBoot中使用模板来操作redis：
 		例：
 			./例子/StringRedisTemplateTest.java
 
-	RedisTemplate：
-		RedisTemplate的key值序列化：？
-			http://www.wld5.com/javajc/19537.html
+
 springBoot中使用redis来实现缓存：	
 ？
 	1.@EnableCaching开启缓存
@@ -154,5 +166,15 @@ springBoot中使用redis来实现缓存，集成案例：
 			System.out.println("开始获取id为【" + id + "】的字典");
 			return new ResultModel<>(ResultStatus.SUCCESS, dictService.selectById(id));
 		}		
-			
+？
+	spring boot 设置redis过期时间：(缓存注解设置过期时间)
+		https://blog.csdn.net/zjgxxxxxxx/article/details/125680857
+	redis 中如何对 hash 中的某一个 key 设置过期时间：
+		不行
+		https://segmentfault.com/q/1010000040085645
+	StringRedisTemplate/RedisTemplate设置过期时间：
+		https://blog.csdn.net/QQ1375235976/article/details/119112387
+		stringRedisTemplate.opsForValue().set("baike", "100", 60 * 10, TimeUnit.SECONDS);
+		stringRedisTemplate.expire("baike",1000 , TimeUnit.MILLISECONDS);
+
 		

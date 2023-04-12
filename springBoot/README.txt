@@ -116,12 +116,14 @@ Spring Boot四个特性:
 		例：
 			如果Spring Boot的Web自动配置探测到 Spring MVC位于类路径下，
 			它将会自动配置支持Spring MVC的多个 bean，包括视图解析器、资源处理器以及消息转换器等。
+
 	附：
 		starter原理：
 			如果我要使用redis，我直接引入redis驱动jar包就行了，何必要引入starter包。
 			starter和普通jar包的区别在于，它能够实现自动配置，和Spring Boot无缝衔接。
 			https://www.jianshu.com/p/30ce49fc2f25
-			...
+
+			./自动配置实现原理
 	Actuator：p665
 		让你能够深入运行中的Spring Boot应用程序，一探究竟。
 		只需将Actuator Starter依赖添加到项目中，即可启用Actuator。

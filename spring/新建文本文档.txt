@@ -1,1 +1,17 @@
-Spring提供了一种使用ControllerAdvice处理异常的非常有用的方法。通过实现一个ControlerAdvice类，来处理控制类抛出的所有异常。
+
+@ControllerAdvice
+	https://blog.csdn.net/xiao297328/article/details/105635899?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-105635899-blog-106036099.pc_relevant_aa&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-105635899-blog-106036099.pc_relevant_aa&utm_relevant_index=1
+	
+	@ControllerAdvice是Spring3.2提供的新注解，从名字上可以看出大体意思是控制器增强
+	
+	主要三个功能：
+
+	1.全局异常处理
+		通过实现一个ControlerAdvice类，来处理控制类抛出的所有异常。
+	2.全局数据绑定
+
+	3.全局数据预处理
+
+ControlAdvice和ExceptionHandler处理异常的原理与设计
+
+https://blog.csdn.net/xiexingshishu/article/details/107499870?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-107499870-blog-106036099.pc_relevant_aa&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-2-107499870-blog-106036099.pc_relevant_aa&utm_relevant_index=5

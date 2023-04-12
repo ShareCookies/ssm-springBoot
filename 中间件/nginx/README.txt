@@ -2,13 +2,16 @@ https://zhuanlan.zhihu.com/p/356001849
 nginx:
 	官网：http://nginx.org/en/download.html
 	Nginx：
-		Nginx("engine x")是一款是由俄罗斯的程序设计师Igor Sysoev，
-		开发的高性能 Web（Http） 和 反向代理 服务器，也是一个 IMAP/POP3/SMTP 代理服务器。	
+		Nginx是一款高性能 Web（Http） 和 反向代理 服务器，也是一个 IMAP/POP3/SMTP 代理服务器。
 		ng特点：
-			能够支持高达 50,000 个并发连接数的响应。
-			使用ng能够让你达到不间断服务的情况下进行软件版本的升级。
-			消耗小，Nginx采用C进行编写，不论是系统资源开销还是CPU使用效率都比 Perlbal 要好很多。
-			稳定几乎可以做到7*24不间断运行，即使运行数个月也不需要重新启动。
+			高性能：
+			    能够支持高达 50,000 个并发连接数的响应。
+			    why？
+			        消耗小，Nginx采用C进行编写，不论是系统资源开销还是CPU使用效率都比 Perlbal 要好很多。
+			稳定：
+			    使用ng能够让你达到不间断服务的情况下进行软件版本的升级。
+			热更新：
+			    稳定几乎可以做到7*24不间断运行，即使运行数个月也不需要重新启动。
 	nginx的安装：
 		./linux安装nginx.txt
 		附：
@@ -105,7 +108,6 @@ ng特性：
 						rpm -qa | grep openssl
 			2.安装Keepalived:
 				https://www.cnblogs.com/wang-meng/p/5861174.html		
-	ng有高并发吗？
 	限流？
 	
 		

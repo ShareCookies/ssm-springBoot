@@ -1,6 +1,18 @@
-？
-	mvc每个请求都是一个线程吗？
-	bean是单例的，那么bean属性不就是是不安全的？
+?BindingResult
+    public DocConfig insertDocConfig(@RequestBody @Validated DocConfig docCate, BindingResult bindingResult) {
+        //加了BindingResult参数 就不会强制返回了吗 会把错放到BindingResult里头吗？
+        //验证表单数据
+        if (bindingResult.hasErrors()) {
+            throw new BusinessException(bindingResult.getFieldError().getDefaultMessage());
+        }
+    }
+    BindingResult的使用：https://blog.csdn.net/laok186/article/details/88972179
+解
+	mvc每个请求都是一个线程吗：
+		mvc每个请求都是一个线程。
+		打印Thread.currentThread().getName() 就能发现
+	bean是单例的，那么bean属性不就是是不安全的：
+		是的，controller也是一个bean，其属性不是线程安全的
 
 ServletContext:
 	https://blog.csdn.net/qq_36371449/article/details/80314024

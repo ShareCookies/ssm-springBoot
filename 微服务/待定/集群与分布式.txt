@@ -1,4 +1,2 @@
 https://www.zhihu.com/question/20004877
 
-Zookeeper：
-https://www.jianshu.com/p/f7db8baedd69

@@ -28,7 +28,8 @@ springBean的生命周期：
 
 		附：容器设置对象属性原理：？
 			实例化后的对象被封装在BeanWrapper对象中，紧接着Spring根据BeanDefinition中的信息 以及通过BeanWrapper提供的设置属性的接口完成依赖注入。
-			
+		？
+			get set 不是只有在需要时才注入吗，那么这里赋值什么.应该注入的是代理吧
 	注：
 		goto：bean的加载顺序：(构造方法注入才有)
 
@@ -54,7 +55,8 @@ springBean的生命周期：
 			7. bean初始完成回掉
 				如果bean实现了 InitializingBean接口，
 				Spring将调用它们的afterPropertiesSet()方法。
-					
+			？
+			    bean初始工作是指什么，为bean注入属性吗
 			8. 调用自定义的初始化方法
 				如果bean使用init-method（init-method属性）声明了初始化方法，对应方法在这是就会被调用;
 				附：
@@ -71,7 +73,15 @@ springBean的生命周期：
 				如果bean实现了DisposableBean接口，容器被销毁时Spring将调用bean的destroy()接口方法。
 			11. 调用自定义的初始化方法
 				附：同样效果：如果bean使用destroy-method（destroy-method）声明了销毁方法，该方法也会被调用。
-
+			附:
+				非web应用中销毁IoC容器:
+					https://blog.csdn.net/kznsbs/article/details/109817276
+				bean销毁什么时候触发
+                    手动调用：
+                        主要是通过反射完成方法调用，注解收集是在初始化bean时候完成
+                         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("spring.xml");
+                         applicationContext.getBeanFactory().destroyBean("xxx");
+                    系统什么时候会销毁bean了？Tomcat关闭了？
 附：
 	bean的加载顺序：(构造方法注入才有)
 		介绍：
@@ -119,6 +129,10 @@ springBean的生命周期：
 							我在set方法中断点了，可是看到的却是bean在创建时属性就注入了，
 							？如何证明是在需要的时候才注入了？那我断点看到的是什么了
 						2.可无需set，直接在属性上使用@Autowired或@Resource注解即可。
-					
+					    ?
+					        注解注入就是set注入吗。那没有set方法了？
 				方式4：使用 @PostConstruct？
 				方式5：实现ApplicationContextAware and InitializingBean接口？
+附：
+    Spring 中的bean 默认是单例模式，即只有一个实例
+    那为何一个java实例可以被多个线程调用，应该是因为jvm把实例复制给栈，栈执行实例的方法代码 所以可以被多个线程调用，但是实例的属性又是指向对应内存空间 所以实例的属性有唯一性(但方法没有 方法可以无限给线程并发)

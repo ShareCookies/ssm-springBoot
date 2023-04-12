@@ -2,31 +2,31 @@
 	https://segmentfault.com/a/1190000019005504
 	Filter是Servlet规范中定义的，拦截器是Spring框架的。
 	都是用来拦截请求，进行预处理的。
-	附：
-		如果是非spring项目，那么拦截器不能用，只能使用过滤器，这里说的拦截器是基于spring的拦截器。
-	附2：
-		拦截器归Spring管理，拦截器可以直接通过ioc机制获取IOC容器中的各个bean。
-		过滤器web容器管理（如tomcat），就不行直接获取bean（要间接的才能获取到bean）。
-	拦截器和过滤器的异同：
-			1. 都是aop编程思想的体现
-				不同点：
-					过滤器的实现基于回调函数。
-					而拦截器（代理模式）的实现基于反射，拦截器是基于动态代理来实现的（代理又分静态代理和动态代理）。
-			2. 都能拦截url请求。
-				不同点：
-					触发时机不同：
-						过滤器是在请求进入web容器后，但请求进入servlet之前进行处理。
-						拦截器是在请求进入...后，但请求进入controller之前进行处理。
-						附：
-							如果是处理controller前后，既可以使用拦截器也可以使用过滤器，如果都使用了，注意前后顺序。
-							如果是处理dispaterServlet前后，只能使用过滤器。
-					调用次数不同：
-						过滤器只会被调用一次，但可以处理请求和响应。
-						拦截器可以被调用多次，可以在请求执行前、执行后等。
-					
-			附：
-				https://blog.csdn.net/dreamwbt/article/details/82658842?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.compare&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.compare
-				https://blog.csdn.net/reggergdsg/article/details/52962774
+    附：实现
+        附：
+            拦截器归Spring管理，拦截器可以直接通过ioc机制获取IOC容器中的各个bean。
+            过滤器web容器管理（如tomcat），就不行直接获取bean（要间接的才能获取到bean）。
+
+        附：？https://segmentfault.com/a/1190000041814211?utm_source=sf-similar-article
+            过滤器的实现基于回调函数。
+            而拦截器（代理模式）的实现基于反射，拦截器是基于动态代理来实现的（代理又分静态代理和动态代理）。
+    附：那何时使用拦截器，何时使用过滤器
+        1. 如果是非spring项目，那么拦截器不能用，只能使用过滤器，这里说的拦截器是基于spring的拦截器。
+        2. 触发时机不同：
+            如果是处理controller前后，既可以使用拦截器也可以使用过滤器，如果都使用了，注意前后顺序。
+            如果是处理dispaterServlet前后，只能使用过滤器。
+            附：
+                过滤器是在请求进入web容器后，但请求进入servlet之前进行处理。
+                拦截器是在请求进入...后，但请求进入controller之前进行处理。?
+    附：
+        1. 都是aop编程思想的体现
+            都是aop编程思想的体现，可以在程序执行前后做一些操作，如权限操作，日志记录等
+        调用次数不同：
+            过滤器只会被调用一次，但可以处理请求和响应。？
+            拦截器可以被调用多次，可以在请求执行前、执行后等。
+        附：
+            https://blog.csdn.net/dreamwbt/article/details/82658842?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.compare&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.compare
+            https://blog.csdn.net/reggergdsg/article/details/52962774
 SpringBoot使用拦截器:
 	https://blog.csdn.net/jacksonary/article/details/84572701
 	1. 自定义拦截器:
@@ -40,8 +40,14 @@ SpringBoot使用拦截器:
 			public void addInterceptors(InterceptorRegistry registry) {
 				// 这里的拦截器是new出来的，在Spring框架中可以交给IOC进行依赖注入，直接使用@Autowired注入
 				registry.addInterceptor(new UrlInterceptor());
+				//默认拦截所有吗？
 				// 指定哪些URL可以应用这个拦截器。addPathPatterns 用于添加拦截的规则，excludePathPatterns 用于排除拦截的规则
-				//registry.addInterceptor(urlInterceptor).addPathPatterns(new UrlInterceptor()).excludePathPatterns("/login");
+				//.addPathPatterns(new UrlInterceptor()).excludePathPatterns("/login");
+
+                //.order(1);
+				//Interceptor 的执行顺序由其配置的 order 决定，order 越小越先执行，注意这里指的是 preHandle 方法的执行顺序，
+				    //附:postHandle 和 afterCompletion 的执行顺序与 preHandle 相反
+                //如果我们不配置 order，那么 Spring 默认将 order 设置为 0（可以查看 InterceptorRegistration 类的源码）。如果不同的 Interceptor 具有相同的 order，那么其执行顺序为配置类中的注册顺序。
 			}
 		}
 		

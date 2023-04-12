@@ -1,8 +1,13 @@
+批量插入
+    https://mp.weixin.qq.com/s/3H9SD1dnAH0RoN-RoPXxgQ
+mybaits缓存：？
+	https://www.cnblogs.com/wuzhenzhao/p/11103043.html
 TypeHandlers？
 
-
-
-
+？
+	为什么like要用绑定了
+		<bind name="likeStr" value="'%'+workTodoSearch.stateHandleInfo+'%'"></bind>
+                AND temp.STATE_HANDLE_INFO like #{likeStr}
 
 
 从 XML 中构建 SqlSessionFactory：

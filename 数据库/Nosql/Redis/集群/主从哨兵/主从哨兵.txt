@@ -46,7 +46,7 @@
 					sentinel提供的是什么了...
 				附：
 					这样当master节点挂掉以后，sentinel就会感知并将新的master节点提供给使用者。
-				2.  sentinel因为也是一个进程有挂掉的可能，所以sentinel也可启动多个形成一个sentinel集群
+				2.  sentinel因为也是一个进程有挂掉的可能，所以sentinel也可启动多个形成一个sentinel集群 ？
 					多sentinel配置的时候，sentinel之间也会自动监控
 					一个sentinel或sentinel集群可以管理多个主从Redis，多个sentinel也可以监控同一个redis
 				3. 监控（Monitoring）、提醒（Notification）

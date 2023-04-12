@@ -1,3 +1,4 @@
+@Service(value = "UrlInterceptor")
 public class UrlInterceptor implements HandlerInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(UrlInterceptor.class);
@@ -10,8 +11,7 @@ public class UrlInterceptor implements HandlerInterceptor {
      * @param httpServletRequest request
      * @param httpServletResponse response
      * @param o object
-     * @return 是否拦截当前请求，true表示拦截当前请求，false表示不拦截当前请求
-		preHandle()方法只有返回true，Controller中接口方法才能执行，否则不能执行，直接在preHandle()返回后false结束流程。
+     * @return  preHandle()方法只有返回true，Controller中接口方法才能执行，否则不能执行，直接在preHandle()返回后false结束流程。
      * @throws Exception 可能出现的异常
      */
     @Override

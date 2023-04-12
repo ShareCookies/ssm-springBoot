@@ -1,3 +1,12 @@
+maven：
+		<!--邮件模块依赖-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+yml：		
+
 spring:
 #  邮箱配置
 #  mail:

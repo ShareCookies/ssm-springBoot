@@ -24,7 +24,26 @@
 	注：
 		1.Java配置中规定bean的作用域，组合使用@Scope和@Bean来指定所需的作用域。
 		2.XML中规定bean的作用域，使用<bean>元素的scope属性来设置作用域。
-		
+附：ssm常见作用域分析：s 。且赋值为2后 任何线程也都打印2 都一样后续打印都是单
+        int controllerScope;
+    controller是单例：
+        //controller是单例。例：任何线程 打印的clas
+        @GetMapping("/test")
+        public String test() {
+            System.err.println(Thread.currentThread().getName());
+            System.err.println(this);
+            System.err.println(controllerScope);
+            //？一个实例为何可以被并发了，java是如何实现的了
+    //        try {
+    //            Thread.sleep(10000L);
+    //        } catch (InterruptedException e) {
+    //            e.printStackTrace();
+    //        }
+            return "";
+        }
+    mapper应该也是单例：！
+        因为Mapper的主要作用是找sql,所以通过会话工厂调用sql连接 进行查询 然后返回数据即可。
+
 附：
 如何将会话型bean注入单例bena中：
 	场景：

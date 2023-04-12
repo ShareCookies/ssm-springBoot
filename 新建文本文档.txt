@@ -1,3 +1,6 @@
+springboot：
+    @Value("${secret.is-open:false}")
+    private Boolean isOpen;
 多租户
 	https://zhuanlan.zhihu.com/p/174217549
 	从定义中我们可以理解：多租户是一种架构，目的是为了实现多用户环境下，使用同一套程序且保证用户间数据隔离。
@@ -5,8 +8,63 @@ Swagger API 文档
 	https://developer.ibm.com/zh/articles/j-using-swagger-in-a-spring-boot-project/	
 	
 线程池、spring代理原理
-spring事件：
-	//todo:这里遍历发布事件是否会有问题？
-	for (String docId : list){
-		applicationContext.publishEvent(new DocResourceDeleteEvent(this,docId));
-	}
+
+	
+
+
+
+spring源码阅读：
+	Spring把单一的功能，都拎出来形成了一套接口规范，然后多个接口规范组合，去完成一件事情。
+	直接跟踪源码时可会感觉有些乱，
+	但只要我们分析清楚每个对象的设计思路和作用是什么，再分析他们之间的组合完成了什么事情，就很容易理解其设计理念了。
+		
+
+
+
+
+cpu、线程、cpu使用率？
+带宽
+	网络带宽是指在单位时间（一般指的是1秒钟）内能传输的数据量。
+	网络和高速公路类似，带宽越大，就类似高速公路的车道越多，其通行能力越强。
+	
+	
+高并发名词概念：
+	https://blog.csdn.net/qq522044637/article/details/124863705
+	？
+		2.QPS（Query Per Second）
+
+		QPS每秒查询率，是指系统每秒响应的查询次数。
+		用于衡量单位时间内系统处理查询请求的能力。QPS主要针对查询服务性能指标，不能描述增删改等操作，不建议用QPS描述系统整体性能。
+
+		计算关系：QPS = 并发量 / 平均响应时间
+
+		3.TPS（Transactions Per Second）
+
+		TPS每秒事务数。一个事务可以是一个接口、也可以是一个动作调用多个接口、也可以是一个业务流程。
+
+		TPS是软件测试结果的测量单位。TPS可以指一组逻辑相关的接口调用，而服务整体处理能力取决于相关功能TPS最低的。
+
+		计算关系：假设一个查询功能需要调用N个查询接口
+
+		则QPS = N * TPS
+		
+
+		
+	如何提高系统的吞吐量（QPS/TPS）	
+		http://wjhsh.net/longronglang-p-15650366.html
+		增加并发数、减少平均响应时间
+
+	CPU密集型、什么是IO密集型：
+		https://blog.csdn.net/lifulian318/article/details/124200505
+	如何区分IO密集型、CPU密集型任务？
+		https://blog.csdn.net/q66562636/article/details/125202834?spm=1001.2101.3001.6650.7&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-7-125202834-blog-124200505.pc_relevant_multi_platform_whitelistv3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-7-125202834-blog-124200505.pc_relevant_multi_platform_whitelistv3&utm_relevant_index=14
+		
+		
+	附:
+		怎么根据QPS计算需多少台服务器：
+			https://blog.csdn.net/lmp5023/article/details/106523537?spm=1001.2101.3001.6650.15&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-15-106523537-blog-124863705.pc_relevant_multi_platform_featuressortv2dupreplace&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-15-106523537-blog-124863705.pc_relevant_multi_platform_featuressortv2dupreplace&utm_relevant_index=21
+			
+			
+swagger
+	https://www.jianshu.com/p/349e130e40d5
+	https://www.jianshu.com/p/267e05a8d37f

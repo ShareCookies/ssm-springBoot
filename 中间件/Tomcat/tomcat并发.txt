@@ -1,3 +1,5 @@
+https://blog.csdn.net/lililidahaoren/article/details/121696324
+
 Tomcat能支持的并发：
 	介绍：
 		对 默认通信方式的tomcat 来说，每一个进来的请求都需要一个线程，直到该请求结束。
@@ -8,14 +10,55 @@ Tomcat能支持的并发：
 
 	Spring Boot 内嵌的Tomcat配置详解:	
 		https://www.cnblogs.com/javastack/p/9153952.html
-		server.connection-timeout= # Time in milliseconds that connectors will wait for another HTTP request before closing the connection. When not set, the connector's container-specific default will be used. Use a value of -1 to indicate no (i.e. infinite) timeout.
-		server.tomcat.accept-count= # Maximum queue length for incoming connection requests when all possible request processing threads are in use.
+		https://blog.csdn.net/lililidahaoren/article/details/121696324
+
+		介绍：
+            所有参数绑定配置类：org.springframework.boot.autoconfigure.web.ServerProperties
+            server.xx开头的是所有servlet容器通用的配置，server.tomcat.xx开头的是tomcat特有的参数，其它类似。
 
 
-		server.tomcat.max-threads=0 # Maximum amount of worker threads.
-		server.tomcat.accept-count= # Maximum queue length for incoming connection requests when all possible request processing threads are in use.
-		server.tomcat.max-connections= # Maximum number of connections that the server will accept and process at any given time.
-		server.tomcat.min-spare-threads=0 # Minimum amount of worker threads.
+        常用配置介绍：
+            server.tomcat.max-connections=2
+                # Maximum number of connections that the server will accept and process at any given time.
+                #最大能接收的连接数
+                    #这个参数是指在同一时间，tomcat能够接受的最大连接数。
+                    #maxConnections和accept-count的关系为：当连接数达到最大值maxConnections后，系统会继续接收连接，但不会超过acceptCount的值。
+                    #对于Java的阻塞式BIO，默认值是maxthreads的值；如果在BIO模式使用定制的Executor执行器，默认值将是执行器中maxthreads的值。对于Java 新的NIO模式，maxConnections 默认值是10000。对于windows上APR/native IO模式，maxConnections默认值为8192，这是出于性能原因，如果配置的值不是1024的倍数，maxConnections 的实际值将减少到1024的最大倍数。
+                    #如果设置为-1，则禁用maxconnections功能，表示不限制tomcat容器的连接数。
+            server.tomcat.accept-count=1
+                # Maximum queue length for incoming connection requests when all possible request processing threads are in use.
+                #请求队列最大能接受的请求数量
+                    #官方文档的说明为：当所有的请求处理线程都在使用时，请求的队列能接收的请求数量。当队列已满时，任何的连接请求都将被tomcat拒绝。（connection refused）
+                    #accept-count的默认值为100。
+                ？为啥不能为0
+                ？
+                    1. 请求等待：？
+                        tomcat请求等待队列中请求，不会在线程有空出来后就立马得到执行，为何?
+                        测试时 只有1个等待请求 其要过一段比较长时间(30s以上)才能得到执行，为啥？
+                        测试时 有2个等待请求 其要过一段比较长时间(30s以上)才能得到执行，2个都执行了？
+
+            server.tomcat.max-threads=1
+                # Maximum amount of worker threads.
+                #最大线程数
+                    #maxThreads默认200，建议增加。但是，增加线程是有成本的，1. 更多的线程，不仅仅会带来更多的线程上下文切换成本，2. 而且意味着带来更多的内存消耗。JVM中默认情况下在创建新线程时会分配大小为1M的线程栈，所以，更多的线程异味着需要更多的内存。
+                    #线程数的经验值为：1核2g内存为200，线程数经验值200；4核8g内存，线程数经验值800。
+                    #bio下，每一次HTTP请求到达Web服务，tomcat都会创建一个线程来处理该请求，那么最大线程数决定了Web服务容器可以同时处理多少个请求。
+                    #nio下，就是指线程数，与请求数量无关。
+            server.tomcat.min-spare-threads=1
+                # Minimum amount of worker threads.
+                #最小工作空闲线程数
+            ？
+                线程是tomcat仅用来接收请求的吗。发起请求之类了，也会用到tomcat线程吗
+
+
+
+            server.connection-timeout=
+                # Time in milliseconds that connectors will wait for another HTTP request before closing the connection. When not set, the connector's container-specific default will be used. Use a value of -1 to indicate no (i.e. infinite) timeout.
+                #连接超时。
+                    (指到tomcat连接的时间吗？)
+            ?
+                http请求建立后，服务端正在执行逻辑代码(例sleep)，那么客户端此时断开连接 并不是说服务端代码就停止(而且这个请求在tomcat看来还在，why？它还占用着 max-connections之类的)
+
 
 	tomcat容器优化：
 		https://blog.csdn.net/yangshengwei230612/article/details/109153664
@@ -80,6 +123,11 @@ Tomcat能支持的并发：
 			？但没有阻塞式的成熟。
 			应用：
 				...
+			附：nio 是同时处理请求吗
+			    nio是可以用一个线程处理多个请求，但并不是说一个线程可以同时处理请求。实测中只创建一个线程 发现当线程休眠 其他请求就无法得到处理了。
+			附：
+			    深度解读 Tomcat 中的 NIO 模型 https://www.sohu.com/a/203838233_827544
+
 		APR：
 			简单理解，就是从操作系统级别解决异步IO问题，大幅度的提高服务器的处理和响应性能， 也是Tomcat运行高并发应用的首选模式。
 			启用这种模式稍微麻烦一些，需要安装一些依赖库。
@@ -143,3 +191,9 @@ tomcat原理：
 				附：Tomcat是如何处理jsp的
 					/JavaEE\servlet\
 	源码：
+附：
+    查询tomcat当前并发连接数
+        netstat -na | grep ESTAB | grep 端口号 | wc -l
+？服务优化
+    http://www.yaotu.net/biancheng/182575.html
+    https://blog.csdn.net/weixin_26712065/article/details/112362597

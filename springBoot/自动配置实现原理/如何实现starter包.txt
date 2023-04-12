@@ -41,46 +41,51 @@ https://www.jianshu.com/p/30ce49fc2f25
 	Starter包要实现的功能，编写自动配置类，自动配置类要能从配置文件读取指定属性，然后初始化相关bean。
 
 6，创建spring.factories
-	在resources/META-INF/下创建spring.factories文件，并添加如下内容
-	(指明该start包的自动配置类，如果有多个的话，用英文逗号分隔开。)：
+	介绍：
+		当 Spring Boot 启动的时候，会在 classpath 下寻找所有名称为 spring.factories 的文件，
+		然后运行指定的自动配置类，将指定类(一个或多个)中的相关 bean 初始化。
+	例：在resources/META-INF/下创建spring.factories文件，并添加如下内容
+		#指明该start包的自动配置类，如果有多个的话，用英文逗号分隔开。
 		org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.example.autocinfigure.StarterAutoConfigure
 
-	//当 Spring Boot 启动的时候，会在 classpath 下寻找所有名称为 spring.factories 的文件，然后运行里面配置的指定的自动加载类，将指定类(一个或多个)中的相关 bean 初始化。
+	
 
 5，编写自动配置类(关键)
-自动配置类是用来初始化 starter 中的相关 bean 的。可以说是实现 starter 最核心的功能。
-	//当classpath下发现该类的情况下进行自动配置。？//这只是表明这是个配置类吧
-	@Configuration 
-	//只有在 classpath 中找到 StarterService 类的情况下，才会解析此自动配置类，否则不解析。
-	@ConditionalOnClass(StarterService.class)
-	//启动配置属性类
-		//如果一个配置类只配置@ConfigurationProperties注解，而没有使用@Component。那么在IOC容器中是获取不到properties 配置文件转化的bean。
-		//@EnableConfigurationProperties 相当于把使用 @ConfigurationProperties 的类进行了一次注入。
-	@EnableConfigurationProperties({StarterTestProperties.class})
-	//@ConditionalOnProperty
-	public class StarterAutoConfigure {
-	    @Autowired
-	    private StarterTestProperties properties;
-	    @Bean
-		//当Spring 容器中不存在该Bean时创建该bean。
-	    @ConditionalOnMissingBean
-		//当配置文件中example.service.enabled=true时，创建该bean。
-	    @ConditionalOnProperty(prefix = "example.service", value = "enabled", havingValue = "true")
-	    StarterService starterService (){
-	        return new StarterService(properties.getConfig());
-	    }
-	}
-
-	3 该类能够将配置文件中指定属性进行分割
-		public class StarterService {
-		    private String config;
-		    public StarterService(String config) {
-		        this.config = config;
-		    }
-		    public String[] split(String separatorChar) {
-		        return StringUtils.split(this.config, separatorChar);
+	介绍：
+		自动配置类是用来初始化 starter 中的相关 bean 的。可以说是实现 starter 最核心的功能。
+	例：
+		//当classpath下发现该类的情况下进行自动配置。？//这只是表明这是个配置类吧
+		@Configuration 
+		//只有在 classpath 中找到 StarterService 类的情况下，才会解析此自动配置类，否则不解析。
+		@ConditionalOnClass(StarterService.class)
+		//启动配置属性类
+			//如果一个配置类只配置@ConfigurationProperties注解，而没有使用@Component。那么在IOC容器中是获取不到properties 配置文件转化的bean。
+			//@EnableConfigurationProperties 相当于把使用 @ConfigurationProperties 的类进行了一次注入。
+		@EnableConfigurationProperties({StarterTestProperties.class})
+		//@ConditionalOnProperty
+		public class StarterAutoConfigure {
+		    @Autowired
+		    private StarterTestProperties properties;
+		    @Bean
+			//当Spring 容器中不存在该Bean时创建该bean。
+		    @ConditionalOnMissingBean
+			//当配置文件中example.service.enabled=true时，创建该bean。
+		    @ConditionalOnProperty(prefix = "example.service", value = "enabled", havingValue = "true")
+		    StarterService starterService (){
+		        return new StarterService(properties.getConfig());
 		    }
 		}
+
+		3 该类能够将配置文件中指定属性进行分割
+			public class StarterService {
+			    private String config;
+			    public StarterService(String config) {
+			        this.config = config;
+			    }
+			    public String[] split(String separatorChar) {
+			        return StringUtils.split(this.config, separatorChar);
+			    }
+			}
 	4，编写配置文件读取类
 		//配置文件读取类一般命名为XxxProperties，
 		配置文件读取类主要用于接收Spring boot中application.properties或者application.yml的配置项
@@ -117,9 +122,17 @@ https://www.jianshu.com/p/30ce49fc2f25
 ApplicationRunner
 	https://www.jianshu.com/p/1d32058eef48
 附：
-1. spring.provides
-	provides: spring-data-redis,lettuce-core
-	意思就是说，本项目依赖 spring-data-redis 和 lettuce-core 这两个包，并且在 pom 文件中引用了。
-	其目的就是告知使用者在引用此包的时候，不必再引用 provides 中的依赖包了。
+
 2. 所有spring官方 stater包 的自动注解类、属性配置类、spring.factories都放到了 spring-boot-autoconfigure 这个项目下。
 
+
+Spring Boot 自动配置解析：
+	1. 官方starters包
+		1. spring-boot-starter-* 就是官方提供的主要 starters包，比如 jdbc、redis、security、web 等等。
+		2. 通常官方starters包 并没有 Java 代码，只有一个 spring.provides 文件，里面的内容如下：provides: spring-data-redis,lettuce-core
+		意思就是说，本项目依赖 spring-data-redis 和 lettuce-core 这两个包，并且在 pom 文件中引用了。
+		其目的就是告知使用者在引用此包的时候，不必再引用 provides 中的依赖包了。
+	2.  stater包 的自动注解
+		所有 stater 的自动注解类、属性配置类通常都放到了 spring-boot-autoconfigure 这个项目下。
+		附：
+			META-INF/spring.factories

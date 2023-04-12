@@ -8,14 +8,28 @@ tags:
  - 浙江高院
 ---
 
-> 此文档仅为了快速开发，阿里官网原文，已经很简洁清晰了。
+
 
 # [使用PandoraBoot开发HSF应用](https://help.aliyun.com/document_detail/91226.html?spm=a2c4g.11186623.6.619.2f4f3af2mUOyry)
+
+> 此文档目的：此文档仅为了快速使用PandoraBoot开发HSF应用，阿里官网原文，已经很简洁清晰了。
+>
+> 如果不进行该文档的准备工作 那么无法启动oa总后端。
 
 ## 准备工作：
 
 ### [启动轻量级配置及注册中心](https://help.aliyun.com/document_detail/44163.html?spm=a2c4g.11186623.2.13.1a4042e48dt0za#task-2310117)  
 
+> 1. 下载注册中心：
+>
+> https://edas.oss-cn-hangzhou.aliyuncs.com/edas-res/edas-lightweight-server-1.0.0.zip?spm=a2c4g.44163.0.0.6f0a30a8cnvozF&file=edas-lightweight-server-1.0.0.zip
+>
+> 
+>
+> 2. 启动命令：/work2/zjsgy/hsf/edas-lightweight/bin/startup.sh
+>
+>    附：服务器地址192.168.210.171
+>
 > 介绍：
 >
 > ​	配置及注册中心最基本的作用：1.接受微服务接口的注册 2.提供对微服务接口的调用支持
@@ -26,8 +40,7 @@ tags:
 >
 > ​	Windows 系统host文件位置：C:\Windows\System32\drivers\etc\hosts
 >
-> ​	高院用户中心提供的地址：121.43.108.125  jmenv.tbsite.net
-> ​	或rj公司内网提供的地址： 192.168.210.171  jmenv.tbsite.net
+> ​	公司内网提供的地址： 192.168.210.171  jmenv.tbsite.net
 >
 > ​	2. 测试是否配置成功：访问 jmenv.tbsite.net:8080
 >
@@ -38,46 +51,117 @@ tags:
 
 > 这一步为了：Maven配置文件 中新增 EDAS 的私服地址,便于获取hsf框架的相关包.
 >
-> 但：公司内网中应该是已经上传好包了，如果还是提示缺失包看下阿里原文进行maven配置来获取hsf相关包。
-
-
+> 注：这一步最好要进行不然可能会缺失部分依赖。
+>
+> maven的settings.xml调整：
+>
+> 且最好屏蔽掉mirrors，因为有mirror 会优先对应的mirror 那么新增的阿里远程仓库可能就不生效。
+>
+> 附：./参考settings.xml
+>
+> 	
+> 
 
 ## [使用Pandora Boot开发HSF应用](https://help.aliyun.com/document_detail/99943.html?spm=a2c4g.11186623.6.621.751a42e4isQbPT)
 
-demo工程：
-	[hsfDemo工程](http://192.168.0.40/hsf/zjgyhsfdemo)
+###  [1.Pandora 需要的maven依赖：](https://help.aliyun.com/document_detail/99943.html?spm=a2c4g.99943.0.0.5aa67062U0Unb4)
+	建议直接看阿里提供的demo工程。
+	附： 消费者和提供者的Maven依赖相同 
 
-1.Pandora 需要的maven依赖：
-		需要那些依赖建议直接看demo工程。
-	注： 消费者和提供者的Maven依赖相同 
+```
+<properties>
+      <java.version>1.8</java.version>
+      <spring-boot.version>2.1.6.RELEASE</spring-boot.version>
+      <pandora-boot.version>2019-06-stable</pandora-boot.version>
+  </properties>
 
-代码开发：
+  <dependencies>
+      <dependency>
+          <groupId>com.alibaba.boot</groupId>
+          <artifactId>pandora-hsf-spring-boot-starter</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+      </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+      <dependencies>
+          <dependency>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-dependencies</artifactId>
+              <version>${spring-boot.version}</version>
+              <type>pom</type>
+              <scope>import</scope>
+          </dependency>
+          <dependency>
+              <groupId>com.taobao.pandora</groupId>
+              <artifactId>pandora-boot-starter-bom</artifactId>
+              <version>${pandora-boot.version}</version>
+              <type>pom</type>
+              <scope>import</scope>
+          </dependency>
+      </dependencies>
+  </dependencyManagement>
+
+  <build>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <version>3.7.0</version>
+              <configuration>
+                  <source>1.8</source>
+                  <target>1.8</target>
+              </configuration>
+          </plugin>
+          <plugin>
+              <groupId>com.taobao.pandora</groupId>
+              <artifactId>pandora-boot-maven-plugin</artifactId>
+              <version>2.1.11.8</version>
+              <executions>
+                  <execution>
+                      <phase>package</phase>
+                      <goals>
+                          <goal>repackage</goal>
+                      </goals>
+                  </execution>
+              </executions>
+          </plugin>
+      </plugins>
+  </build>
+```
+
+
+
+### 2. 代码开发：
 
 	前言：
 		HSF服务框架基于接口进行服务通信。
 		当接口定义好之后，生产者将通过该接口实现具体的服务并发布。
 		消费者也是基于此接口去订阅和消费服务。
 	
-	定义服务接口：
+	1. 定义服务接口：
 		public interface HelloService {
 			String echo(String string);
 		}
 	
-	2.书写服务提供者：
+	2. 书写服务提供者：
 		介绍：把服务注册到注册中心，便于他人调用。
 		//添加服务提供者的具体实现类，并通过注解方式发布服务。
-		@HSFProvider(serviceInterface = HelloService.class)
+		@HSFProvider(serviceInterface = HelloService.class, serviceVersion = "1.0.0")
 		public class HelloServiceImpl implements HelloService {
 		  @Override
 		  public String echo(String string) {
 			  return string;
 		  }
 		}
-		注：
-			在HSF应用中，接口名和服务版本才能唯一确定一个服务。
-			建议将服务版本（spring.hsf.version）和服务超时（spring.hsf.timeout）都统一配置在application.properties中。注解中的配置拥有高优先级。
-	
-	3.书写服务调用者：
+		附：在HSF应用中，接口名和服务版本才能唯一确定一个服务。
+```
+
+```
+	3. 书写服务调用者：
 		将服务提供者所发布的API服务接口（包括包名）拷贝到本地，如com.alibaba.edas.HelloService。
 		public interface HelloService {
 	    	String echo(String string);
@@ -107,7 +191,7 @@ demo工程：
 ​	
 
 
-附:  
+## 附:  一些额外知识介绍
 * RPC:
     ```
 	https://www.jianshu.com/p/2accc2840a1b
@@ -124,12 +208,14 @@ demo工程：
 		本地过程调用：
 			如果需要将本地student对象的age+1，可以实现一个addAge()方法，将student对象传入，对年龄进行更新之后返回即可，本地方法调用的函数体通过函数指针来指定。
 	```
+	
 * [EDAS介绍]( https://help.aliyun.com/document_detail/42934.html?spm=a2c4g.11174283.4.1.6b094632Fmr4GJ)：  
     ```
     Enterprise Distributed Application Service企业级分布式应用服务，
     是一个应用托管和微服务管理的 PaaS 平台，提供应用开发、部署、监控、运维等全栈式解决方案。
     EDAS 支持 Spring Cloud、Dubbo 和 HSF 三种微服务应用框架，您可以使用 Spring Cloud、Dubbo 和 HSF 应用，然后托管到 EDAS 中。
     ```
+    
 * [HSF介绍](https://help.aliyun.com/document_detail/100087.html?spm=a2c4g.11186623.6.606.17f13af24Unnsf)：  
     ```
     High-speed Service Framework高速服务框架，是在阿里巴巴广泛使用的分布式RPC服务框架。
@@ -138,6 +224,9 @@ demo工程：
         Ali-Tomcat： 依赖Ali-Tomcat和Pandora，提供了完整的HSF功能，包括服务注册与发现、隐式传参、异步调用、泛化调用和调用链路Filter扩展。应用程序须以WAR包方式部署。  
         Pandora Boot：依赖Pandora，提供了比较完整的HSF功能，包括服务注册与发现、异步调用。应用程序编译为可运行的JAR包并部署即可。
     ```
+
+    
+# 遇过的一些报错:  
 
 * 本地jar包启动，微服务接口发布报空指针异常：
 
@@ -156,9 +245,16 @@ demo工程：
   	注：
   		[使用日志排查问题](https://helpcdn.aliyun.com/document_detail/44193.html?spm=a2c4g.11186623.6.1045.c21517e3slXaAC)
   ```
+  
+* #  Could not initialize class com.taobao.diamond.client.impl.DiamondEnvRepo：
 
-* 如何发布快照包：
+* ```
+配置中心未启动
+  ```
+
+# 如何发布快照包：
 
   ```
 	mvn deploy:deploy-file -DgroupId=com.zjpth -DartifactId=stzx-common-api -Dversion=1.0-SNAPSHOT -Dpackaging=jar -Dfile=C:\Users\Administrator\Desktop\stzx-common-api-1.0-SNAPSHOT.jar -Durl=http://admin:admin123@192.168.0.40:8081/repository/snapshots/ -DrepositoryId=snapshots
   ```
+

@@ -2,8 +2,7 @@
 	https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html
 spring事件监听（eventListener)
 	https://www.jianshu.com/p/e2d257ce410d?from=timeline&isappinstalled=0
-spring异步调用：
-	https://www.cnblogs.com/jpfss/p/10273129.html
+
 springboot 日志：
 	https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-logging
 	https://www.cnblogs.com/nuccch/p/6221255.html
@@ -36,3 +35,8 @@ springboot 日志：
 	logging.level.org.hibernate= DEBUG
 	logging.level.org.apache.commons.dbcp2= DEBUG 
 spring-boot-maven-plugin？
+
+数据源：
+    数据源（Data Source）顾名思义，数据的来源，是提供某种所需要数据的器件或原始媒体。
+    且数据源中存储了所有建立数据库连接的信息。
+    https://dhexx.cn/news/show-1095509.html?action=onClick

@@ -1,6 +1,6 @@
 blob数据类型
 	 BLOB (binary large object)---二进制大对象,是一个可以存储二进制文件的容器。
-	 
+TEXT怎么查询的？
 mongo与solr对比
 	区别？
 	优缺点？
@@ -9,3 +9,39 @@ mongo与solr对比
 	https://www.cnblogs.com/ai464068163/archive/2013/04/18/3028786.html
 	http://technique.zhizuobiao.com/technique-19051300061/
 	https://www.cnblogs.com/usual2013blog/p/3957502.html
+	
+	
+？危害是什么
+	Row size too large. The maximum row size for the used table type, not counting BLOBs, is 65535.
+	This includes storage overhead, check the manual. You have to change some columns to TEXT or BLOB
+	
+表设计
+
+总字段长度：
+字段过长异常：
+	Row size too large. The maximum row size for the used table type, not counting BLOBs, is 65535.
+	This includes storage overhead, check the manual. You have to change some columns to TEXT or BLOB
+	
+	Row Size Limits:
+		https://dev.mysql.com/doc/refman/8.0/en/column-count-limit.html#row-size-limits
+		mysql 默认的 row size limit of 65,535 bytes。
+
+		原因：
+			https://blog.csdn.net/zgaoq/article/details/118735186?spm=1001.2101.3001.6650.15&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-15-118735186-blog-115384399.pc_relevant_multi_platform_whitelistv3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-15-118735186-blog-115384399.pc_relevant_multi_platform_whitelistv3&utm_relevant_index=16
+			在MySQL innodb中，所有的数据都是按页(page)来操作的，一页就是16KB(默认的)。
+			采用B+树作为索引，B+树中每个节点就是一页(16KB)，B+树是在最底层的叶子节点中存储具体数据。
+			以主键索引为例，当每个叶子节点为16KB，每个叶子节点page中至少存储2行数据，否则就失去了意义。那么一行数据的长度就是小于8KB
+			附：
+				在一行数据长度超过8KB时，innodb将会将剩余的部分数据写出到另一个溢出页中，该列的前768字节存放在该页中，同时有个偏移指向溢出页。
+				？？？
+					每个叶子节点page中至少存储2行数据，否则就失去了意义
+					https://www.cnblogs.com/bamboos/archive/2012/11/13/2768375.html
+			官方给出的解决方式：
+				1.垂直表字段拆分或者大字段合并(大字段最多不超过768，业务进行合并＋拆分)
+				2.修改表的存储引擎，modify InnoDB to MyISAM.
+				3.修改row_format为COMPRESSED或者DYNAMIC，当然前提需保证innodb_file_format =Barracuda.
+太多字段危害：
+	当过长后会影响存储效率
+合适大小为多少？
+
+text?到底存在那？危害？为什么不建议读取？

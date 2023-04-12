@@ -1,1 +1,3 @@
 elk：https://www.cnblogs.com/aresxin/p/8035137.html
+
+redis集群连接和非集群连接一样吗？
