@@ -54,3 +54,5 @@ kafka安装：
 		 bin/kafka-server-start.sh config/server.properties
 		 ！
 			启动4台即可构成kafka集群
+		附:windows启动
+			.\bin\windows\kafka-server-start.bat .\config\server.properties
