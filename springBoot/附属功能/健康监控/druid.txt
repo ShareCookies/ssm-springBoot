@@ -1,0 +1,74 @@
+https://github.com/alibaba/druid
+阿里连接池Druid监控：
+	https://www.cnblogs.com/Luke-Me/p/8990354.html
+	https://www.cnblogs.com/chy18883701161/p/12594889.html
+	git：https://github.com/alibaba/druid/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98
+	开启druid监控：https://www.cnblogs.com/lijiasnong/p/9889510.html
+springboot集成druid：
+	1. 依赖
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>1.2.8</version>
+		</dependency>
+		﻿
+		<!--自启动Druid管理后台-->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid-spring-boot-starter</artifactId>
+			<version>1.2.8</version>
+		</dependency>
+	2. 配置
+	  datasource:
+		type: com.alibaba.druid.pool.DruidDataSource
+		...
+		druid:
+		  max-active: 20
+		  min-idle: 10
+		  #开启监控结果查询界面 
+		  stat-view-servlet:
+			enabled: true
+			url-pattern: /druid/*
+			login-username: test
+			login-password: test
+			reset-enable: true
+			#允许非本地ip访问
+			allow: ""
+			deny: ""
+		  #sql监控
+		  filter:
+			stat:
+			  log-slow-sql: true
+			  slow-sql-millis: 1000
+			  merge-sql: false
+			  enabled: false
+		  #开启uri监控 https://blog.csdn.net/u011271894/article/details/75994885?spm=1001.2101.3001.6650.8&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8.pc_relevant_paycolumn_v3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8.pc_relevant_paycolumn_v3&utm_relevant_index=12
+		  web-stat-filter:
+			enabled: true
+			url-pattern: /*
+	附：
+		druid的数据库连接池配置参数
+			https://blog.csdn.net/wangxintong_1992/article/details/80768210?utm_source=blogxgwz8
+	3. 访问监控页面
+		http://ip:port/druid/index.html
+	
+		区间分布：
+			SQL监控项上，执行时间、读取行数、更新行数都有区间分布，将耗时分布成8个区间：
+
+				0 - 1 耗时0到1毫秒的次数
+				1 - 10 耗时1到10毫秒的次数
+				10 - 100 耗时10到100毫秒的次数
+				100 - 1,000 耗时100到1000毫秒的次数
+				1,000 - 10,000 耗时1到10秒的次数
+				10,000 - 100,000 耗时10到100秒的次数
+				100,000 - 1,000,000 耗时100到1000秒的次数
+				1,000,000 - 耗时1000秒以上的次数
+				记录耗时区间的发生次数，通过区分分布，可以很方便看出SQL运行的极好、普通和极差的分布。
+			“执行+RS时分布”
+			    是将执行时间+ResultSet持有时间合并监控，这个能方便诊断返回行数过多的查询。
+附：
+	记录Druid 监控URL数据、Spring方法没有数据排查过程
+
+		https://wangji.blog.csdn.net/article/details/82119102?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1.pc_relevant_default&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1.pc_relevant_default&utm_relevant_index=2
+	自定义过滤URI监控:
+		https://blog.csdn.net/zzzgd_666/article/details/104266365

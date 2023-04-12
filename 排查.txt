@@ -1,0 +1,17 @@
+todo：
+
+
+应急应用异常排查：
+    1. 服务器top命令截图 2. jstat 进程id 保存JVM实例的运行数据(线程状态) 3. druid等异常请求截图 4. 慢sql截图  5. 应用业务日志保存
+    1. 服务器top命令截图  3. druid等对异常请求截图 4. 慢sql截图  5. 应用业务日志保存  6. ng日志
+    2. jstack [pid] > /[pid].tdump      (线程状态)(pid 可通过 ps -ef | grep java查询，java是关键字 根据实际情况替换为tomcat等)
+
+
+？
+    jstack与jstat 实际。
+
+    jstat 和 jstack
+        https://blog.51cto.com/jerrymin/2352786
+
+        jstat “Java Virtual Machine statistics monitoring tool”查看gc的次数及时间，堆内存等。
+        jstack Java Virtual Machine Stack Trace for Java 显示虚拟机的线程快照

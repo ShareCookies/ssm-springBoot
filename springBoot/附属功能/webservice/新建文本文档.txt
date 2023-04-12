@@ -1,0 +1,32 @@
+spring项目搭建webService服务端, 并定义webService服务接口
+	https://blog.csdn.net/spring_is_coming/article/details/118361243
+
+IDEA利用wsdl文件生成WebService调用接口的方法
+	https://blog.csdn.net/qq_38853473/article/details/107664406
+
+
+
+Apache Axis2 的介绍:
+     http://ws.apache.org/axis2
+
+Apache Axis 官网：
+    https://axis.apache.org/axis/java/developers-guide.html
+Apache Axis
+    https://blog.csdn.net/zhouqixiang/article/details/1943096
+     Apache Axis 是开源的 SOAP 服务器和客户端。
+        SOAP 是网络间不同语言的程序进行交互的方法。
+     SOAP 通常在 HTTP 上交换信息 : 客户端 POST 一个 SOAP 请求，然后接受 HTTP 响应， HTTP 的响应可能为成功代码、 SOAP 响应或者错误代码。
+     SOAP 消息的格式是 XML ，在不同的 SOAP 系统之间使用这种消息格式来对信息进行结构化。
+        消息在 SOAP Envelope 中包含一个或者多个 SOAP 元素， Header 或者 SOAP Body 。
+     附：
+        Axis 实现了 JAX-RPC API 。 JAX-RPC API 是 Java 服务编程的标准之一。
+        AXIS支持的标准是：W3C SOAP,WSDL,SAAJ( SUN公司：SOAP with Attachments API for Java);JAX-RPC(SUN公司：Java API for XML-Based RPC)。
+
+附：
+    使用postMan调用web services wsdl接口
+        https://www.cnblogs.com/rdchen/p/15075555.html
+附：
+    Axis设计基本原理
+        https://blog.csdn.net/bubei/article/details/2287723
+    apache axis 框架处理https请求时超时时间设置问题：
+        https://blog.csdn.net/jingyulanye/article/details/51445592?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-51445592-blog-2287723.pc_relevant_default&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ERate-1-51445592-blog-2287723.pc_relevant_default&utm_relevant_index=2

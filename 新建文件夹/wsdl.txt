@@ -1,0 +1,30 @@
+WebService
+	https://blog.csdn.net/c99463904/article/details/76018436
+	WSDL
+		WSDL(Web Services Description Language), web服务描述语言，他是webservice服务端使用说明书，说明服务端接口、方法、参数和返回值，WSDL是随服务发布成功，自动生成，无需编写。
+eclipse利用wsdl（URL或者wsdl文件）生成webService客户端代码
+	https://blog.csdn.net/qq_35377323/article/details/101674942?spm=1035.2023.3001.6557&utm_medium=distribute.pc_relevant_bbs_down.none-task-blog-2~default~OPENSEARCH~default-10.nonecase&depth_1-utm_source=distribute.pc_relevant_bbs_down.none-task-blog-2~default~OPENSEARCH~default-10.nonecase
+	
+	使用IDEA根据wsdl生成WebServices客户端代码-Java
+		https://blog.csdn.net/vfsdfdsf/article/details/80426276
+
+浅析基于AXIS框架的WebService
+	https://www.cnblogs.com/silentdoer/p/8321421.html
+    ？Locator、Call、AuthWebService
+	Call
+		https://axis.apache.org/axis/java/apiDocs/org/apache/axis/client/Call.html
+
+
+	在Axis1中使用HTTP长连接
+		https://blog.csdn.net/iteye_11495/article/details/82636692
+		https://mvnrepository.com/artifact/commons-httpclient/commons-httpclient/3.1
+		例：
+            EngineConfiguration defaultConfig = EngineConfigurationFactoryFinder.newFactory().getClientEngineConfig();
+            SimpleProvider config = new SimpleProvider(defaultConfig);
+            config.deployTransport(HTTPTransport.DEFAULT_TRANSPORT_NAME,new CommonsHTTPSender());
+            AuthLocator locator = new AuthLocator(config);
+		附：
+			https://blog.csdn.net/iteye_7134/article/details/82308444?spm=1001.2101.3001.6650.5&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EESLANDING%7Edefault-5-82308444-blog-82636692.pc_relevant_landingrelevant&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EESLANDING%7Edefault-5-82308444-blog-82636692.pc_relevant_landingrelevant&utm_relevant_index=6
+			https://www.cnblogs.com/qqzy168/p/3193585.html
+
+
